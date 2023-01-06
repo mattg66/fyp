@@ -1,0 +1,86 @@
+\chapter{Literature Review}
+\label{chap:litreview}
+The aim of this literature review is to research and analyse existing
+solutions, documentation and research on the automation of networking
+infrastructure. To ensure this review is of maximum usefulness, it will also
+involve analysing best practises and standards when developing software and
+automation solutions. This will allow for the optimisation of the planning and
+implementation stages of the project that will subsequently follow.
+
+Sources for this review will be from relevant books, online websites,
+professional publications and Request for Comments. Multiple services will be
+used to identify and obtain sources that can be used for the purposes of this
+review.
+\begin{itemize}
+    \item Google Scholar
+    \item IEEE Explore
+    \item ResearchGate
+    \item University of Portsmouth Library
+\end{itemize}
+Research was conducted that was related to the following set of topics:
+\begin{itemize}
+    \item What is software defined networking?
+    \item What types of software defined networking exist?
+    \item What are the advantages and disadvantages?
+\end{itemize}
+
+\section{Definition of Software Defined Networks}
+\label{litreview:definition}
+
+All industry experts and academics define software defined networking
+similarly, that is providing automation and intelligence to networks via the
+means of software and APIs.~\citet{11} state that ``SDN was originally coined
+to represent the ideas and work around OpenFlow at Stanford University''.\\ SDN
+is often defined using four pillars, \citet{11} define these as the following:
+\begin{enumerate}
+    \item ``The control and data planes are decoupled. Control functionality is
+          removed from network devices that will become simple (packet)
+          forwarding
+          elements''
+    \item ``Forwarding decisions are flow based, instead of destination based.
+          A flow is broadly defined by a set of packet field values acting as a
+          match
+          (filter) criterion and a set of actions (instructions)''
+    \item ``Control logic is moved to an external entity, theso-called SDN
+          controller''
+    \item ``The network is programmable through software applications running
+          on top of the NOS that in-teracts with the underlying data plane
+          devices.''
+\end{enumerate}
+
+\section{Overview of Software Defined Networks}
+\label{litreview:overview}
+
+Since this project is centred around software defined networking and the
+automation of these networks, it is critical to ensure that the principles and
+their method of operations are understood.\\
+An official survey paper from the IEEE that analysed the state of SDN provides
+a good explanation as to why the need for network programmability arose in the
+first place. Conventionally, “Computer networks are typically built from a
+large number of network devices such as routers, switches and numerous types of
+middleboxes”~\cite{1}. \citet{1} go on to state that due to the large
+amount of manual configuration required to achieve the desired traffic flow,
+“network management and performance tuning is quite challenging and thus
+error-prone”.
+This leads to one of the solutions, Software Defined Networking. “Software
+Defined Networking (SDN) is a new networking paradigm which the forwarding
+hardware is decoupled from control decisions. It promises to dramatically
+simplify network management and enable innovation and evolution”. Software
+defined networking “is designed to use standardized application programming
+interfaces (APIs) to quickly allow network programmers to define and
+reconfigure the way data or resources are handled within a network.” \cite{9}
+
+\section{Types of Software Defined Networks}
+\label{litreview:types}
+
+Software Defined Networking is a blanket term for any solution that tackles
+conventional networking with a programmatic view. There are ``the two main
+delivery models: Imperative and declarative'' \citet{10}. \citet{10} go on to
+state that Imperative SDN is
+where ``A centralized controller (typically a clustered set of controllers)
+functions as the network’s ‘brain’'' and that declarative SDN is where
+``the intelligence is distributed out to the network fabric. While policy is
+centralized, policy enforcement isn’t''. \citet{10} give ``a protocol such as
+OpenFlow explicitly
+telling network switches precisely what to do and how to do it'' to be an
+example of imperative SDN.

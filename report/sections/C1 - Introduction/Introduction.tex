@@ -1,0 +1,40 @@
+\chapter{Introduction}
+\label{chap:intro}
+
+\section{The Client}
+\label{intro:client}
+
+The client is CX Labs UK within Cisco Systems. CX Labs provides lab space for
+use by business units internal to the company. Most of the space is used for
+the testing of customer networks by SVS (Solution Validation Services). SVS
+provide bespoke testing services to customers wishing to use Cisco’s expertise
+to test a range of situations, from regression and firmware testing to full
+upgrade and migration plans.\newline
+In order to match the customers environment as close as possible, a scaled down
+version of the customers network is usually recreated in the lab space managed
+by CX Labs. CX Labs hold many devices that cover most of the Cisco portfolio,
+which allows for the recreation of most networks. Most of this lab space is
+hosted within the internal Cisco corporate network, which requires any users to
+be employees of Cisco in order to access testbeds. More and more customers
+however are requesting remote access to their testbeds. To facilitate this, a
+fully isolated DMZ environment is provided, which allows direct WAN
+connectivity to a testbed, allowing for a VPN tunnel to be established and
+hence remote access granted to a testbed from any location to any permitted
+person.
+
+\section{The Problem}
+\label{intro:problem}
+
+Currently the solution for the DMZ network infrastructure consists of 4 Nexus
+9K devices, with FEXs for RJ45 connectivity and 2960S ToR switches. Whilst this
+solution is functional and works, the major downside is that there is no
+automation or configuration management solution deployed. This means over time,
+configuration drift occurs as manual changes are made, but not made the same to
+all switches. Unused VLANs are also not removed from the switches which leads
+to bloat and a larger configuration than is required. The same situation also
+occurs on vCenter with the configuration of the DPGs within the DVS where
+unused DPGs are never removed or are labelled incorrectly.\newline
+The manual configuration of the required routing and VPN termination as well as
+other lab requirements such as a NTP, DNS and RADIUS all take a lot of time to
+configure. This time could be better utilised, such as preparing the physical
+rack space for the racking and stacking of new equipment.
