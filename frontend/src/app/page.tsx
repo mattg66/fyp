@@ -1,17 +1,14 @@
-import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from '@next/font/google'
-import styles from '../styles/Home.module.css'
+import { Alert, Button } from 'flowbite-react'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
-
   return (
     <>
-      <h1 className="text-center">test</h1>
       <div>
-
+        
       </div>
     </>
   )
