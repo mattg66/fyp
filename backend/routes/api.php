@@ -2,7 +2,9 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Test;
+use App\Http\Controllers\ACI\Status as ACIStatus;
+use App\Http\Controllers\VSphere\Status as VSphereStatus;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -17,5 +19,11 @@ use App\Http\Controllers\Test;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::get('/version', [Test::class, 'getVersion']);
-Route::get('/vms', [Test::class, 'getVMs']);
+Route::group(['prefix' => 'aci'], function () {
+    Route::get('/version', [ACIStatus::class, 'getVersion']);
+    Route::get('/health', [ACIStatus::class, 'getStatus']);
+});
+
+Route::group(['prefix' => 'vsphere'], function () {
+    Route::get('/health', [VSphereStatus::class, 'getStatus']);
+});

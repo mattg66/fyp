@@ -58,22 +58,32 @@ class ACIClient
         $data = json_decode($response->getBody());
         return $data->imdata[0]->topSystem->attributes->version;
     }
-
-    public function createTenant($name)
+    public function getHealth()
     {
-        $data = [
-            'fvTenant' => [
-                'attributes' => [
-                    'name' => $name,
-                ],
-            ],
-        ];
-        $response = $this->client->post('node/mo/uni.json', [
+        $response = $this->client->get('node/class/fabricHealthTotal.json', [
             'headers' => [
                 'Cookie' => 'APIC-Cookie=' . $this->authToken,
             ],
-            'json' => $data,
         ]);
-        return $response->getStatusCode() == 201;
+        $data = json_decode($response->getBody());
+        return $data->imdata[0]->fabricHealthTotal->attributes->cur;
+    }
+    public function getFabricHealth()
+    {
+        try {
+            $response = $this->client->get('node/class/fabricNode.json', [
+                'headers' => [
+                    'Cookie' => 'APIC-Cookie=' . $this->authToken,
+                ],
+            ]);
+            if ($response->getStatusCode() == 200) {
+                $data = json_decode($response->getBody());
+                return $data->imdata;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }

@@ -13,15 +13,14 @@ export const Nav = () => {
         { path: '/', name: 'Overview' },
         { path: '/projects', name: 'Projects' },
         { path: '/rackspace', name: 'Rackspace' },
-        { path: '/aci', name: 'ACI' },
-        { path: '/vcenter', name: 'vCenter' },
+        { path: '/connector/aci', name: 'ACI' },
+        { path: '/connector/vsphere', name: 'vSphere' },
     ]
-    console.log(theme)
 
     return (
         <Navbar
             fluid={false}
-            rounded={true}
+            rounded={false}
         >
             <Navbar.Brand>
                 <h1 className="text-2xl">DC Orchestrator</h1>
