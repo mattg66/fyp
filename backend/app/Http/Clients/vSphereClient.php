@@ -23,9 +23,7 @@ class vSphereClient
             'verify' => false,
         ]);
 
-        if (!$this->connect()) {
-            throw new APIClientException('Unable to connect to VSphere');
-        }
+        $this->connect();
     }
 
     protected function connect()
@@ -37,8 +35,8 @@ class vSphereClient
                     env('VSPHERE_PASSWORD'),
                 ],
             ]);
-        } catch (RequestException $e) {
-            return false;
+        } catch (\Exception $e) {
+            throw new APIClientException('Unable to connect to VSphere');
         }
 
         $responseData = json_decode($response->getBody(), true);
@@ -54,7 +52,7 @@ class vSphereClient
                     'vmware-api-session-id' => $this->authToken,
                 ],
             ]);
-        } catch (RequestException $e) {
+        } catch (\Exception $e) {
             throw new APIClientException('Unable to retrieve vSphere status');
         }
         $responseData = json_decode($response->getBody(), true);
@@ -74,7 +72,7 @@ class vSphereClient
                     'vmware-api-session-id' => $this->authToken,
                 ],
             ]);
-        } catch (RequestException $e) {
+        } catch (\Exception $e) {
             throw new APIClientException('Unable to retreive list of VMs');
         }
 

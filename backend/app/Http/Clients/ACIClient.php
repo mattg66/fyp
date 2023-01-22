@@ -20,9 +20,7 @@ class ACIClient
             ],
             'verify' => false,
         ]);
-        if (!$this->connect()) {
-            throw new APIClientException('Unable to connect to APIC');
-        }
+        $this->connect();
     }
     protected function connect()
     {
@@ -45,7 +43,7 @@ class ACIClient
                 return false;
             }
         } catch (\Exception $e) {
-            return false;
+            throw new APIClientException('Unable to connect to APIC');
         }
     }
     public function getApicVersion()

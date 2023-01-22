@@ -10,5 +10,10 @@ module.exports = {
   darkMode: 'class',
   plugins: [
     require('flowbite/plugin')
-  ]
+  ],
+  variants: {
+    extend: {
+      display: ["group-hover"],
+    },
+  },
 }

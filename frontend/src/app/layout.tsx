@@ -16,9 +16,11 @@ export default function RootLayout({
       */}
       <head />
       <body>
-        <ThemeProvider attribute='class'>
-          <Nav />
-          {children}
+        <ThemeProvider attribute='class' enableSystem={true}>
+          <div className="flex flex-col h-screen">
+            <Nav />
+            {children}
+          </div>
         </ThemeProvider>
       </body>
     </html>
