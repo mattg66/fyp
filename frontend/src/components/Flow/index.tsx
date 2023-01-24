@@ -8,6 +8,7 @@ import { useTheme } from 'next-themes';
 import Drag from './Drag';
 import RackNode from './RackNode';
 import LabelNode from './LabelNode';
+import { DeleteModal } from '../DeleteModal';
 interface ControlsProps {
     theme: Theme
 }
@@ -55,7 +56,8 @@ const Flow = () => {
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance>();
     const reactFlowWrapper = useRef<ReactFlowRefType>(null);
-    const [updateNode, setUpdateNode] = useState<UpdateNode>();
+
+    const [deleteModal, setDeleteModal] = useState<UpdateNode>();
 
 
     const onDragOver = useCallback((event: any) => {
@@ -80,6 +82,10 @@ const Flow = () => {
         );
     };
 
+    const deleteNode = (id: string) => {
+        setNodes((nds) => nds.filter((node) => node.id !== id));
+    };
+
     const onDrop = useCallback(
         (event: any) => {
             event.preventDefault();
@@ -96,33 +102,33 @@ const Flow = () => {
                     x: event.clientX - reactFlowBounds.left,
                     y: event.clientY - reactFlowBounds.top,
                 });
-                const newNode = {
+                let newNode = {
                     id: getId(),
                     type,
                     position,
-                    data: { label: 'test', onChange: onChange },
-                };
+                    data: { label: 'New Label', onChange: onChange, delete: deleteNode },
+                };;
+                if (type === 'rackNode') {
+                    newNode = {
+                        id: getId(),
+                        type,
+                        position,
+                        data: { label: 'New Rack', onChange: onChange, delete: deleteNode },
+                    };
+                } else if (type === 'labelNode') {
+                    newNode = {
+                        id: getId(),
+                        type,
+                        position,
+                        data: { label: 'New Label', onChange: onChange, delete: deleteNode },
+                    };
+                }
 
                 setNodes((nds) => nds.concat(newNode));
             }
         },
         [reactFlowInstance]
     );
-
-    useEffect(() => {
-        setNodes((nds) =>
-            nds.map((node) => {
-                if (node.id === updateNode?.id.toString()) {
-                    node.data = {
-                        ...node.data,
-                        label: updateNode?.data.label,
-                    };
-                }
-
-                return node;
-            })
-        );
-    }, [updateNode, setNodes]);
 
     return (
         <ThemeProvider theme={flowTheme}>
@@ -149,7 +155,6 @@ const Flow = () => {
                     <Background color={resolvedTheme === 'dark' ? "#fff" : "#000"} gap={40} />
                 </ReactFlow>
             </div>
-            <input onChange={(e) => setUpdateNode({ id: 'dndnode_0', data: { label: e.target.value } })} value={updateNode?.data.label} />
         </ThemeProvider>
     )
 }
