@@ -14,6 +14,9 @@ class vSphereClient
 
     public function __construct()
     {
+        if (env('VSPHERE_IPADDR') == null || env('VSPHERE_USERNAME') == null || env('VSPHERE_PASSWORD') == null) {
+            throw new APIClientException('vSphere credentials not set');
+        }
         $this->client = new Client([
             'base_uri' => 'https://' . env('VSPHERE_IPADDR') . '/',
             'headers' => [

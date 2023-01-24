@@ -20,7 +20,7 @@ export default memo(({ data, id }: any) => {
         <>
             <form className="group" onSubmit={submit}>
                 {edit ? <input type="text" className="dark:text-black nodrag" value={data.label} onChange={(e) => data.onChange(e, id)} /> : <p>{data.label}</p>}
-                <div className={clsx("group-hover:flex flex-wrap gap-2", !edit && 'hidden', edit && 'flex')}>
+                <div className={clsx("group-hover:flex flex-wrap gap-2 pt-2", !edit && 'hidden', edit && 'flex')}>
                     <Button className={clsx('nodrag', edit ? 'inline' : 'hidden')} type="submit">Save</Button>
                     <Button className={clsx('nodrag', edit ? 'hidden' : 'inline')} onClick={() => setEdit(!edit)}>Edit</Button>
                     <Button className='inline nodrag' color="failure" onClick={() => setDeleteOpen(true)}>Delete</Button>

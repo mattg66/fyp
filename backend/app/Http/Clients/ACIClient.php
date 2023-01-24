@@ -12,6 +12,9 @@ class ACIClient
 
     public function __construct()
     {
+        if (env('APIC_IPADDR') == null || env('APIC_USERNAME') == null || env('APIC_PASSWORD') == null) {
+            throw new APIClientException('APIC credentials not set');
+        }
         $this->client = new Client([
             'base_uri' => 'https://' . env('APIC_IPADDR') .  '/api/',
             'headers' => [
