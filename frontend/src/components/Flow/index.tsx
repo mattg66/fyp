@@ -75,7 +75,7 @@ const Flow = () => {
                     ...node,
                     data: {
                         ...node.data,
-                        label: event.target.value,
+                        ...event,
                     },
                 };
             })

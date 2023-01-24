@@ -3,10 +3,11 @@ import { Button } from 'flowbite-react';
 import React, { memo, useState } from 'react';
 import { Handle } from 'reactflow';
 import { DeleteModal } from '../DeleteModal';
+import { EditModal } from './EditRackModal';
 
 export default memo(({ data, id }: any) => {
-  const [edit, setEdit] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
   //data.delete(id)
   const deleteLabel = () => {
     data.delete(id)
@@ -14,20 +15,20 @@ export default memo(({ data, id }: any) => {
   }
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
-    setEdit(!edit)
+    setEditOpen(!editOpen)
   }
   return (
     <>
-      <form className="group" onSubmit={submit}>
-        <div className="border h-40 w-20 bg-white dark:bg-gray-800 flex items-center justify-center">
-          {edit ? <input type="text" className="dark:text-black nodrag" value={data.label} onChange={(e) => data.onChange(e, id)} /> : <p>{data.label}</p>}
+      <div className="group">
+        <div className="border h-40 w-20 bg-white dark:bg-gray-800 flex items-center justify-center text-center">
+          <p>{data.label}</p>
         </div>
-        <div className={clsx("group-hover:flex flex-wrap gap-2 pt-2", !edit && 'hidden', edit && 'flex')}>
-          <Button className={clsx('nodrag', edit ? 'inline' : 'hidden')} type="submit">Save</Button>
-          <Button className={clsx('nodrag', edit ? 'hidden' : 'inline')} onClick={() => setEdit(!edit)}>Edit</Button>
+        <div className='group-hover:flex flex-wrap gap-2 pt-2 hidden'>
+          <Button className='nodrag inline' onClick={() => setEditOpen(!editOpen)}>Edit</Button>
           <Button className='inline nodrag' color="failure" onClick={() => setDeleteOpen(true)}>Delete</Button>
         </div>
-      </form>
+      </div>
+      {editOpen && <EditModal isOpen={editOpen} close={() => setEditOpen(false)} confirm={deleteLabel} data={data} id={id} />}
       {deleteOpen && <DeleteModal isOpen={deleteOpen} close={() => setDeleteOpen(false)} confirm={deleteLabel} label={data.label} />}
     </>
   );
