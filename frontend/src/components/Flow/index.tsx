@@ -86,6 +86,12 @@ const Flow = () => {
         setNodes((nds) => nds.filter((node) => node.id !== id));
     };
 
+    interface NewNode {
+        id: string;
+        type: string;
+        position: { x: number; y: number };
+        data: { label: string; tor?: string; ts?: string; onChange: (event: any, id: string) => void; delete: (id: string) => void };
+    }
     const onDrop = useCallback(
         (event: any) => {
             event.preventDefault();
@@ -102,18 +108,13 @@ const Flow = () => {
                     x: event.clientX - reactFlowBounds.left,
                     y: event.clientY - reactFlowBounds.top,
                 });
-                let newNode = {
-                    id: getId(),
-                    type,
-                    position,
-                    data: { label: 'New Label', onChange: onChange, delete: deleteNode },
-                };;
+                let newNode = {} as NewNode;
                 if (type === 'rackNode') {
                     newNode = {
                         id: getId(),
                         type,
                         position,
-                        data: { label: 'New Rack', onChange: onChange, delete: deleteNode },
+                        data: { label: 'New Rack', tor: "", ts: "", onChange: onChange, delete: deleteNode },
                     };
                 } else if (type === 'labelNode') {
                     newNode = {

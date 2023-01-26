@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { Button } from 'flowbite-react';
+import { Button, TextInput } from 'flowbite-react';
 import React, { memo, useEffect, useState } from 'react';
 import { Handle } from 'reactflow';
 import { DeleteModal } from '../DeleteModal';
@@ -27,8 +27,8 @@ export default memo(({ data, id }: any) => {
     }
     return (
         <>
-            <form className="group" onSubmit={submit}>
-                {edit ? <input type="text" className="dark:text-black nodrag" value={data.label} onChange={(e) => data.onChange({...data, label: e.target.value}, id)} /> : <p>{data.label}</p>}
+            <form className="group h-20 flex items-center justify-center" onSubmit={submit}>
+                {edit ? <TextInput type="text" className="dark:text-black nodrag" value={data.label} onChange={(e) => data.onChange({...data, label: e.target.value}, id)} /> : <p>{data.label}</p>}
                 <div className={clsx("group-hover:flex flex-wrap gap-2 pt-2", !edit && 'hidden', edit && 'flex')}>
                     <Button className={clsx('nodrag', edit ? 'inline' : 'hidden')} type="submit">Save</Button>
                     <Button color="gray" className={clsx('nodrag', edit ? 'inline' : 'hidden')} onClick={() => cancel()}>Cancel</Button>

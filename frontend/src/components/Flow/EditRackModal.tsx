@@ -1,4 +1,4 @@
-import { Button, Modal } from "flowbite-react"
+import { Button, Label, Modal, Select, TextInput } from "flowbite-react"
 import { useState } from "react"
 import { HiOutlineExclamationCircle } from "react-icons/hi"
 
@@ -35,12 +35,81 @@ export const EditModal = ({ isOpen, close, data, id }: DeleteModal) => {
         >
             <Modal.Header />
             <Modal.Body>
-                <div className="text-center">
+                <div className="">
                     <form onSubmit={submit}>
-                    <input type="text" className="dark:text-black nodrag" value={tempData.label} onChange={(e) => setTempData({...data, label: e.target.value})} />
+                        <div className="mb-2 block">
+                            <Label
+                                htmlFor="rackName"
+                                value="Rack Name"
+                            />
+                        </div>
+                        <TextInput
+                            id="rackName"
+                            type="text"
+                            placeholder="Rack"
+                            required={true}
+                            value={tempData.label}
+                            onChange={(e) => setTempData({ ...data, label: e.target.value })}
+                        />
+                        <div id="select">
+                            <div className="mb-2 mt-2 block">
+                                <Label
+                                    htmlFor="ToR"
+                                    value="ToR Leaf/FEX"
+                                />
+                            </div>
+                            <Select
+                                id="ToR"
+                                required={true}
+                                value={tempData.tor}
+                                onChange={(e) => setTempData({ ...data, tor: parseInt(e.target.value) })}
+                            >
+                                <option disabled value=""> -- Select a Leaf/FEX -- </option>
+                                <option value={1}>
+                                    United States
+                                </option>
+                                <option value={2}>
+                                    Canada
+                                </option>
+                                <option value={3}>
+                                    France
+                                </option>
+                                <option value={4}>
+                                    Germany
+                                </option>
+                            </Select>
+                        </div>
+                        <div id="select">
+                            <div className="mb-2 mt-2 block">
+                                <Label
+                                    htmlFor="TS"
+                                    value="Terminal Server"
+                                />
+                            </div>
+                            <Select
+                                id="TS"
+                                required={true}
+                                value={tempData.ts}
+                                onChange={(e) => setTempData({ ...data, ts: parseInt(e.target.value) })}
+                            >
+                                <option disabled value=""> -- Select a TS -- </option>
+                                <option value={1}>
+                                    United States
+                                </option>
+                                <option value={2}>
+                                    Canada
+                                </option>
+                                <option value={3}>
+                                    France
+                                </option>
+                                <option value={4}>
+                                    Germany
+                                </option>
+                            </Select>
+                        </div>
                     </form>
 
-                    <div className="flex justify-center gap-4">
+                    <div className="flex justify-center gap-4 mt-2">
                         <Button
                             onClick={save}
                         >

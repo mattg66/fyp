@@ -20,7 +20,7 @@ export default memo(({ data, id }: any) => {
   return (
     <>
       <div className="group">
-        <div className="border h-40 w-20 bg-white dark:bg-gray-800 flex items-center justify-center text-center">
+        <div className="border h-40 w-20 bg-white dark:bg-gray-800 flex items-center justify-center text-center text-ellipsis overflow-hidden">
           <p>{data.label}</p>
         </div>
         <div className='group-hover:flex flex-wrap gap-2 pt-2 hidden'>
