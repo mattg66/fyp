@@ -2,8 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ACI\Status as ACIStatus;
-use App\Http\Controllers\VSphere\Status as VSphereStatus;
+use App\Http\Controllers\ACI\StatusController as ACIStatus;
+use App\Http\Controllers\VSphere\StatusController as VSphereStatus;
 
 /*
 |--------------------------------------------------------------------------

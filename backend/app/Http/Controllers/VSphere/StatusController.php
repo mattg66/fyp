@@ -5,7 +5,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Clients\vSphereClient;
 
-class Status extends Controller
+class StatusController extends Controller
 {
     public function getStatus()
     {
