@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('label');
             $table->unsignedBigInteger('node_id');
             $table->timestamps();
-            $table->foreign('node_id')->references('id')->on('nodes')->delete('cascade');
+            $table->foreign('node_id')->references('id')->on('nodes')->onDelete('cascade');
         });
 
         Schema::create('labels', function (Blueprint $table) {
@@ -33,7 +33,7 @@ return new class extends Migration
             $table->string('label');
             $table->unsignedBigInteger('node_id');
             $table->timestamps();
-            $table->foreign('node_id')->references('id')->on('nodes')->delete('cascade');
+            $table->foreign('node_id')->references('id')->on('nodes')->onDelete('cascade');
         });
        
         Schema::create('tors', function (Blueprint $table) {

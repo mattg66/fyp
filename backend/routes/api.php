@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ACI\StatusController as ACIStatus;
+use App\Http\Controllers\NodeController;
 use App\Http\Controllers\VSphere\StatusController as VSphereStatus;
 
 /*
@@ -26,4 +27,12 @@ Route::group(['prefix' => 'aci'], function () {
 
 Route::group(['prefix' => 'vsphere'], function () {
     Route::get('/health', [VSphereStatus::class, 'getStatus']);
+});
+
+Route::group(['prefix' => 'node'], function () {
+    Route::post('/', [NodeController::class, 'create']);
+    Route::get('/{id}', [NodeController::class, 'getById']);
+    Route::patch('/{id}', [NodeController::class, 'updateById']);
+    Route::delete('/{id}', [NodeController::class, 'deleteById']);
+    Route::get('/', [NodeController::class, 'getAll']);
 });

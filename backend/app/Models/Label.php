@@ -12,4 +12,6 @@ class Label extends Model
     {
         return $this->belongsTo(Node::class);
     }
+
+    protected $hidden = ['node_id', 'id'];
 }

@@ -13,4 +13,5 @@ class ToR extends Model
     }
     
     use HasFactory;
+    protected $table = 'tors';
 }

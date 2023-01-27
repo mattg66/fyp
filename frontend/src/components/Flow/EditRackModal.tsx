@@ -1,5 +1,5 @@
 import { Button, Label, Modal, Select, TextInput } from "flowbite-react"
-import { useState } from "react"
+import { FormEvent, useState } from "react"
 import { HiOutlineExclamationCircle } from "react-icons/hi"
 
 interface DeleteModal {
@@ -11,19 +11,19 @@ interface DeleteModal {
 }
 interface Data {
     label: string,
-    onChange: (data: any, id: string) => void,
+    onChange: (data: any, id: string) => Promise<void>,
     tor?: number,
     ts?: number,
 }
 export const EditModal = ({ isOpen, close, data, id }: DeleteModal) => {
     const [tempData, setTempData] = useState<Data>(data)
-    const submit = (e: React.FormEvent) => {
+    const save = (e: FormEvent) => {
         e.preventDefault()
-        close
-    }
-    const save = () => {
-        data.onChange(tempData, id)
-        close()
+        data.onChange(tempData, id).then((result: any) => {
+            if (result) {
+                close()
+            }
+        })
     }
 
     return (
@@ -36,7 +36,7 @@ export const EditModal = ({ isOpen, close, data, id }: DeleteModal) => {
             <Modal.Header />
             <Modal.Body>
                 <div className="">
-                    <form onSubmit={submit}>
+                    <form onSubmit={save}>
                         <div className="mb-2 block">
                             <Label
                                 htmlFor="rackName"
@@ -47,6 +47,7 @@ export const EditModal = ({ isOpen, close, data, id }: DeleteModal) => {
                             id="rackName"
                             type="text"
                             placeholder="Rack"
+                            maxLength={50}
                             required={true}
                             value={tempData.label}
                             onChange={(e) => setTempData({ ...data, label: e.target.value })}
@@ -60,7 +61,6 @@ export const EditModal = ({ isOpen, close, data, id }: DeleteModal) => {
                             </div>
                             <Select
                                 id="ToR"
-                                required={true}
                                 value={tempData.tor}
                                 onChange={(e) => setTempData({ ...data, tor: parseInt(e.target.value) })}
                             >
@@ -88,7 +88,6 @@ export const EditModal = ({ isOpen, close, data, id }: DeleteModal) => {
                             </div>
                             <Select
                                 id="TS"
-                                required={true}
                                 value={tempData.ts}
                                 onChange={(e) => setTempData({ ...data, ts: parseInt(e.target.value) })}
                             >
@@ -111,7 +110,7 @@ export const EditModal = ({ isOpen, close, data, id }: DeleteModal) => {
 
                     <div className="flex justify-center gap-4 mt-2">
                         <Button
-                            onClick={save}
+                            type="submit"
                         >
                             Save
                         </Button>

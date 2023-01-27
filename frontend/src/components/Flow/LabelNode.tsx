@@ -19,16 +19,20 @@ export default memo(({ data, id }: any) => {
     }
     const cancel = () => {
         setEdit(!edit)
-        data.onChange(dataState, id)
+        setDataState(data)
     }
     const submit = (e: React.FormEvent) => {
         e.preventDefault()
-        setEdit(!edit)
+        data.onChange(dataState, id).then((result: boolean) => {
+            if (result) {
+                setEdit(!edit)
+            }
+        })
     }
     return (
         <>
-            <form className="group h-20 flex items-center justify-center" onSubmit={submit}>
-                {edit ? <TextInput type="text" className="dark:text-black nodrag" value={data.label} onChange={(e) => data.onChange({...data, label: e.target.value}, id)} /> : <p>{data.label}</p>}
+            <form className="group h-20" onSubmit={submit}>
+                {edit ? <TextInput type="text" className="dark:text-black nodrag flex items-center justify-center h-full" value={dataState.label} onChange={(e) => setDataState({...dataState, label: e.target.value})} /> : <p className="flex items-center justify-center h-full">{data.label}</p>}
                 <div className={clsx("group-hover:flex flex-wrap gap-2 pt-2", !edit && 'hidden', edit && 'flex')}>
                     <Button className={clsx('nodrag', edit ? 'inline' : 'hidden')} type="submit">Save</Button>
                     <Button color="gray" className={clsx('nodrag', edit ? 'inline' : 'hidden')} onClick={() => cancel()}>Cancel</Button>

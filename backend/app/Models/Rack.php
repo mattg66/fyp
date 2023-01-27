@@ -9,16 +9,7 @@ class Rack extends Model
 {
     use HasFactory;
 
-    public function racks()
-    {
-        return $this->hasMany(Rack::class);
-    }
 
-    public function labels()
-    {
-        return $this->hasMany(Label::class);
-    }
-    
     public function terminalServer()
     {
         return $this->hasOne(TerminalServer::class);
@@ -28,4 +19,6 @@ class Rack extends Model
     {
         return $this->hasOne(Tor::class);
     }
+
+    protected $hidden = ['node_id', 'id'];
 }

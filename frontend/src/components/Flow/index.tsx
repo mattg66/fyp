@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import ReactFlow, { useNodesState, useEdgesState, addEdge, MiniMap, Controls, ReactFlowProps, Background, ReactFlowActions, ReactFlowRefType, ReactFlowInstance } from 'reactflow';
+import ReactFlow, { useNodesState, useEdgesState, addEdge, MiniMap, Controls, ReactFlowProps, Background, ReactFlowActions, ReactFlowRefType, ReactFlowInstance, ReactFlowState, NodeDragHandler, Node } from 'reactflow';
 import styled, { ThemeProvider } from 'styled-components';
 import { darkTheme, lightTheme } from './Theme';
+import useSWR from 'swr'
 
 import 'reactflow/dist/style.css';
 import { useTheme } from 'next-themes';
@@ -9,6 +10,8 @@ import Drag from './Drag';
 import RackNode from './RackNode';
 import LabelNode from './LabelNode';
 import { DeleteModal } from '../DeleteModal';
+import { fetcher } from '@/app/utils/Fetcher';
+import { resolve } from 'node:path/win32';
 interface ControlsProps {
     theme: Theme
 }
@@ -17,13 +20,6 @@ interface Theme {
     controlsColor: string;
     controlsBorder: string;
     controlsBgHover: string;
-}
-interface UpdateNode {
-    id: string;
-    data: NodeData;
-}
-interface NodeData {
-    label: string;
 }
 const ControlsStyled = styled(Controls)`
   button {
@@ -42,7 +38,7 @@ const ControlsStyled = styled(Controls)`
 `;
 
 let id = 0;
-const getId = () => `dndnode_${id++}`;
+const getId = () => (id++).toString();
 
 const nodeTypes = {
     rackNode: RackNode,
@@ -56,34 +52,118 @@ const Flow = () => {
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance>();
     const reactFlowWrapper = useRef<ReactFlowRefType>(null);
+    const onNodeDragStop = (event: React.MouseEvent, node: Node) => {
+        const requestOptions = {
+            method: 'PATCH',
+            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ x: node.position.x, y: node.position.y })
+        };
+        fetch('/api/node/' + node.id, requestOptions)
 
-    const [deleteModal, setDeleteModal] = useState<UpdateNode>();
+    }
 
+    const { data } = useSWR('/api/node', fetcher, { suspense: true })
+
+    interface ServerNode {
+        id: number;
+        x: number;
+        y: number;
+        created_at: string;
+        updated_at: string;
+        rack?: Rack;
+        label?: Label;
+    }
+    interface Rack {
+        label: string;
+        tor_id?: number;
+        ts_id?: number;
+        created_at: string;
+        updated_at: string;
+    }
+    interface Label {
+        label: string;
+        created_at: string;
+        updated_at: string;
+    }
+
+    useEffect(() => {
+        if (data?.status) {
+            setNodes((nds) =>
+                data.json.map((node: ServerNode) => {
+                    return {
+                        id: (node.id).toString(),
+                        type: node.rack ? 'rackNode' : 'labelNode',
+                        position: { x: node.x, y: node.y },
+                        data: {
+                            label: node.rack ? node.rack.label : node.label?.label,
+                            tor: node.rack?.tor_id ? node.rack?.tor_id : '',
+                            ts: node.rack?.ts_id ? node.rack?.ts_id : '',
+                            onChange: onChange,
+                            delete: deleteNode,
+                        },
+                    };
+                })
+            );
+        }
+    }, [data])
 
     const onDragOver = useCallback((event: any) => {
         event.preventDefault();
         event.dataTransfer.dropEffect = 'move';
     }, []);
 
-    const onChange = (event: any, id: string) => {
-        setNodes((nds) =>
-            nds.map((node) => {
-                if (node.id !== id) {
-                    return node;
-                }
-                return {
-                    ...node,
-                    data: {
-                        ...node.data,
-                        ...event,
-                    },
-                };
+    interface NodeEvent {
+        label: string;
+        tor?: any;
+        ts?: any;
+        onChange: (event: any, id: any) => void;
+        delete: (id: any) => void;
+    }
+    const onChange = async (event: NodeEvent, id: string) => {
+        const requestOptions = {
+            method: 'PATCH',
+            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                label: event.label,
+                ...(event.tor ? { tor_id: parseInt(event.tor) } : {}),
+                ...(event.ts ? { ts_id: parseInt(event.ts) } : {})
             })
-        );
+        };
+        const response = await fetch('/api/node/' + id, requestOptions)
+        if (response.ok) {
+            const json = await response.json()
+            setNodes((nds) =>
+                nds.map((node) => {
+                    if (node.id !== id) {
+                        return node;
+                    }
+                    return {
+                        ...node,
+                        data: {
+                            ...node.data,
+                            ...event,
+                        },
+                    };
+                })
+            );
+            return true
+        } else {
+            return false
+        }
     };
 
     const deleteNode = (id: string) => {
-        setNodes((nds) => nds.filter((node) => node.id !== id));
+        const requestOptions = {
+            method: 'DELETE',
+            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        };
+        fetch('/api/node/' + id, requestOptions)
+            .then(response => response)
+            .then((response) => {
+                if (response.ok) {
+                    setNodes((nds) => nds.filter((node) => node.id !== id));
+                }
+            });
     };
 
     interface NewNode {
@@ -92,6 +172,34 @@ const Flow = () => {
         position: { x: number; y: number };
         data: { label: string; tor?: string; ts?: string; onChange: (event: any, id: string) => void; delete: (id: string) => void };
     }
+
+    interface NodeRequest {
+        id: number;
+        type: string;
+        x: number;
+        y: number;
+        label: string;
+        tor_id?: number;
+        ts_id?: number;
+    }
+
+    function formatNodeData(newNode: NewNode) {
+        let newNodeRequest: NodeRequest = {
+            id: parseInt(newNode.id),
+            type: newNode.type,
+            x: newNode.position.x,
+            y: newNode.position.y,
+            label: newNode.data.label,
+        }
+        if (newNode.data.tor) {
+            newNodeRequest.tor_id = parseInt(newNode.data.tor);
+        }
+        if (newNode.data.ts) {
+            newNodeRequest.ts_id = parseInt(newNode.data.ts);
+        }
+        return newNodeRequest;
+    }
+
     const onDrop = useCallback(
         (event: any) => {
             event.preventDefault();
@@ -111,21 +219,36 @@ const Flow = () => {
                 let newNode = {} as NewNode;
                 if (type === 'rackNode') {
                     newNode = {
-                        id: getId(),
+                        id: '',
                         type,
                         position,
                         data: { label: 'New Rack', tor: "", ts: "", onChange: onChange, delete: deleteNode },
                     };
                 } else if (type === 'labelNode') {
                     newNode = {
-                        id: getId(),
+                        id: '',
                         type,
                         position,
                         data: { label: 'New Label', onChange: onChange, delete: deleteNode },
                     };
                 }
 
-                setNodes((nds) => nds.concat(newNode));
+                const requestOptions = {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formatNodeData(newNode))
+                };
+                fetch('/api/node', requestOptions)
+                    .then(response => response)
+                    .then((response) => {
+                        if (response.ok) {
+                            let json = response.json()
+                            json.then((data) => {
+                                newNode.id = data.id.toString();
+                                setNodes((ns) => ns.concat(newNode));
+                            })
+                        }
+                    });
             }
         },
         [reactFlowInstance]
@@ -139,6 +262,7 @@ const Flow = () => {
                     edges={edges}
                     onNodesChange={onNodesChange}
                     onEdgesChange={onEdgesChange}
+                    onNodeDragStop={onNodeDragStop}
                     //onConnect={onConnect}
                     //style={{ background: bgColor }}
                     nodeTypes={nodeTypes}
