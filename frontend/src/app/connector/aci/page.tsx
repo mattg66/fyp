@@ -9,7 +9,7 @@ import { fetcher } from '@/app/utils/Fetcher';
 
 export default function Aci() {
     const { data } = useSWR('/api/aci/health', fetcher, { suspense: true })
-
+    console.log(data?.status)
     const [tableContent, setTableContent] = useState<RenderTableProps[]>([])
     useEffect(() => {
         if (data?.status) {
