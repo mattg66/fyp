@@ -15,6 +15,7 @@ export const Nav = () => {
         { path: '/rackspace', name: 'Rackspace' },
         { path: '/connector/aci', name: 'ACI' },
         { path: '/connector/vsphere', name: 'vSphere' },
+        { path: '/terminal-server', name: 'Terminal Servers' },
     ]
 
     return (

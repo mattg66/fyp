@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Loading from "./loading";
 
-export default function ConnectorLayout({
+export default function TerminalServersLayout({
   children,
 }: {
   children: React.ReactNode,
@@ -9,12 +9,10 @@ export default function ConnectorLayout({
 
   return (
     <>
-      <div className="container mx-auto mt-10">
-        <div className="max-w-5xl mx-auto ">
+      <div className="flex flex-grow">
           <Suspense fallback={<Loading />}>
             {children}
           </Suspense>
-        </div>
       </div>
     </>
   )
