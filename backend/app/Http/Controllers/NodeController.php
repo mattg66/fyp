@@ -7,25 +7,11 @@ use App\Models\Node;
 use App\Models\Rack;
 use App\Models\TerminalServer;
 use App\Models\ToR;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class NodeController extends Controller
 {
-    use ValidatesRequests;
-    public function getStatus()
-    {
-        // $client = new ACIClient();
-        // $version = $client->getApicVersion();
-        // $health = $client->getHealth();
-        // $fabricHealth = $client->getFabricHealth();
-        // return response()->json([
-        //     'version' => $version,
-        //     'health' => $health,
-        //     'fabricNodes' => $fabricHealth,
-        // ]);
-    }
     public function create(Request $request)
     {
         $this->validate($request, [
@@ -59,7 +45,7 @@ class NodeController extends Controller
                             'message' => 'Terminal Server not found',
                         ], 404);
                     }
-                    $ts->racks()->attach($rack_id);
+                    $ts->racks()->save($rack_id);
                 }
                 if ($request->has('tor_id')) {
                     $tor = ToR::find($request->tor_id);
@@ -69,7 +55,7 @@ class NodeController extends Controller
                             'message' => 'ToR not found',
                         ], 404);
                     }
-                    $tor->racks()->attach($rack_id);
+                    $tor->racks()->save($rack_id);
                 }
                 DB::commit();
                 return response()->json([

@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ACI\StatusController as ACIStatus;
 use App\Http\Controllers\NodeController;
+use App\Http\Controllers\TerminalServerController;
 use App\Http\Controllers\VSphere\StatusController as VSphereStatus;
 
 /*
@@ -35,4 +36,12 @@ Route::group(['prefix' => 'node'], function () {
     Route::patch('/{id}', [NodeController::class, 'updateById']);
     Route::delete('/{id}', [NodeController::class, 'deleteById']);
     Route::get('/', [NodeController::class, 'getAll']);
+});
+
+Route::group(['prefix' => 'ts'], function () {
+    Route::post('/', [TerminalServerController::class, 'create']);
+    Route::get('/{id}', [TerminalServerController::class, 'getById']);
+    Route::patch('/{id}', [TerminalServerController::class, 'updateById']);
+    Route::delete('/{id}', [TerminalServerController::class, 'deleteById']);
+    Route::get('/', [TerminalServerController::class, 'getAll']);
 });

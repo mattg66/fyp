@@ -106,21 +106,22 @@ export const EditModal = ({ isOpen, close, data, id }: DeleteModal) => {
                                 </option>
                             </Select>
                         </div>
+
+                        <div className="flex justify-center gap-4 mt-2">
+                            <Button
+                                type="submit"
+                            >
+                                Save
+                            </Button>
+                            <Button
+                                color="gray"
+                                onClick={close}
+                            >
+                                Cancel
+                            </Button>
+                        </div>
                     </form>
 
-                    <div className="flex justify-center gap-4 mt-2">
-                        <Button
-                            type="submit"
-                        >
-                            Save
-                        </Button>
-                        <Button
-                            color="gray"
-                            onClick={close}
-                        >
-                            Cancel
-                        </Button>
-                    </div>
                 </div>
             </Modal.Body>
         </Modal>

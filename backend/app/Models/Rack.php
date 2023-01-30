@@ -20,5 +20,10 @@ class Rack extends Model
         return $this->hasOne(Tor::class);
     }
 
+    public function node()
+    {
+        return $this->belongsTo(Node::class);
+    }
+
     protected $hidden = ['node_id', 'id'];
 }

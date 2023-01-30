@@ -8,7 +8,7 @@ export default function Rackspace() {
 
     return (
         <>
-                <Flow/>
+            <Flow/>
         </>
     )
 }

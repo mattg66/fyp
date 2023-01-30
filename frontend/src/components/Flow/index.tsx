@@ -11,7 +11,7 @@ import RackNode from './RackNode';
 import LabelNode from './LabelNode';
 import { DeleteModal } from '../DeleteModal';
 import { fetcher } from '@/app/utils/Fetcher';
-import { resolve } from 'node:path/win32';
+
 interface ControlsProps {
     theme: Theme
 }
@@ -52,6 +52,7 @@ const Flow = () => {
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance>();
     const reactFlowWrapper = useRef<ReactFlowRefType>(null);
+
     const onNodeDragStop = (event: React.MouseEvent, node: Node) => {
         const requestOptions = {
             method: 'PATCH',
@@ -88,7 +89,7 @@ const Flow = () => {
 
     useEffect(() => {
         if (data?.status) {
-            setNodes((nds) =>
+            setNodes(
                 data.json.map((node: ServerNode) => {
                     return {
                         id: (node.id).toString(),
@@ -131,7 +132,6 @@ const Flow = () => {
         };
         const response = await fetch('/api/node/' + id, requestOptions)
         if (response.ok) {
-            const json = await response.json()
             setNodes((nds) =>
                 nds.map((node) => {
                     if (node.id !== id) {

@@ -46,13 +46,13 @@ return new class extends Migration
         });
         Schema::create('terminal_servers', function (Blueprint $table) {
             $table->id();
-            $table->string('label');
+            $table->string('label')->nullable();
             $table->string('model');
             $table->string('username');
             $table->string('password');
-            $table->string('ip');
+            $table->string('ip')->unique();
             $table->timestamps();
-            $table->unsignedBigInteger('rack_id');
+            $table->unsignedBigInteger('rack_id')->nullable();
             $table->foreign('rack_id')->references('id')->on('racks');
         });
     }
