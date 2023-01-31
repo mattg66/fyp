@@ -256,6 +256,7 @@ const Flow = () => {
                             let json = response.json()
                             json.then((data) => {
                                 newNode.id = data.id.toString();
+                                console.log(data)
                                 setNodes((ns) => ns.concat(newNode));
                             })
                         }
