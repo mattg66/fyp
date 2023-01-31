@@ -37,9 +37,6 @@ const ControlsStyled = styled(Controls)`
   }
 `;
 
-let id = 0;
-const getId = () => (id++).toString();
-
 const nodeTypes = {
     rackNode: RackNode,
     labelNode: LabelNode,
@@ -245,6 +242,7 @@ const Flow = () => {
                             let json = response.json()
                             json.then((data) => {
                                 newNode.id = data.id.toString();
+                                console.log(data)
                                 setNodes((ns) => ns.concat(newNode));
                             })
                         }
