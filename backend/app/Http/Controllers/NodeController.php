@@ -60,7 +60,7 @@ class NodeController extends Controller
                 DB::commit();
                 return response()->json([
                     'message' => 'Rack created',
-                    'id' => $rack->id,
+                    'id' => $node->id,
                 ], 201);
             } catch (\Exception $e) {
                 DB::rollBack();
@@ -85,7 +85,7 @@ class NodeController extends Controller
                 DB::commit();
                 return response()->json([
                     'message' => 'Label created',
-                    'id' => $label->id,
+                    'id' => $node->id,
                 ], 201);
             } catch (\Exception $e) {
                 DB::rollBack();

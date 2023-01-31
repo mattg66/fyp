@@ -25,11 +25,10 @@ export default memo(({ data, id }: any) => {
         </div>
         <div className='group-hover:flex flex-wrap gap-2 pt-2 hidden'>
           <Button className='nodrag inline' onClick={() => setEditOpen(!editOpen)}>Edit</Button>
-          <Button className='inline nodrag' color="failure" onClick={() => setDeleteOpen(true)}>Delete</Button>
+          <Button className='inline nodrag' color="failure" onClick={() => data.delete({id: id, data: data})}>Delete</Button>
         </div>
       </div>
       {editOpen && <EditModal isOpen={editOpen} close={() => setEditOpen(false)} confirm={deleteLabel} data={data} id={id} />}
-      {deleteOpen && <DeleteModal isOpen={deleteOpen} close={() => setDeleteOpen(false)} confirm={deleteLabel} label={data.label} />}
     </>
   );
 });

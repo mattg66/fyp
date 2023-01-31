@@ -37,10 +37,8 @@ export default memo(({ data, id }: any) => {
                     <Button className={clsx('nodrag', edit ? 'inline' : 'hidden')} type="submit">Save</Button>
                     <Button color="gray" className={clsx('nodrag', edit ? 'inline' : 'hidden')} onClick={() => cancel()}>Cancel</Button>
                     <Button className={clsx('nodrag', edit ? 'hidden' : 'inline')} onClick={() => setEdit(!edit)}>Edit</Button>
-                    <Button className='inline nodrag' color="failure" onClick={() => setDeleteOpen(true)}>Delete</Button>
+                    <Button className='inline nodrag' color="failure" onClick={() => data.delete({id: id, data: dataState})}>Delete</Button>
                 </div>
-            </form>
-            {deleteOpen && <DeleteModal isOpen={deleteOpen} close={() => setDeleteOpen(false)} confirm={deleteLabel} label={data.label}/>}
-        </>
+            </form>        </>
     );
 });

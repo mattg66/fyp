@@ -37,19 +37,28 @@ const ControlsStyled = styled(Controls)`
   }
 `;
 
-let id = 0;
-const getId = () => (id++).toString();
-
 const nodeTypes = {
     rackNode: RackNode,
     labelNode: LabelNode,
 };
-
+export interface NewNode {
+    id: string;
+    type: string;
+    position: { x: number; y: number };
+    data: { label: string; tor?: string; ts?: string; onChange: (event: any, id: string) => void; delete: (node: NewNode) => void };
+}
 const Flow = () => {
     const { resolvedTheme } = useTheme()
     const flowTheme = resolvedTheme === 'light' ? lightTheme : darkTheme;
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+
+    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [deleteNodeObj, setDeleteNodeObj] = useState<Node>();
+
+    const [editRackOpen, setEditRackOpen] = useState(false);
+    const [editRackObj, setEditRackObj] = useState<Node>();
+
     const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance>();
     const reactFlowWrapper = useRef<ReactFlowRefType>(null);
 
@@ -152,26 +161,28 @@ const Flow = () => {
         }
     };
 
-    const deleteNode = (id: string) => {
+    const deleteNode = (node: NewNode) => {
+        setDeleteNodeObj(node)
+        setDeleteOpen(true)
+    };
+
+    const deleteRequest = () => {
         const requestOptions = {
             method: 'DELETE',
             headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
         };
-        fetch('/api/node/' + id, requestOptions)
+        fetch('/api/node/' + deleteNodeObj?.id, requestOptions)
             .then(response => response)
             .then((response) => {
                 if (response.ok) {
-                    setNodes((nds) => nds.filter((node) => node.id !== id));
+                    setDeleteOpen(false)
+                    setDeleteNodeObj(undefined)
+                    setNodes((nds) => nds.filter((node) => node.id !== deleteNodeObj?.id));
                 }
             });
-    };
-
-    interface NewNode {
-        id: string;
-        type: string;
-        position: { x: number; y: number };
-        data: { label: string; tor?: string; ts?: string; onChange: (event: any, id: string) => void; delete: (id: string) => void };
     }
+
+    
 
     interface NodeRequest {
         id: number;
@@ -255,32 +266,35 @@ const Flow = () => {
     );
 
     return (
-        <ThemeProvider theme={flowTheme}>
-            <div className="reactflow-wrapper h-full w-full" ref={reactFlowWrapper}>
-                <ReactFlow
-                    nodes={nodes}
-                    edges={edges}
-                    onNodesChange={onNodesChange}
-                    onEdgesChange={onEdgesChange}
-                    onNodeDragStop={onNodeDragStop}
-                    //onConnect={onConnect}
-                    //style={{ background: bgColor }}
-                    nodeTypes={nodeTypes}
-                    //connectionLineStyle={connectionLineStyle}
-                    snapToGrid={true}
-                    snapGrid={[40, 40]}
-                    attributionPosition="bottom-left"
-                    onInit={setReactFlowInstance}
-                    onDrop={onDrop}
-                    onDragOver={onDragOver}
-                >
-                    <ControlsStyled>
-                        <Drag />
-                    </ControlsStyled>
-                    <Background color={resolvedTheme === 'dark' ? "#fff" : "#000"} gap={40} />
-                </ReactFlow>
-            </div>
-        </ThemeProvider>
+        <>
+            <ThemeProvider theme={flowTheme}>
+                <div className="reactflow-wrapper h-full w-full" ref={reactFlowWrapper}>
+                    <ReactFlow
+                        nodes={nodes}
+                        edges={edges}
+                        onNodesChange={onNodesChange}
+                        onEdgesChange={onEdgesChange}
+                        onNodeDragStop={onNodeDragStop}
+                        //onConnect={onConnect}
+                        //style={{ background: bgColor }}
+                        nodeTypes={nodeTypes}
+                        //connectionLineStyle={connectionLineStyle}
+                        snapToGrid={true}
+                        snapGrid={[40, 40]}
+                        attributionPosition="bottom-left"
+                        onInit={setReactFlowInstance}
+                        onDrop={onDrop}
+                        onDragOver={onDragOver}
+                    >
+                        <ControlsStyled>
+                            <Drag />
+                        </ControlsStyled>
+                        <Background color={resolvedTheme === 'dark' ? "#fff" : "#000"} gap={40} />
+                    </ReactFlow>
+                </div>
+            </ThemeProvider>
+            <DeleteModal isOpen={deleteOpen} close={() => setDeleteOpen(false)} confirm={deleteRequest} node={deleteNodeObj}/>
+        </>
     )
 }
 export default Flow;
