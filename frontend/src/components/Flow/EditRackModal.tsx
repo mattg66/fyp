@@ -1,7 +1,9 @@
+import { fetcher } from "@/app/utils/Fetcher"
 import { Button, Label, Modal, Select, TextInput } from "flowbite-react"
 import { FormEvent, useState } from "react"
 import { HiOutlineExclamationCircle } from "react-icons/hi"
-
+import useSWR from 'swr'
+ 
 interface DeleteModal {
     isOpen: boolean,
     close: () => void,
@@ -17,6 +19,7 @@ interface Data {
 }
 export const EditModal = ({ isOpen, close, data, id }: DeleteModal) => {
     const [tempData, setTempData] = useState<Data>(data)
+    const { data: terminalServers } = useSWR('/api/ts?withoutRack&rackId=' + id, fetcher, { suspense: true })
     const save = (e: FormEvent) => {
         e.preventDefault()
         data.onChange(tempData, id).then((result: any) => {
@@ -86,24 +89,18 @@ export const EditModal = ({ isOpen, close, data, id }: DeleteModal) => {
                                     value="Terminal Server"
                                 />
                             </div>
+                            {console.log(tempData)}
                             <Select
                                 id="TS"
                                 value={tempData.ts}
                                 onChange={(e) => setTempData({ ...data, ts: parseInt(e.target.value) })}
                             >
-                                <option disabled value=""> -- Select a TS -- </option>
-                                <option value={1}>
-                                    United States
-                                </option>
-                                <option value={2}>
-                                    Canada
-                                </option>
-                                <option value={3}>
-                                    France
-                                </option>
-                                <option value={4}>
-                                    Germany
-                                </option>
+                                <option value=" "> -- Select a TS -- </option>
+                                {terminalServers?.json.map((ts: any) => (
+                                    <option value={ts.id}>
+                                        {ts.label}
+                                    </option>
+                                ))}
                             </Select>
                         </div>
 

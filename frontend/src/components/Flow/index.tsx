@@ -11,6 +11,7 @@ import RackNode from './RackNode';
 import LabelNode from './LabelNode';
 import { DeleteModal } from '../DeleteModal';
 import { fetcher } from '@/app/utils/Fetcher';
+import { toast } from 'react-toastify';
 
 interface ControlsProps {
     theme: Theme
@@ -69,7 +70,6 @@ const Flow = () => {
             body: JSON.stringify({ x: node.position.x, y: node.position.y })
         };
         fetch('/api/node/' + node.id, requestOptions)
-
     }
 
     const { data } = useSWR('/api/node', fetcher, { suspense: true })
@@ -89,6 +89,11 @@ const Flow = () => {
         ts_id?: number;
         created_at: string;
         updated_at: string;
+        terminal_server?: TerminalServer;
+    }
+    interface TerminalServer {
+        label: string;
+        id: number;
     }
     interface Label {
         label: string;
@@ -107,7 +112,7 @@ const Flow = () => {
                         data: {
                             label: node.rack ? node.rack.label : node.label?.label,
                             tor: node.rack?.tor_id ? node.rack?.tor_id : '',
-                            ts: node.rack?.ts_id ? node.rack?.ts_id : '',
+                            ts: node.rack?.terminal_server?.id ? node.rack?.terminal_server?.id : '',
                             onChange: onChange,
                             delete: deleteNode,
                         },
@@ -135,8 +140,8 @@ const Flow = () => {
             headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 label: event.label,
-                ...(event.tor ? { tor_id: parseInt(event.tor) } : {}),
-                ...(event.ts ? { ts_id: parseInt(event.ts) } : {})
+                tor_id: event.tor,
+                ts_id: event.ts,
             })
         };
         const response = await fetch('/api/node/' + id, requestOptions)
@@ -157,7 +162,10 @@ const Flow = () => {
             );
             return true
         } else {
-            return false
+            response.json().then((data) => {
+                toast.warn(data.message)
+                return false
+            })
         }
     };
 

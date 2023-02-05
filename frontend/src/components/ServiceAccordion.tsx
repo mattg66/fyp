@@ -30,7 +30,7 @@ export const ServiceAccordion = (props: { data: Array<Service>, className?: stri
                 <Accordion.Content>
                     <RenderTable data={props.data?.map(element => ({
                         rowText: element.name,
-                        element: <Accordion className={clsx(props.className)} alwaysOpen={true} >
+                        element: <Accordion className={clsx(props.className, '!mt-0')} alwaysOpen={true} >
                         <Accordion.Panel isOpen={false} >
                             <Accordion.Title className="focus:ring-0">
                                 <StatusDot color={element.health === 'HEALTHY' ? 'green-500' : 'red-600'} />

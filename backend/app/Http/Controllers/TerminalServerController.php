@@ -15,12 +15,12 @@ class TerminalServerController extends Controller
     public function create(Request $request)
     {
         $this->validate($request, [
-            'label' => 'max:50',
+            'label' => 'required|max:50',
             'model' => 'required|max:50',
             'username' => 'required|max:50',
             'password' => 'required|max:50',
             'ip' => 'required|ip',
-            'rack_id' => 'numeric',
+            'rack_id' => 'max:50',
         ]);
 
         if (TerminalServer::where('ip', $request->ip)->first() != null) {
@@ -30,12 +30,16 @@ class TerminalServerController extends Controller
         }
 
         $rack = null;
-        if ($request->has('rack_id')){
-            $rack = Rack::find($request->rack_id);
+        if ($request->has('rack_id') && $request->rack_id != null) {
+            $rack = Rack::find(intval($request->rack_id));
             if ($rack == null) {
                 return response()->json([
                     'message' => 'Rack not found',
                 ], 404);
+            } else if ($rack->terminalServer() != null) {
+                return response()->json([
+                    'message' => 'Rack already has a Terminal Server',
+                ], 400);
             }
         }
         $ts = new TerminalServer();
@@ -46,17 +50,28 @@ class TerminalServerController extends Controller
         $ts->ip = $request->ip;
         $ts->save();
 
-        if ($request->has('rack_id')){
-            $rack->terminalServer()->save($ts->id);
+        if ($request->has('rack_id') && $request->rack_id != null) {
+            $rack->terminalServer()->save($ts);
         }
+        $ts = TerminalServer::with('rack')->find($ts->id);
         return response()->json([
             $ts,
         ], 201);
     }
-    public function getAll()
+    public function getAll(Request $request)
     {
-        $ts = TerminalServer::with('rack')->get();
-        return response()->json($ts, 200);
+        if ($request->has('withoutRack')) {
+            if ($request->has('rackId')) {
+                $ts = TerminalServer::where('rack_id', null)->orWhere('rack_id', '=', $request->rackId)->get();
+                return response()->json($ts, 200);
+            } else {
+                $ts = TerminalServer::where('rack_id', null)->get();
+                return response()->json($ts, 200);
+            }
+        } else {
+            $ts = TerminalServer::with('rack')->get();
+            return response()->json($ts, 200);
+        }
     }
     public function getById($id)
     {
@@ -85,13 +100,18 @@ class TerminalServerController extends Controller
                 'message' => 'Terminal Server not found',
             ], 404);
         }
-        if ($request->has('rack_id')){
+        if ($request->has('rack_id')) {
             $rack = Rack::find($request->rack_id);
             if ($rack == null) {
                 return response()->json([
                     'message' => 'Rack not found',
                 ], 404);
-            } else {
+            } else if ($rack->terminalServer() !== null) {
+                return response()->json([
+                    'message' => 'Rack already has a Terminal Server',
+                ], 400);
+            } 
+            else {
                 $rack->terminalServer()->save($ts);
             }
         }

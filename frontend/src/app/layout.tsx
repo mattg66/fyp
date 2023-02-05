@@ -1,6 +1,7 @@
 import { Nav } from './clientUtils'
-import { ThemeProvider } from './clientUtils'
+import { ThemeProvider, Toast } from './clientUtils'
 import './globals.css'
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function RootLayout({
   children,
@@ -17,6 +18,7 @@ export default function RootLayout({
       <head />
       <body>
         <ThemeProvider attribute='class' enableSystem={true}>
+          <Toast/>
           <div className="flex flex-col h-screen">
             <Nav />
             {children}

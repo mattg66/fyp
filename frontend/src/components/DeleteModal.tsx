@@ -6,7 +6,7 @@ interface DeleteModal {
     isOpen: boolean,
     close: () => void,
     confirm: () => void,
-    node: NewNode
+    node?: NewNode
 }
 export const DeleteModal = ({ isOpen, close, confirm, node }: DeleteModal) => {
     return (

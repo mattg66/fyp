@@ -100,7 +100,6 @@ class NodeController extends Controller
         }
     }
 
-
     public function getById($id)
     {
         $node = Node::find($id);
@@ -111,9 +110,10 @@ class NodeController extends Controller
         }
         return response()->json($node);
     }
+
     public function getAll()
     {
-        $nodes = Node::with('rack', 'label')->get();
+        $nodes = Node::with('rack', 'label', 'rack.terminalServer')->get();
         foreach ($nodes as $node) {
             if ($node->label == null) {
                 unset($node->label);
@@ -130,8 +130,8 @@ class NodeController extends Controller
             'label' => 'max:50',
             'x' => 'numeric',
             'y' => 'numeric',
-            'ts_id' => 'numeric',
-            'tor_id' => 'numeric',
+            'ts_id' => 'numeric|nullable',
+            'tor_id' => 'numeric|nullable',
         ]);
         $node = Node::with('rack', 'label')->find($id);
         if ($node == null) {
@@ -153,7 +153,7 @@ class NodeController extends Controller
                 $node->rack->save();
             }
         }
-        if ($request->has('tor_id')) {
+        if ($request->has('tor_id') && $request->tor_id != null) {
             $tor = ToR::find($request->tor_id);
             if ($tor == null) {
                 return response()->json([
@@ -165,16 +165,26 @@ class NodeController extends Controller
                 $node->rack->tors()->attach($tor->id);
             }
         }
-        if ($request->has('ts_id')){
-            $ts = TerminalServer::find($request->ts_id);
-            if ($ts == null) {
-                return response()->json([
-                    'message' => 'Terminal Server not found',
-                ], 404);
-            }
-            if ($node->rack != null) {
-                $node->rack->terminalServers()->detach();
-                $node->rack->terminalServers()->attach($ts->id);
+        if ($request->has('ts_id')) {
+            if ($request->ts_id == null) {
+                if ($node->rack != null) {
+                    TerminalServer::where('rack_id', $node->rack->id)->update(['rack_id' => null]);
+                }
+            } else {
+                $ts = TerminalServer::find($request->ts_id);
+                if ($ts == null) {
+                    return response()->json([
+                        'message' => 'Terminal Server not found',
+                    ], 404);
+                }
+                if ($node->rack != null) {
+                    if ($node->rack->terminalServer != null && $node->rack->terminalServer->id != $ts->id) {
+                        return response()->json([
+                            'message' => 'Terminal Server already assigned',
+                        ], 400);
+                    }
+                    $node->rack->terminalServer()->save($ts);
+                }
             }
         }
         $node->save();
