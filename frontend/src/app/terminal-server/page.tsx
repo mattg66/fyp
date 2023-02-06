@@ -58,7 +58,7 @@ export default function TerminalServers() {
             </div>
             <div className='mt-5'>
                 {terminalServers.length === 0 && <RenderTable data={[{rowText: 'No Terminal Servers Exist', element: <></>}]}/>}
-                {terminalServers.length > 0 && <TSAccordion data={terminalServers} className='mt-10' />}
+                {terminalServers.length > 0 && <TSAccordion data={terminalServers} update={setTerminalServers} className='mt-10' />}
             </div>
 
             <Modal

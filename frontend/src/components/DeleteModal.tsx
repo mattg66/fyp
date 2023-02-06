@@ -6,9 +6,10 @@ interface DeleteModal {
     isOpen: boolean,
     close: () => void,
     confirm: () => void,
-    node?: NewNode
+    node?: NewNode,
+    label?: string | undefined
 }
-export const DeleteModal = ({ isOpen, close, confirm, node }: DeleteModal) => {
+export const DeleteModal = ({ isOpen, close, confirm, node, label }: DeleteModal) => {
     return (
         <Modal
             show={isOpen}
@@ -21,7 +22,7 @@ export const DeleteModal = ({ isOpen, close, confirm, node }: DeleteModal) => {
                 <div className="text-center">
                     <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
                     <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-                        Are you sure you want to delete {node?.data?.label}?
+                        Are you sure you want to delete {label ? label : node?.data?.label}?
                     </h3>
                     <div className="flex justify-center gap-4">
                         <Button
