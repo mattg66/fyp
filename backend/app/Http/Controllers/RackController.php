@@ -18,20 +18,18 @@ class RackController extends Controller
         if ($request->has('withoutTS')) {
             if ($request->has('rackId')) {
                 foreach ($racks as $key => $rack) {
-                    if ($rack->terminalServer() != null && $rack->id == $request->rackId) {
+                    if ($rack->terminalServer != null && $rack->id == $request->rackId) {
                         $racks->forget($key);
                     }
                 }
             } else {
                 foreach ($racks as $key => $rack) {
-                    if ($rack->terminalServer() != null) {
+                    if ($rack->terminalServer != null) {
                         $racks->forget($key);
                     }
                 }
             }
-            return response()->json($racks);
-        } else {
-            return response()->json($racks);
         }
+        return response()->json($racks);
     }
 }

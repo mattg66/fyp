@@ -36,7 +36,7 @@ class TerminalServerController extends Controller
                 return response()->json([
                     'message' => 'Rack not found',
                 ], 404);
-            } else if ($rack->terminalServer() != null) {
+            } else if ($rack->terminalServer != null) {
                 return response()->json([
                     'message' => 'Rack already has a Terminal Server',
                 ], 400);
