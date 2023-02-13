@@ -37,4 +37,12 @@ class StatusController extends Controller
             'health' => $health,
         ]);
     }
+    public function test()
+    {
+        $client = new ACIClient();
+        $health = $client->getFabricNodes();
+        return response()->json([
+            'health' => $health,
+        ]);
+    }
 }

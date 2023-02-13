@@ -25,6 +25,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['prefix' => 'aci'], function () {
     Route::get('/version', [ACIStatus::class, 'getVersion']);
     Route::get('/health', [ACIStatus::class, 'getStatus']);
+    Route::get('/test', [ACIStatus::class, 'test']);
 });
 
 Route::group(['prefix' => 'vsphere'], function () {

@@ -128,7 +128,7 @@ export default function TerminalServers() {
                         </div>
                         <Select id="rack_id" defaultValue="" placeholder="" {...register('rack_id')}>
                             <option value=""> -- Select a Rack -- </option>
-                            {racks?.json.map((rack: any) =>
+                            {racks?.json?.map((rack: any) =>
                                 <option key={rack.id} value={rack.id}>{rack.label}</option>
                             )}
                         </Select>

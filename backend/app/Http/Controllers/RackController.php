@@ -28,8 +28,9 @@ class RackController extends Controller
                         $racks->forget($key);
                     }
                 }
+                
             }
         }
-        return response()->json($racks);
+        return response()->json($racks->values());
     }
 }

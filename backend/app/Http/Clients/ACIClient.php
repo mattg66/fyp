@@ -4,6 +4,7 @@ namespace App\Http\Clients;
 
 use GuzzleHttp\Client;
 use App\Exceptions\APIClientException;
+use App\Models\FabricNode;
 
 class ACIClient
 {
@@ -85,6 +86,77 @@ class ACIClient
             }
         } catch (\Exception $e) {
             return false;
+        }
+    }
+    public function getFabricNodes()
+    {
+        try {
+            $response = $this->client->get('node/mo/topology/pod-1.json?query-target=children&target-subtree-class=fabricNode&query-target-filter=and(not(wcard(fabricNode.dn,"__ui_")),and(ne(fabricNode.role,"controller")))', [
+                'headers' => [
+                    'Cookie' => 'APIC-cookie=' . $this->authToken,
+                ],
+            ]);
+            if ($response->getStatusCode() == 200) {
+                $data = json_decode($response->getBody());
+                $nodes = [];
+                foreach ($data->imdata as $node) {
+                    if ($node->fabricNode->attributes->role == 'leaf') {
+
+                        $childFex = [];
+                        $checkFex = $this->client->get('node/class/topology/pod-1/node-' . $node->fabricNode->attributes->id . '/eqptExtCh.json', [
+                            'headers' => [
+                                'Cookie' => 'APIC-cookie=' . $this->authToken,
+                            ],
+                        ]);
+                        FabricNode::upsert([
+                            'dn' => $node->fabricNode->attributes->dn,
+                            'aci_id' => $node->fabricNode->attributes->id,
+                            'model' => $node->fabricNode->attributes->model,
+                            'role' => 'leaf',
+                            'description' => $node->fabricNode->attributes->name,
+                            'serial' => $node->fabricNode->attributes->serial,
+                        ]);
+                        $checkFexData = json_decode($checkFex->getBody());
+                        foreach ($checkFexData->imdata as $fex) {
+                            $childFexData = [
+                                'dn' => $fex->eqptExtCh->attributes->dn,
+                                'aci_id' => $fex->eqptExtCh->attributes->id,
+                                'model' => $fex->eqptExtCh->attributes->model,
+                                'role' => 'fex',
+                                'description' => $fex->eqptExtCh->attributes->descr,
+                                'serial' => $fex->eqptExtCh->attributes->ser,
+                            ];
+                            FabricNode::upsert($childFexData);
+                            array_push($childFex, $childFexData);
+                        }
+                        if (count($childFex) > 0) {
+                            array_push($nodes, [
+                                'dn' => $node->fabricNode->attributes->dn,
+                                'aci_id' => $node->fabricNode->attributes->id,
+                                'model' => $node->fabricNode->attributes->model,
+                                'role' => $node->fabricNode->attributes->role,
+                                'description' => $node->fabricNode->attributes->name,
+                                'serial' => $node->fabricNode->attributes->serial,
+                                'childFex' => $childFex,
+                            ]);
+                        } else {
+                            array_push($nodes, [
+                                'dn' => $node->fabricNode->attributes->dn,
+                                'aci_id' => $node->fabricNode->attributes->id,
+                                'model' => $node->fabricNode->attributes->model,
+                                'role' => $node->fabricNode->attributes->role,
+                                'description' => $node->fabricNode->attributes->name,
+                                'serial' => $node->fabricNode->attributes->serial,
+                            ]);
+                        }
+                    }
+                }
+                return $nodes;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
         }
     }
 }
