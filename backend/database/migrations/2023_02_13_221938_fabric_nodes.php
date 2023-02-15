@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('description');
             $table->string('dn');
             $table->timestamps();
-            $table->unsignedBigInteger('rack_id');
+            $table->unsignedBigInteger('rack_id')->nullable();
             $table->foreign('rack_id')->references('id')->on('racks');
         });
     }

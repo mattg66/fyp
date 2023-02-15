@@ -4,18 +4,17 @@ namespace App\Http\Clients;
 
 use GuzzleHttp\Client;
 use App\Exceptions\APIClientException;
+use App\Jobs\SyncACI;
 use App\Models\FabricNode;
+use Illuminate\Support\Facades\DB;
 
 class ACIClient
 {
     protected $client;
     protected $authToken;
 
-    public function __construct()
+    public function __construct($token = null)
     {
-        if (env('APIC_IPADDR') == null || env('APIC_USERNAME') == null || env('APIC_PASSWORD') == null) {
-            throw new APIClientException('APIC credentials not set');
-        }
         $this->client = new Client([
             'base_uri' => 'https://' . env('APIC_IPADDR') .  '/api/',
             'headers' => [
@@ -24,7 +23,14 @@ class ACIClient
             ],
             'verify' => false,
         ]);
-        $this->connect();
+        if ($token === null) {
+            if (env('APIC_IPADDR') == null || env('APIC_USERNAME') == null || env('APIC_PASSWORD') == null) {
+                throw new APIClientException('APIC credentials not set');
+            }
+            $this->connect();
+        } else {
+            $this->authToken = $token;
+        }
     }
     protected function connect()
     {
@@ -42,12 +48,13 @@ class ACIClient
             if ($response->getStatusCode() == 200) {
                 $data = json_decode($response->getBody());
                 $this->authToken = $data->imdata[0]->aaaLogin->attributes->token;
+                SyncACI::dispatch($data->imdata[0]->aaaLogin->attributes->token);
                 return true;
             } else {
                 return false;
             }
         } catch (\Exception $e) {
-            throw new APIClientException('Unable to connect to APIC');
+            throw new APIClientException($e->getMessage());
         }
     }
     public function getApicVersion()
@@ -88,8 +95,9 @@ class ACIClient
             return false;
         }
     }
-    public function getFabricNodes()
+    public function syncFabricNodes()
     {
+        DB::beginTransaction();
         try {
             $response = $this->client->get('node/mo/topology/pod-1.json?query-target=children&target-subtree-class=fabricNode&query-target-filter=and(not(wcard(fabricNode.dn,"__ui_")),and(ne(fabricNode.role,"controller")))', [
                 'headers' => [
@@ -99,16 +107,17 @@ class ACIClient
             if ($response->getStatusCode() == 200) {
                 $data = json_decode($response->getBody());
                 $nodes = [];
+                $dn = [];
                 foreach ($data->imdata as $node) {
                     if ($node->fabricNode->attributes->role == 'leaf') {
-
+                        array_push($dn, $node->fabricNode->attributes->dn);
                         $childFex = [];
                         $checkFex = $this->client->get('node/class/topology/pod-1/node-' . $node->fabricNode->attributes->id . '/eqptExtCh.json', [
                             'headers' => [
                                 'Cookie' => 'APIC-cookie=' . $this->authToken,
                             ],
                         ]);
-                        FabricNode::upsert([
+                        FabricNode::updateOrCreate(['dn' => $node->fabricNode->attributes->dn], [
                             'dn' => $node->fabricNode->attributes->dn,
                             'aci_id' => $node->fabricNode->attributes->id,
                             'model' => $node->fabricNode->attributes->model,
@@ -126,7 +135,8 @@ class ACIClient
                                 'description' => $fex->eqptExtCh->attributes->descr,
                                 'serial' => $fex->eqptExtCh->attributes->ser,
                             ];
-                            FabricNode::upsert($childFexData);
+                            array_push($dn, $fex->eqptExtCh->attributes->dn);
+                            FabricNode::updateOrCreate(['dn' => $fex->eqptExtCh->attributes->dn], $childFexData);
                             array_push($childFex, $childFexData);
                         }
                         if (count($childFex) > 0) {
@@ -151,11 +161,14 @@ class ACIClient
                         }
                     }
                 }
+                FabricNode::whereNotIn('dn', $dn)->delete();
+                DB::commit();
                 return $nodes;
             } else {
                 return false;
             }
         } catch (\Exception $e) {
+            DB::rollback();
             throw new APIClientException($e->getMessage());
         }
     }
