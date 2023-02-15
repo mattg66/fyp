@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ACI\StatusController as ACIStatus;
+use App\Http\Controllers\ACI\FabricController as ACIFabric;
 use App\Http\Controllers\NodeController;
 use App\Http\Controllers\RackController;
 use App\Http\Controllers\TerminalServerController;
@@ -23,9 +24,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::group(['prefix' => 'aci'], function () {
+    Route::group(['prefix' => 'fabric'], function () {
+        Route::get('/', [ACIFabric::class, 'getNodes']);
+    });
     Route::get('/version', [ACIStatus::class, 'getVersion']);
     Route::get('/health', [ACIStatus::class, 'getStatus']);
-    Route::get('/test', [ACIStatus::class, 'test']);
 });
 
 Route::group(['prefix' => 'vsphere'], function () {

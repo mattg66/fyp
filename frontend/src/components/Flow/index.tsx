@@ -46,7 +46,7 @@ export interface NewNode {
     id: string;
     type: string;
     position: { x: number; y: number };
-    data: { label: string; tor?: string; ts?: string; onChange: (event: any, id: string) => void; delete: (node: NewNode) => void };
+    data: { label: string; fn?: string; ts?: string; onChange: (event: any, id: string) => void; delete: (node: NewNode) => void };
 }
 const Flow = () => {
     const { resolvedTheme } = useTheme()
@@ -85,15 +85,20 @@ const Flow = () => {
     }
     interface Rack {
         label: string;
-        tor_id?: number;
+        fn_id?: number;
         ts_id?: number;
         created_at: string;
         updated_at: string;
         terminal_server?: TerminalServer;
+        fabric_node?: FabricNode;
     }
     interface TerminalServer {
         label: string;
         id: number;
+    }
+    interface FabricNode {
+        id: number;
+        description: string;
     }
     interface Label {
         label: string;
@@ -111,7 +116,7 @@ const Flow = () => {
                         position: { x: node.x, y: node.y },
                         data: {
                             label: node.rack ? node.rack.label : node.label?.label,
-                            tor: node.rack?.tor_id ? node.rack?.tor_id : '',
+                            fn: node.rack?.fabric_node?.id ? node.rack?.fabric_node?.id : '',
                             ts: node.rack?.terminal_server?.id ? node.rack?.terminal_server?.id : '',
                             onChange: onChange,
                             delete: deleteNode,
@@ -129,7 +134,7 @@ const Flow = () => {
 
     interface NodeEvent {
         label: string;
-        tor?: any;
+        fn?: any;
         ts?: any;
         onChange: (event: any, id: any) => void;
         delete: (id: any) => void;
@@ -140,7 +145,7 @@ const Flow = () => {
             headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 label: event.label,
-                tor_id: event.tor,
+                fn_id: event.fn,
                 ts_id: event.ts,
             })
         };
@@ -198,7 +203,7 @@ const Flow = () => {
         x: number;
         y: number;
         label: string;
-        tor_id?: number;
+        fn_id?: number;
         ts_id?: number;
     }
 
@@ -210,8 +215,8 @@ const Flow = () => {
             y: newNode.position.y,
             label: newNode.data.label,
         }
-        if (newNode.data.tor) {
-            newNodeRequest.tor_id = parseInt(newNode.data.tor);
+        if (newNode.data.fn) {
+            newNodeRequest.fn_id = parseInt(newNode.data.fn);
         }
         if (newNode.data.ts) {
             newNodeRequest.ts_id = parseInt(newNode.data.ts);
@@ -241,7 +246,7 @@ const Flow = () => {
                         id: '',
                         type,
                         position,
-                        data: { label: 'New Rack', tor: "", ts: "", onChange: onChange, delete: deleteNode },
+                        data: { label: 'New Rack', fn: "", ts: "", onChange: onChange, delete: deleteNode },
                     };
                 } else if (type === 'labelNode') {
                     newNode = {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FabricNode;
 use App\Models\Label;
 use App\Models\Node;
 use App\Models\Rack;
@@ -32,5 +33,28 @@ class RackController extends Controller
             }
         }
         return response()->json($racks->values());
+    }
+    function attachToR($id, Request $request)
+    {
+        $this->validate($request, [
+            'tor_id' => 'required|numeric',
+        ]);
+        $rack = Rack::find($id);
+        if ($rack == null) {
+            return response()->json([
+                'message' => 'Rack not found',
+            ], 404);
+        }
+        $tor = FabricNode::find($request->tor_id);
+        if ($tor == null) {
+            return response()->json([
+                'message' => 'ToR not found',
+            ], 404);
+        }
+        $rack->fabricNode()->attach($tor->id);
+        $rack->save();
+        return response()->json([
+            'message' => 'Rack attached to ToR',
+        ]);
     }
 }

@@ -36,14 +36,6 @@ return new class extends Migration
             $table->foreign('node_id')->references('id')->on('nodes')->onDelete('cascade');
         });
        
-        Schema::create('tors', function (Blueprint $table) {
-            $table->id();
-            $table->string('label');
-            $table->string('model');
-            $table->timestamps();
-            $table->unsignedBigInteger('rack_id');
-            $table->foreign('rack_id')->references('id')->on('racks');
-        });
         Schema::create('terminal_servers', function (Blueprint $table) {
             $table->id();
             $table->string('label')->nullable();

@@ -14,12 +14,13 @@ interface DeleteModal {
 interface Data {
     label: string,
     onChange: (data: any, id: string) => Promise<void>,
-    tor?: number,
+    fn?: number,
     ts?: number,
 }
 export const EditModal = ({ isOpen, close, data, id }: DeleteModal) => {
     const [tempData, setTempData] = useState<Data>(data)
     const { data: terminalServers } = useSWR('/api/ts?withoutRack&rackId=' + id, fetcher, { suspense: true })
+    const { data: fabricNodes } = useSWR('/api/aci/fabric?withoutRack&rackId=' + id, fetcher, { suspense: true })
     const save = (e: FormEvent) => {
         e.preventDefault()
         data.onChange(tempData, id).then((result: any) => {
@@ -55,7 +56,7 @@ export const EditModal = ({ isOpen, close, data, id }: DeleteModal) => {
                             value={tempData.label}
                             onChange={(e) => setTempData({ ...data, label: e.target.value })}
                         />
-                        <div id="select">
+                        <div>
                             <div className="mb-2 mt-2 block">
                                 <Label
                                     htmlFor="ToR"
@@ -63,36 +64,28 @@ export const EditModal = ({ isOpen, close, data, id }: DeleteModal) => {
                                 />
                             </div>
                             <Select
-                                id="ToR"
-                                value={tempData.tor}
-                                onChange={(e) => setTempData({ ...data, tor: parseInt(e.target.value) })}
+                                id="FN"
+                                value={tempData.fn?.toString()}
+                                onChange={(e) => setTempData({ ...data, fn: parseInt(e.target.value) })}
                             >
-                                <option disabled value=""> -- Select a Leaf/FEX -- </option>
-                                <option value={1}>
-                                    United States
-                                </option>
-                                <option value={2}>
-                                    Canada
-                                </option>
-                                <option value={3}>
-                                    France
-                                </option>
-                                <option value={4}>
-                                    Germany
-                                </option>
+                                <option value=" "> -- Select a Fabric Node -- </option>
+                                {fabricNodes?.json.map((fn: any) => (
+                                    <option value={fn.id}>
+                                        {fn.description}
+                                    </option>
+                                ))}
                             </Select>
                         </div>
-                        <div id="select">
+                        <div>
                             <div className="mb-2 mt-2 block">
                                 <Label
                                     htmlFor="TS"
                                     value="Terminal Server"
                                 />
                             </div>
-                            {console.log(tempData)}
                             <Select
                                 id="TS"
-                                value={tempData.ts}
+                                value={tempData.ts?.toString()}
                                 onChange={(e) => setTempData({ ...data, ts: parseInt(e.target.value) })}
                             >
                                 <option value=" "> -- Select a TS -- </option>

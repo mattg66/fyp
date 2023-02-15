@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FabricNode;
 use App\Models\Label;
 use App\Models\Node;
 use App\Models\Rack;
@@ -45,17 +46,17 @@ class NodeController extends Controller
                             'message' => 'Terminal Server not found',
                         ], 404);
                     }
-                    $ts->racks()->save($rack_id);
+                    $ts->rack()->save($rack_id);
                 }
-                if ($request->has('tor_id')) {
-                    $tor = ToR::find($request->tor_id);
-                    if ($tor == null) {
+                if ($request->has('fn_id')) {
+                    $fn = FabricNode::find($request->fn_id);
+                    if ($fn == null) {
                         DB::rollBack();
                         return response()->json([
-                            'message' => 'ToR not found',
+                            'message' => 'Fabric Node not found',
                         ], 404);
                     }
-                    $tor->racks()->save($rack_id);
+                    $fn->rack()->save($rack_id);
                 }
                 DB::commit();
                 return response()->json([
@@ -113,7 +114,7 @@ class NodeController extends Controller
 
     public function getAll()
     {
-        $nodes = Node::with('rack', 'label', 'rack.terminalServer')->get();
+        $nodes = Node::with('rack', 'label', 'rack.terminalServer', 'rack.fabricNode')->get();
         foreach ($nodes as $node) {
             if ($node->label == null) {
                 unset($node->label);
@@ -131,7 +132,7 @@ class NodeController extends Controller
             'x' => 'numeric',
             'y' => 'numeric',
             'ts_id' => 'numeric|nullable',
-            'tor_id' => 'numeric|nullable',
+            'fn_id' => 'numeric|nullable',
         ]);
         $node = Node::with('rack', 'label')->find($id);
         if ($node == null) {
@@ -153,16 +154,29 @@ class NodeController extends Controller
                 $node->rack->save();
             }
         }
-        if ($request->has('tor_id') && $request->tor_id != null) {
-            $tor = ToR::find($request->tor_id);
-            if ($tor == null) {
-                return response()->json([
-                    'message' => 'ToR not found',
-                ], 404);
-            }
-            if ($node->rack != null) {
-                $node->rack->tors()->detach();
-                $node->rack->tors()->attach($tor->id);
+        if ($request->has('fn_id')) {
+            if ($request->fn_id == null) {
+                if ($node->rack != null) {
+                    FabricNode::where('rack_id', $node->rack->id)->update(['rack_id' => null]);
+                }
+            } else {
+                $fn = FabricNode::find($request->fn_id);
+                if ($fn == null) {
+                    return response()->json([
+                        'message' => 'Fabric Node not found',
+                    ], 404);
+                }
+                if ($node->rack != null) {
+                    if ($fn->rack_id != null && $fn->rack_id != $node->rack->id) {
+                        return response()->json([
+                            'message' => 'Fabric Node already assigned',
+                        ], 400);
+                    }
+                    if ($node->rack->fabricNode !== null && $node->rack->fabricNode->id != $fn->id){
+                        FabricNode::where('rack_id', $node->rack->id)->update(['rack_id' => null]);
+                    }
+                    $node->rack->fabricNode()->save($fn);
+                }
             }
         }
         if ($request->has('ts_id')) {
@@ -182,6 +196,9 @@ class NodeController extends Controller
                         return response()->json([
                             'message' => 'Terminal Server already assigned',
                         ], 400);
+                    }
+                    if ($node->rack->terminalServer !== null && $node->rack->terminalServer->id != $ts->id){
+                        TerminalServer::where('rack_id', $node->rack->id)->update(['rack_id' => null]);
                     }
                     $node->rack->terminalServer()->save($ts);
                 }

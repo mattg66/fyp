@@ -15,11 +15,6 @@ class Rack extends Model
         return $this->hasOne(TerminalServer::class);
     }
 
-    public function tor()
-    {
-        return $this->hasOne(Tor::class);
-    }
-
     public function node()
     {
         return $this->belongsTo(Node::class);

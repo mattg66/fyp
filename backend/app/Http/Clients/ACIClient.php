@@ -132,7 +132,7 @@ class ACIClient
                                 'aci_id' => $fex->eqptExtCh->attributes->id,
                                 'model' => $fex->eqptExtCh->attributes->model,
                                 'role' => 'fex',
-                                'description' => $fex->eqptExtCh->attributes->descr,
+                                'description' => $node->fabricNode->attributes->name . ' - FEX' . $fex->eqptExtCh->attributes->id,
                                 'serial' => $fex->eqptExtCh->attributes->ser,
                             ];
                             array_push($dn, $fex->eqptExtCh->attributes->dn);

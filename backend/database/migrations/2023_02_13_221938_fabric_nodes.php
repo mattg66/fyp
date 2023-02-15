@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('dn');
             $table->timestamps();
             $table->unsignedBigInteger('rack_id')->nullable();
-            $table->foreign('rack_id')->references('id')->on('racks');
+            $table->foreign('rack_id')->references('id')->on('racks')->onDelete('set null');
         });
     }
 

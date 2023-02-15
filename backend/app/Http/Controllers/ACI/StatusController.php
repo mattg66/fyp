@@ -4,6 +4,7 @@ namespace App\Http\Controllers\ACI;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Clients\ACIClient;
+use App\Models\FabricNode;
 
 class StatusController extends Controller
 {
@@ -39,10 +40,9 @@ class StatusController extends Controller
     }
     public function test()
     {
-        $client = new ACIClient();
-        $health = $client->getFabricNodes();
+        $nodes = FabricNode::all();
         return response()->json([
-            'health' => $health,
+            'health' => $nodes,
         ]);
     }
 }
