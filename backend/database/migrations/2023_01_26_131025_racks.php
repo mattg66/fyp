@@ -47,6 +47,8 @@ return new class extends Migration
             $table->timestamps();
             $table->unsignedBigInteger('rack_id')->nullable();
             $table->foreign('rack_id')->references('id')->on('racks')->onDelete('set null');
+            $table->unsignedBigInteger('interface_id')->nullable();
+            $table->foreign('interface_id')->references('id')->on('interfaces')->onDelete('set null');
         });
     }
 

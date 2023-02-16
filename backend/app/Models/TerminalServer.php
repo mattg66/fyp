@@ -14,5 +14,9 @@ class TerminalServer extends Model
         return $this->belongsTo(Rack::class);
     }
 
+    public function interface()
+    {
+        return $this->belongsTo(InterfaceModel::class);
+    }
     protected $hidden = ['password']; 
 }

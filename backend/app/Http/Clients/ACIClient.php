@@ -6,7 +6,9 @@ use GuzzleHttp\Client;
 use App\Exceptions\APIClientException;
 use App\Jobs\SyncACI;
 use App\Models\FabricNode;
+use App\Models\InterfaceModel;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ACIClient
 {
@@ -170,6 +172,55 @@ class ACIClient
             }
         } catch (\Exception $e) {
             DB::rollback();
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function syncFabricInterfaces()
+    {
+        DB::beginTransaction();
+        try {
+            $fabricNodes = FabricNode::all();
+            foreach ($fabricNodes as $fabricNode) {
+                if ($fabricNode->role === 'leaf') {
+                    $response = $this->client->get('https://192.168.0.125/api/node/class/topology/pod-' . env('ACI_POD') . '/node-' . $fabricNode->aci_id . '/l1PhysIf.json?rsp-subtree=children&rsp-subtree-class=ethpmPhysIf&rsp-subtree-include=required&order-by=l1PhysIf.id|asc', [
+                        'headers' => [
+                            'Cookie' => 'APIC-cookie=' . $this->authToken,
+                        ],
+                    ]);
+                    if ($response->getStatusCode() == 200) {
+                        $data = json_decode($response->getBody());
+                        foreach ($data->imdata as $interface) {
+                            preg_match('/eth([^\/]+)/', $interface->l1PhysIf->attributes->id, $match);
+                            if ($match[1] !== $fabricNode->aci_id && $match[1] <= 100) {
+                                InterfaceModel::updateOrCreate(['dn' => $interface->l1PhysIf->attributes->dn], [
+                                    'aci_id' => $interface->l1PhysIf->attributes->id,
+                                    'dn' => $interface->l1PhysIf->attributes->dn,
+                                    'state' => $interface->l1PhysIf->children[0]->ethpmPhysIf->attributes->operSt,
+                                    'fabric_node_id' => $fabricNode->id,
+                                ]);
+                            } else {
+                                foreach ($fabricNodes as $fabricNode2) {
+                                    if ($fabricNode2->role === 'fex' && $fabricNode2->aci_id == $match[1]) {                                    Log::debug($fabricNode2->role);
+                                        InterfaceModel::updateOrCreate(['dn' => $interface->l1PhysIf->attributes->dn], [
+                                            'aci_id' => $interface->l1PhysIf->attributes->id,
+                                            'dn' => $interface->l1PhysIf->attributes->dn,
+                                            'state' => $interface->l1PhysIf->children[0]->ethpmPhysIf->attributes->operSt,
+                                            'fabric_node_id' => $fabricNode2->id,
+                                        ]);
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        DB::rollBack();
+                        return false;
+                    }
+                }
+            }
+            DB::commit();
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
             throw new APIClientException($e->getMessage());
         }
     }
