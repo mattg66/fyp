@@ -42,6 +42,7 @@ return new class extends Migration
             $table->string('model');
             $table->string('username');
             $table->string('password');
+            $table->string('uplink_port');
             $table->string('ip')->unique();
             $table->timestamps();
             $table->unsignedBigInteger('rack_id')->nullable();

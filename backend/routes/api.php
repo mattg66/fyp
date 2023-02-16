@@ -24,9 +24,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::group(['prefix' => 'aci'], function () {
+    Route::group(['prefix' => 'fabric/node'], function () {
+        Route::get('/{id}/interfaces', [ACIFabric::class, 'getInterfaces']);
+    });
     Route::group(['prefix' => 'fabric'], function () {
         Route::get('/', [ACIFabric::class, 'getNodes']);
     });
+    
     Route::get('/version', [ACIStatus::class, 'getVersion']);
     Route::get('/health', [ACIStatus::class, 'getStatus']);
 });

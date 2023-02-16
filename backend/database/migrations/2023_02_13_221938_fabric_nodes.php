@@ -25,6 +25,15 @@ return new class extends Migration
             $table->unsignedBigInteger('rack_id')->nullable();
             $table->foreign('rack_id')->references('id')->on('racks')->onDelete('set null');
         });
+        Schema::create('interfaces', function (Blueprint $table) {
+            $table->id();
+            $table->string('aci_id');
+            $table->string('state');
+            $table->string('dn');
+            $table->timestamps();
+            $table->unsignedBigInteger('fabric_node_id');
+            $table->foreign('fabric_node_id')->references('id')->on('fabric_nodes')->onDelete('cascade');
+        });
     }
 
     /**

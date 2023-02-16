@@ -99,11 +99,12 @@ class ACIClient
     {
         DB::beginTransaction();
         try {
-            $response = $this->client->get('node/mo/topology/pod-1.json?query-target=children&target-subtree-class=fabricNode&query-target-filter=and(not(wcard(fabricNode.dn,"__ui_")),and(ne(fabricNode.role,"controller")))', [
+            $response = $this->client->get('node/mo/topology/pod-' . env('ACI_POD') . '.json?query-target=children&target-subtree-class=fabricNode&query-target-filter=and(not(wcard(fabricNode.dn,"__ui_")),and(ne(fabricNode.role,"controller")))', [
                 'headers' => [
                     'Cookie' => 'APIC-cookie=' . $this->authToken,
                 ],
             ]);
+
             if ($response->getStatusCode() == 200) {
                 $data = json_decode($response->getBody());
                 $nodes = [];
@@ -169,6 +170,24 @@ class ACIClient
             }
         } catch (\Exception $e) {
             DB::rollback();
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function getFabricNodeInterfaces($id)
+    {
+        try {
+            $response = $this->client->get('https://192.168.0.125/api/node/class/topology/pod-' . env('ACI_POD') . '/node-' . $id . '/l1PhysIf.json?rsp-subtree=children&rsp-subtree-class=ethpmPhysIf&rsp-subtree-include=required&order-by=l1PhysIf.id|asc', [
+                'headers' => [
+                    'Cookie' => 'APIC-cookie=' . $this->authToken,
+                ],
+            ]);
+            if ($response->getStatusCode() == 200) {
+                $data = json_decode($response->getBody());
+                return $data->imdata;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
             throw new APIClientException($e->getMessage());
         }
     }

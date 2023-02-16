@@ -13,6 +13,10 @@ class FabricNode extends Model
     {
         return $this->belongsTo(Rack::class);
     }
+    public function interfaces()
+    {
+        return $this->hasMany(InterfaceModel::class);
+    }
 
     protected $hidden = [];
     protected $fillable = [
