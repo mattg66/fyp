@@ -16,7 +16,7 @@ class InterfaceModel extends Model
 
     public function terminalServer()
     {
-        return $this->hasOne(TerminalServer::class);
+        return $this->hasOne(TerminalServer::class, 'interface_id');
     }
 
     protected $hidden = [];

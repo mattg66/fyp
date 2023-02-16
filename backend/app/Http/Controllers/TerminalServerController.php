@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\InterfaceModel;
 use App\Models\Label;
 use App\Models\Node;
 use App\Models\Rack;
@@ -21,8 +22,10 @@ class TerminalServerController extends Controller
             'password' => 'required|max:50',
             'ip' => 'required|ip',
             'rack_id' => 'max:50',
+            'interface_id' => 'required|max:50',
+            'uplink_port' => 'required|max:50',
         ]);
-
+        DB::beginTransaction();
         if (TerminalServer::where('ip', $request->ip)->first() != null) {
             return response()->json([
                 'message' => 'Terminal Server with this IP already exists',
@@ -42,18 +45,27 @@ class TerminalServerController extends Controller
                 ], 400);
             }
         }
+        $interface = InterfaceModel::find(intval($request->interface_id));
+        if ($interface == null) {
+            return response()->json([
+                'message' => 'Interface not found',
+            ], 404);
+        }
+
         $ts = new TerminalServer();
         $ts->label = $request->label;
         $ts->model = $request->model;
         $ts->username = $request->username;
         $ts->password = $request->password;
         $ts->ip = $request->ip;
+        $ts->uplink_port = $request->uplink_port;
         $ts->save();
-
+        $interface->terminalServer()->save($ts);
         if ($request->has('rack_id') && $request->rack_id != null) {
             $rack->terminalServer()->save($ts);
         }
-        $ts = TerminalServer::with('rack')->find($ts->id);
+        $ts = TerminalServer::with('rack', 'interface')->find($ts->id);
+        DB::commit();
         return response()->json([
             $ts,
         ], 201);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import useSWR from 'swr'
+import useSWR, { SWRResponse } from 'swr'
 import { fetcher } from "../utils/Fetcher";
 import { RenderTable } from "@/components";
 import { TerminalServer, TSAccordion } from "@/components/TSAccordion";
@@ -10,15 +10,19 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
 export default function TerminalServers() {
-    interface NewTerminalServer { 
+    interface NewTerminalServer {
         label: string,
         ip: string,
         model: string,
         username: string,
         password: string,
         rack_id: string,
+        node_id: string,
+        interface_id: string,
+        uplink_port: string,
     }
-
+    const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<NewTerminalServer>();
+    const watchNode = watch("node_id");
     const { data } = useSWR('/api/ts', fetcher, { suspense: true })
     const [terminalServers, setTerminalServers] = useState<TerminalServer[]>([])
 
@@ -27,10 +31,23 @@ export default function TerminalServers() {
     }, [data])
 
     const { data: racks } = useSWR('/api/rack?withoutTS', fetcher, { suspense: true })
+    const { data: nodes } = useSWR('/api/aci/fabric', fetcher, { suspense: true })
+    const { data: interfaces } = useSWR(watchNode ? '/api/aci/fabric/node/' + watchNode + '/interfaces': null, fetcher)
+
+
+    // useEffect(() => {
+    //     if (watchNode !== "") {
+    //         const { data: interfaces } = useSWR('/api/aci/fabric/node/' + watchNode + '/interface', fetcher)
+    //         setInterfaces(interfaces?.json)
+    //     }
+    // }, [watchNode])
 
     const [addModal, setAddModal] = useState(false)
+    const openModal = () => {
+        reset()
+        setAddModal(true)
+    }
 
-    const { register, handleSubmit, watch, formState: { errors } } = useForm<NewTerminalServer>();
     const onSubmit = handleSubmit((data) => {
         const requestOptions = {
             method: 'POST',
@@ -54,10 +71,10 @@ export default function TerminalServers() {
     return (
         <>
             <div className='flow-root'>
-                <Button className="float-right" onClick={() => setAddModal(true)}>Add Terminal Server</Button>
+                <Button className="float-right" onClick={openModal}>Add Terminal Server</Button>
             </div>
             <div className='mt-5'>
-                {terminalServers.length === 0 && <RenderTable data={[{rowText: 'No Terminal Servers Exist', element: <></>}]}/>}
+                {terminalServers.length === 0 && <RenderTable data={[{ rowText: 'No Terminal Servers Exist', element: <></> }]} />}
                 {terminalServers.length > 0 && <TSAccordion data={terminalServers} update={setTerminalServers} className='mt-10' />}
             </div>
 
@@ -77,7 +94,9 @@ export default function TerminalServers() {
                             />
                         </div>
                         <TextInput id="label" placeholder="Label" maxLength={50} {...register('label', { required: true })} />
-                        {errors?.model?.type === 'required' && <p>Label is required</p>}
+                        {errors?.label && <Alert color="failure" className="mt-2">
+                            {errors?.label?.type === 'required' && <p>Label is required</p>}
+                        </Alert>}
                         <div className="mt-2">
                             <Label
                                 htmlFor="model"
@@ -132,17 +151,49 @@ export default function TerminalServers() {
                                 <option key={rack.id} value={rack.id}>{rack.label}</option>
                             )}
                         </Select>
+                        <div className="mt-2">
+                            <Label
+                                htmlFor="uplink_port"
+                                value="Uplink Port (IOS Port Identifier)"
+                            />
+                        </div>
+                        <TextInput id="uplink_port" placeholder="GigabitEthernet 1/0/1.10" maxLength={50} {...register('uplink_port', { required: true })} />
+                        {errors?.uplink_port && <Alert color="failure" className="mt-2">
+                            {errors?.uplink_port?.type === 'required' && <p>Uplink port is required</p>}
+                        </Alert>}
+                        <div className="mt-2">
+                            <Label
+                                htmlFor="rack_id"
+                                value="Uplink Fabric Node"
+                            />
+                        </div>
+                        <Select id="node_id" defaultValue="" placeholder="" {...register('node_id', { required: true })}>
+                            <option value=""> -- Select a Node -- </option>
+                            {nodes?.json?.map((node: any) =>
+                                <option key={node.id} value={node.id}>{node.description}</option>
+                            )}
+                        </Select>
+                        {errors?.node_id && <Alert color="failure" className="mt-2">
+                            {errors?.node_id?.type === 'required' && <p>Node is required</p>}
+                        </Alert>}
+                        {watchNode ? <Select id="interface_id" defaultValue="" placeholder="" className="mt-2" {...register('interface_id')} required>
+                            <option value=""> -- Select an Interface -- </option>
+                            {interfaces?.json?.map((interfaceObj: any) =>
+                                <option key={interfaceObj.id} value={interfaceObj.id}>{interfaceObj.aci_id}</option>
+                            )}
+                        </Select> : null}
+
                     </Modal.Body>
                     <Modal.Footer>
-                            <Button type="submit">
-                                Add
-                            </Button>
-                            <Button
-                                color="gray"
-                                onClick={() => setAddModal(false)}
-                            >
-                                Cancel
-                            </Button>
+                        <Button type="submit">
+                            Add
+                        </Button>
+                        <Button
+                            color="gray"
+                            onClick={() => setAddModal(false)}
+                        >
+                            Cancel
+                        </Button>
                     </Modal.Footer>
                 </form>
 

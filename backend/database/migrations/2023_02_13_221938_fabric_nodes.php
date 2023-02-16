@@ -34,6 +34,20 @@ return new class extends Migration
             $table->unsignedBigInteger('fabric_node_id');
             $table->foreign('fabric_node_id')->references('id')->on('fabric_nodes')->onDelete('cascade');
         });
+        Schema::create('terminal_servers', function (Blueprint $table) {
+            $table->id();
+            $table->string('label')->nullable();
+            $table->string('model');
+            $table->string('username');
+            $table->string('password');
+            $table->string('uplink_port');
+            $table->string('ip')->unique();
+            $table->timestamps();
+            $table->unsignedBigInteger('rack_id')->nullable();
+            $table->foreign('rack_id')->references('id')->on('racks')->onDelete('set null');
+            $table->unsignedBigInteger('interface_id')->nullable();
+            $table->foreign('interface_id')->references('id')->on('interfaces')->onDelete('set null');
+        });
     }
 
     /**
