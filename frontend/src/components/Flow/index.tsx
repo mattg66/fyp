@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import ReactFlow, { useNodesState, useEdgesState, addEdge, MiniMap, Controls, ReactFlowProps, Background, ReactFlowActions, ReactFlowRefType, ReactFlowInstance, ReactFlowState, NodeDragHandler, Node } from 'reactflow';
+import ReactFlow, { useNodesState, useEdgesState, Controls, Background, ReactFlowRefType, ReactFlowInstance, Node, useOnSelectionChange, Edge, OnSelectionChangeParams } from 'reactflow';
 import styled, { ThemeProvider } from 'styled-components';
 import { darkTheme, lightTheme } from './Theme';
 import useSWR from 'swr'
@@ -24,6 +24,9 @@ interface Theme {
     controlsBgHover: string;
 }
 const ControlsStyled = styled(Controls)`
+    div {
+        box-shadow: none;
+    }
   button {
     background-color: ${(props: ControlsProps) => props.theme.controlsBg};
     color: ${(props: ControlsProps) => props.theme.controlsColor};
@@ -47,9 +50,9 @@ export interface NewNode {
     id: string;
     type: string;
     position: { x: number; y: number };
-    data: { label: string; fn?: string; ts?: string; onChange: (event: any, id: string) => Promise<boolean | undefined>; delete: (node: NewNode) => void, edit: (node: NewNode) => void };
+    data: { label: string; fn?: string; ts?: string; onChange: (event: any, id: string) => Promise<boolean | undefined>; delete: (node: NewNode) => void, edit: (node: NewNode) => void, displayOnly: boolean };
 }
-const Flow = () => {
+const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnSelectionChangeParams) => void }) => {
     const { resolvedTheme } = useTheme()
     const flowTheme = resolvedTheme === 'light' ? lightTheme : darkTheme;
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -74,7 +77,7 @@ const Flow = () => {
     }
 
     const { data } = useSWR('/api/node', fetcher, { suspense: true })
-
+    
     interface ServerNode {
         id: number;
         x: number;
@@ -121,7 +124,8 @@ const Flow = () => {
                             ts: node.rack?.terminal_server?.id ? node.rack?.terminal_server?.id : '',
                             onChange: onChange,
                             delete: deleteNode,
-                            edit: editNode
+                            edit: editNode,
+                            displayOnly: props.displayOnly
                         },
                     };
                 })
@@ -202,7 +206,7 @@ const Flow = () => {
             });
     }
 
-    
+
 
     interface NodeRequest {
         id: number;
@@ -253,14 +257,14 @@ const Flow = () => {
                         id: '',
                         type,
                         position,
-                        data: { label: 'New Rack', fn: "", ts: "", onChange: onChange, delete: deleteNode, edit: editNode },
+                        data: { label: 'New Rack', fn: "", ts: "", onChange: onChange, delete: deleteNode, edit: editNode, displayOnly: props.displayOnly },
                     };
                 } else if (type === 'labelNode') {
                     newNode = {
                         id: '',
                         type,
                         position,
-                        data: { label: 'New Label', onChange: onChange, delete: deleteNode, edit: editNode },
+                        data: { label: 'New Label', onChange: onChange, delete: deleteNode, edit: editNode, displayOnly: props.displayOnly },
                     };
                 }
 
@@ -296,6 +300,9 @@ const Flow = () => {
                         onNodesChange={onNodesChange}
                         onEdgesChange={onEdgesChange}
                         onNodeDragStop={onNodeDragStop}
+                        nodesDraggable={!props.displayOnly}
+
+
                         //onConnect={onConnect}
                         //style={{ background: bgColor }}
                         nodeTypes={nodeTypes}
@@ -306,16 +313,17 @@ const Flow = () => {
                         onInit={setReactFlowInstance}
                         onDrop={onDrop}
                         onDragOver={onDragOver}
+                        onSelectionChange={props.selectedNodesCallback && props.selectedNodesCallback}
                     >
                         <ControlsStyled>
-                            <Drag />
+                            <Drag displayOnly={props.displayOnly} />
                         </ControlsStyled>
                         <Background color={resolvedTheme === 'dark' ? "#fff" : "#000"} gap={40} />
                     </ReactFlow>
                 </div>
             </ThemeProvider>
-            <DeleteModal isOpen={deleteOpen} close={() => setDeleteOpen(false)} confirm={deleteRequest} node={deleteNodeObj}/>
-            <EditModal isOpen={editRackOpen} close={() => setEditRackOpen(false)} node={nodes.filter((node) => node.id === editRackId)[0]}/>
+            <DeleteModal isOpen={deleteOpen} close={() => setDeleteOpen(false)} confirm={deleteRequest} node={deleteNodeObj} />
+            <EditModal isOpen={editRackOpen} close={() => setEditRackOpen(false)} node={nodes.filter((node) => node.id === editRackId)[0]} />
         </>
     )
 }
