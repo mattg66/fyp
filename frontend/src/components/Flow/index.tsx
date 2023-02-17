@@ -12,6 +12,7 @@ import LabelNode from './LabelNode';
 import { DeleteModal } from '../DeleteModal';
 import { fetcher } from '@/app/utils/Fetcher';
 import { toast } from 'react-toastify';
+import { EditModal } from './EditRackModal';
 
 interface ControlsProps {
     theme: Theme
@@ -46,7 +47,7 @@ export interface NewNode {
     id: string;
     type: string;
     position: { x: number; y: number };
-    data: { label: string; fn?: string; ts?: string; onChange: (event: any, id: string) => void; delete: (node: NewNode) => void };
+    data: { label: string; fn?: string; ts?: string; onChange: (event: any, id: string) => Promise<boolean | undefined>; delete: (node: NewNode) => void, edit: (node: NewNode) => void };
 }
 const Flow = () => {
     const { resolvedTheme } = useTheme()
@@ -58,7 +59,7 @@ const Flow = () => {
     const [deleteNodeObj, setDeleteNodeObj] = useState<Node>();
 
     const [editRackOpen, setEditRackOpen] = useState(false);
-    const [editRackObj, setEditRackObj] = useState<Node>();
+    const [editRackId, setEditRackId] = useState<string>();
 
     const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance>();
     const reactFlowWrapper = useRef<ReactFlowRefType>(null);
@@ -120,6 +121,7 @@ const Flow = () => {
                             ts: node.rack?.terminal_server?.id ? node.rack?.terminal_server?.id : '',
                             onChange: onChange,
                             delete: deleteNode,
+                            edit: editNode
                         },
                     };
                 })
@@ -177,6 +179,11 @@ const Flow = () => {
     const deleteNode = (node: NewNode) => {
         setDeleteNodeObj(node)
         setDeleteOpen(true)
+    };
+
+    const editNode = (node: NewNode) => {
+        setEditRackId(node.id)
+        setEditRackOpen(true)
     };
 
     const deleteRequest = () => {
@@ -246,14 +253,14 @@ const Flow = () => {
                         id: '',
                         type,
                         position,
-                        data: { label: 'New Rack', fn: "", ts: "", onChange: onChange, delete: deleteNode },
+                        data: { label: 'New Rack', fn: "", ts: "", onChange: onChange, delete: deleteNode, edit: editNode },
                     };
                 } else if (type === 'labelNode') {
                     newNode = {
                         id: '',
                         type,
                         position,
-                        data: { label: 'New Label', onChange: onChange, delete: deleteNode },
+                        data: { label: 'New Label', onChange: onChange, delete: deleteNode, edit: editNode },
                     };
                 }
 
@@ -308,6 +315,7 @@ const Flow = () => {
                 </div>
             </ThemeProvider>
             <DeleteModal isOpen={deleteOpen} close={() => setDeleteOpen(false)} confirm={deleteRequest} node={deleteNodeObj}/>
+            <EditModal isOpen={editRackOpen} close={() => setEditRackOpen(false)} node={nodes.filter((node) => node.id === editRackId)[0]}/>
         </>
     )
 }

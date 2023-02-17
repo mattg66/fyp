@@ -6,17 +6,7 @@ import { DeleteModal } from '../DeleteModal';
 import { EditModal } from './EditRackModal';
 
 export default memo(({ data, id }: any) => {
-  const [deleteOpen, setDeleteOpen] = useState(false)
-  const [editOpen, setEditOpen] = useState(false)
-  //data.delete(id)
-  const deleteLabel = () => {
-    data.delete(id)
-    setDeleteOpen(false)
-  }
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setEditOpen(!editOpen)
-  }
+
   return (
     <>
       <div className="group">
@@ -24,11 +14,10 @@ export default memo(({ data, id }: any) => {
           <p>{data.label}</p>
         </div>
         <div className='group-hover:flex flex-wrap gap-2 pt-2 hidden'>
-          <Button className='nodrag inline' onClick={() => setEditOpen(!editOpen)}>Edit</Button>
+          <Button className='nodrag inline' onClick={() => data.edit({id: id, data: data})}>Edit</Button>
           <Button className='inline nodrag' color="failure" onClick={() => data.delete({id: id, data: data})}>Delete</Button>
         </div>
       </div>
-      {editOpen && <EditModal isOpen={editOpen} close={() => setEditOpen(false)} confirm={deleteLabel} data={data} id={id} />}
     </>
   );
 });
