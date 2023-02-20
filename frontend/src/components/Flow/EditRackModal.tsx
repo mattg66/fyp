@@ -58,7 +58,7 @@ export const EditModal = ({ isOpen, close, node }: EditModal) => {
                             maxLength={50}
                             required={true}
                             value={tempData?.label}
-                            onChange={(e) => setTempData({ ...node.data, label: e.target.value })}
+                            onChange={(e) => setTempData({ ...tempData, label: e.target.value })}
                         />
                         <div>
                             <div className="mb-2 mt-2 block">
@@ -70,7 +70,7 @@ export const EditModal = ({ isOpen, close, node }: EditModal) => {
                             <Select
                                 id="FN"
                                 value={tempData?.fn?.toString()}
-                                onChange={(e) => setTempData({ ...node.data, fn: e.target.value })}
+                                onChange={(e) => setTempData({ ...tempData, fn: e.target.value })}
                             >
                                 <option value=" "> -- Select a Fabric Node -- </option>
                                 {fabricNodes?.json.map((fn: any) => (
@@ -90,7 +90,7 @@ export const EditModal = ({ isOpen, close, node }: EditModal) => {
                             <Select
                                 id="TS"
                                 value={tempData?.ts?.toString()}
-                                onChange={(e) => setTempData({ ...node.data, ts: e.target.value })}
+                                onChange={(e) => setTempData({ ...tempData, ts: e.target.value })}
                             >
                                 <option value=" "> -- Select a TS -- </option>
                                 {terminalServers?.json.map((ts: any) => (

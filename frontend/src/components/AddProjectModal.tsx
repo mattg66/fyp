@@ -16,11 +16,9 @@ export const AddProjectModal = ({ isOpen, close, confirm, project }: AddProjectM
     const [selectedNodes, setSelectedNodes] = useState<any[]>([])
     const [newSelectedNodes, setNewSelectedNodes] = useState<any[]>()
     const handleNodeSelect = (event: OnSelectionChangeParams) => {
-        setNewSelectedNodes(event.nodes)
+        setSelectedNodes(event.nodes)
     }
-    useEffect(() => {
-        setSelectedNodes((selectedNodes) => [...selectedNodes, newSelectedNodes])
-    }, [newSelectedNodes])
+    
     
     console.log(selectedNodes)
     return (

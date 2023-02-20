@@ -314,6 +314,7 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
                         onDrop={onDrop}
                         onDragOver={onDragOver}
                         onSelectionChange={props.selectedNodesCallback && props.selectedNodesCallback}
+                        multiSelectionKeyCode="Shift"
                     >
                         <ControlsStyled>
                             <Drag displayOnly={props.displayOnly} />
