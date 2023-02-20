@@ -14,13 +14,11 @@ interface AddProjectModal {
 export const AddProjectModal = ({ isOpen, close, confirm, project }: AddProjectModal) => {
     const [activeTab, setActiveTab] = useState<number>(0)
     const [selectedNodes, setSelectedNodes] = useState<any[]>([])
-    const [newSelectedNodes, setNewSelectedNodes] = useState<any[]>()
     const handleNodeSelect = (event: OnSelectionChangeParams) => {
         setSelectedNodes(event.nodes)
     }
-    
-    
-    console.log(selectedNodes)
+
+
     return (
         <Modal
             show={isOpen}
@@ -41,6 +39,7 @@ export const AddProjectModal = ({ isOpen, close, confirm, project }: AddProjectM
                     <Tabs.Item title="Rackspace">
                         <div className="w-full h-96 grid grid-cols-4">
                             <div className="col-span-3">
+                                <h2>Shift + Click to select multiple racks</h2>
                                 <Flow displayOnly={true} selectedNodesCallback={handleNodeSelect} />
                             </div>
                             <div className="w-32 text-center">

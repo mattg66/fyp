@@ -50,14 +50,14 @@ export interface NewNode {
     id: string;
     type: string;
     position: { x: number; y: number };
-    data: { label: string; fn?: string; ts?: string; onChange: (event: any, id: string) => Promise<boolean | undefined>; delete: (node: NewNode) => void, edit: (node: NewNode) => void, displayOnly: boolean };
+    data: { label: string; fn?: string; ts?: string; onChange: (event: any, id: string) => Promise<boolean | undefined>; delete: (node: NewNode) => void, edit: (node: NewNode) => void, displayOnly: boolean, selected: boolean };
 }
 const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnSelectionChangeParams) => void }) => {
     const { resolvedTheme } = useTheme()
     const flowTheme = resolvedTheme === 'light' ? lightTheme : darkTheme;
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-
+    const [selectedElements, setSelectedElements] = useState<OnSelectionChangeParams>({ nodes: [], edges: [] });
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [deleteNodeObj, setDeleteNodeObj] = useState<Node>();
 
@@ -77,7 +77,7 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
     }
 
     const { data } = useSWR('/api/node', fetcher, { suspense: true })
-    
+
     interface ServerNode {
         id: number;
         x: number;
@@ -109,6 +109,20 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
         created_at: string;
         updated_at: string;
     }
+    useEffect(() => {
+        if (props.selectedNodesCallback !== undefined) {
+            props.selectedNodesCallback(selectedElements)
+        }
+        setNodes(nodes.map((node: Node) => {
+            return {
+                ...node,
+                data: {
+                    ...node.data,
+                    selected: selectedElements.nodes.filter((selectedNode: Node) => selectedNode.id === node.id).length > 0
+                }
+            }
+        }))
+    }, [selectedElements])
 
     useEffect(() => {
         if (data?.status) {
@@ -125,7 +139,8 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
                             onChange: onChange,
                             delete: deleteNode,
                             edit: editNode,
-                            displayOnly: props.displayOnly
+                            displayOnly: props.displayOnly,
+                            selected: selectedElements.nodes.filter((selectedNode: Node) => selectedNode.id === node.id.toString()).length > 0
                         },
                     };
                 })
@@ -257,14 +272,14 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
                         id: '',
                         type,
                         position,
-                        data: { label: 'New Rack', fn: "", ts: "", onChange: onChange, delete: deleteNode, edit: editNode, displayOnly: props.displayOnly },
+                        data: { label: 'New Rack', fn: "", ts: "", onChange: onChange, delete: deleteNode, edit: editNode, displayOnly: props.displayOnly, selected: false },
                     };
                 } else if (type === 'labelNode') {
                     newNode = {
                         id: '',
                         type,
                         position,
-                        data: { label: 'New Label', onChange: onChange, delete: deleteNode, edit: editNode, displayOnly: props.displayOnly },
+                        data: { label: 'New Label', onChange: onChange, delete: deleteNode, edit: editNode, displayOnly: props.displayOnly, selected: false },
                     };
                 }
 
@@ -280,7 +295,6 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
                             let json = response.json()
                             json.then((data) => {
                                 newNode.id = data.id.toString();
-                                console.log(data)
                                 setNodes((ns) => ns.concat(newNode));
                             })
                         }
@@ -301,8 +315,6 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
                         onEdgesChange={onEdgesChange}
                         onNodeDragStop={onNodeDragStop}
                         nodesDraggable={!props.displayOnly}
-
-
                         //onConnect={onConnect}
                         //style={{ background: bgColor }}
                         nodeTypes={nodeTypes}
@@ -313,7 +325,7 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
                         onInit={setReactFlowInstance}
                         onDrop={onDrop}
                         onDragOver={onDragOver}
-                        onSelectionChange={props.selectedNodesCallback && props.selectedNodesCallback}
+                        onSelectionChange={setSelectedElements}
                         multiSelectionKeyCode="Shift"
                     >
                         <ControlsStyled>
