@@ -58,5 +58,7 @@ return new class extends Migration
     public function down()
     {
         Schema::dropIfExists('fabric_nodes');
+        Schema::dropIfExists('interfaces');
+        Schema::dropIfExists('terminal_servers');
     }
 };
