@@ -1,35 +1,39 @@
 import { fetcher } from "@/app/utils/Fetcher"
 import { Button, Label, Modal, Select, TextInput } from "flowbite-react"
-import { FormEvent, useState } from "react"
+import { FormEvent, useEffect, useState } from "react"
 import { HiOutlineExclamationCircle } from "react-icons/hi"
+import { Node } from "reactflow"
 import useSWR from 'swr'
+import { NewNode } from "."
  
-interface DeleteModal {
+interface EditModal {
     isOpen: boolean,
     close: () => void,
     confirm: () => void,
-    id: string,
-    data: Data
+    node: NewNode
 }
 interface Data {
-    label: string,
-    onChange: (data: any, id: string) => Promise<void>,
-    fn?: number,
-    ts?: number,
+    label?: string;
+    fn?: string | undefined;
+    ts?: string | undefined;
+    onChange? : (data: Data, id: string) => Promise<any>;
+    delete?: (node: NewNode) => void;
 }
-export const EditModal = ({ isOpen, close, data, id }: DeleteModal) => {
-    const [tempData, setTempData] = useState<Data>(data)
-    const { data: terminalServers } = useSWR('/api/ts?withoutRack&rackId=' + id, fetcher, { suspense: true })
-    const { data: fabricNodes } = useSWR('/api/aci/fabric?withoutRack&rackId=' + id, fetcher, { suspense: true })
+export const EditModal = ({ isOpen, close, node }: EditModal) => {
+    useEffect(() => {
+        setTempData(node?.data)
+    }, [node])
+    const [tempData, setTempData] = useState<Data>(node?.data)
+    const { data: terminalServers } = useSWR('/api/ts?withoutRack&rackId=' + node?.id, fetcher)
+    const { data: fabricNodes } = useSWR('/api/aci/fabric?withoutRack&rackId=' + node?.id, fetcher)
     const save = (e: FormEvent) => {
         e.preventDefault()
-        data.onChange(tempData, id).then((result: any) => {
+        node.data.onChange(tempData, node.id).then((result: boolean | undefined) => {
             if (result) {
                 close()
             }
         })
     }
-
     return (
         <Modal
             show={isOpen}
@@ -53,8 +57,8 @@ export const EditModal = ({ isOpen, close, data, id }: DeleteModal) => {
                             placeholder="Rack"
                             maxLength={50}
                             required={true}
-                            value={tempData.label}
-                            onChange={(e) => setTempData({ ...data, label: e.target.value })}
+                            value={tempData?.label}
+                            onChange={(e) => setTempData({ ...tempData, label: e.target.value })}
                         />
                         <div>
                             <div className="mb-2 mt-2 block">
@@ -65,8 +69,8 @@ export const EditModal = ({ isOpen, close, data, id }: DeleteModal) => {
                             </div>
                             <Select
                                 id="FN"
-                                value={tempData.fn?.toString()}
-                                onChange={(e) => setTempData({ ...data, fn: parseInt(e.target.value) })}
+                                value={tempData?.fn?.toString()}
+                                onChange={(e) => setTempData({ ...tempData, fn: e.target.value })}
                             >
                                 <option value=" "> -- Select a Fabric Node -- </option>
                                 {fabricNodes?.json.map((fn: any) => (
@@ -85,8 +89,8 @@ export const EditModal = ({ isOpen, close, data, id }: DeleteModal) => {
                             </div>
                             <Select
                                 id="TS"
-                                value={tempData.ts?.toString()}
-                                onChange={(e) => setTempData({ ...data, ts: parseInt(e.target.value) })}
+                                value={tempData?.ts?.toString()}
+                                onChange={(e) => setTempData({ ...tempData, ts: e.target.value })}
                             >
                                 <option value=" "> -- Select a TS -- </option>
                                 {terminalServers?.json.map((ts: any) => (
