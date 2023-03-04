@@ -19,7 +19,9 @@ return new class extends Migration
             $table->string('dn');
             $table->unsignedInteger('start');
             $table->unsignedInteger('end');
-            $table->boolean('project_pool')->nullable();
+            $table->string('alloc_mode');
+            $table->string('parent_dn');
+            $table->boolean('project_pool')->nullable()->unique();
             $table->timestamps();
 
         });
@@ -36,6 +38,8 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->string('name');
             $table->string('description');
+            $table->string('network');
+            $table->string('subnet_mask');
             $table->timestamps();
             $table->unsignedBigInteger('vlan_id');
             $table->foreign('vlan_id')->references('id')->on('vlans')->onDelete('cascade');

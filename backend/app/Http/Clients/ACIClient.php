@@ -7,8 +7,8 @@ use App\Exceptions\APIClientException;
 use App\Jobs\SyncACI;
 use App\Models\FabricNode;
 use App\Models\InterfaceModel;
+use App\Models\VlanPool;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class ACIClient
 {
@@ -182,7 +182,7 @@ class ACIClient
             $fabricNodes = FabricNode::all();
             foreach ($fabricNodes as $fabricNode) {
                 if ($fabricNode->role === 'leaf') {
-                    $response = $this->client->get('https://192.168.0.125/api/node/class/topology/pod-' . env('ACI_POD') . '/node-' . $fabricNode->aci_id . '/l1PhysIf.json?rsp-subtree=children&rsp-subtree-class=ethpmPhysIf&rsp-subtree-include=required&order-by=l1PhysIf.id|asc', [
+                    $response = $this->client->get('node/class/topology/pod-' . env('ACI_POD') . '/node-' . $fabricNode->aci_id . '/l1PhysIf.json?rsp-subtree=children&rsp-subtree-class=ethpmPhysIf&rsp-subtree-include=required&order-by=l1PhysIf.id|asc', [
                         'headers' => [
                             'Cookie' => 'APIC-cookie=' . $this->authToken,
                         ],
@@ -200,7 +200,7 @@ class ACIClient
                                 ]);
                             } else {
                                 foreach ($fabricNodes as $fabricNode2) {
-                                    if ($fabricNode2->role === 'fex' && $fabricNode2->aci_id == $match[1]) {                                    Log::debug($fabricNode2->role);
+                                    if ($fabricNode2->role === 'fex' && $fabricNode2->aci_id == $match[1]) {
                                         InterfaceModel::updateOrCreate(['dn' => $interface->l1PhysIf->attributes->dn], [
                                             'aci_id' => $interface->l1PhysIf->attributes->id,
                                             'dn' => $interface->l1PhysIf->attributes->dn,
@@ -227,7 +227,7 @@ class ACIClient
     public function getFabricNodeInterfaces($id)
     {
         try {
-            $response = $this->client->get('https://192.168.0.125/api/node/class/topology/pod-' . env('ACI_POD') . '/node-' . $id . '/l1PhysIf.json?rsp-subtree=children&rsp-subtree-class=ethpmPhysIf&rsp-subtree-include=required&order-by=l1PhysIf.id|asc', [
+            $response = $this->client->get('node/class/topology/pod-' . env('ACI_POD') . '/node-' . $id . '/l1PhysIf.json?rsp-subtree=children&rsp-subtree-class=ethpmPhysIf&rsp-subtree-include=required&order-by=l1PhysIf.id|asc', [
                 'headers' => [
                     'Cookie' => 'APIC-cookie=' . $this->authToken,
                 ],
@@ -239,6 +239,84 @@ class ACIClient
                 return false;
             }
         } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function getVlanPools()
+    {
+        try {
+            $response = $this->client->get('node/mo/uni/infra.json?query-target=subtree&target-subtree-class=fvnsVlanInstP&query-target-filter=not(wcard(fvnsVlanInstP.dn,%22__ui_%22))&target-subtree-class=fvnsEncapBlk&query-target=subtree&rsp-subtree=full&rsp-subtree-class=tagAliasInst', [
+                'headers' => [
+                    'Cookie' => 'APIC-cookie=' . $this->authToken,
+                ],
+            ]);
+            $dataArr = [];
+            if ($response->getStatusCode() == 200) {
+                $data = json_decode($response->getBody());
+                foreach ($data->imdata as $item) {
+                    // check if the item has the fvnsVlanInstP key
+                    if (isset($item->fvnsVlanInstP)) {
+                        // get the dn value of the fvnsVlanInstP item
+                        $vlanDn = $item->fvnsVlanInstP->attributes->dn;
+                        $tempData = [];
+                        // iterate through the data array again to find the matching fvnsEncapBlk item
+                        foreach ($data->imdata as $childItem) {
+                            // check if the item has the fvnsEncapBlk key
+                            if (isset($childItem->fvnsEncapBlk)) {
+                                // get the dn value of the fvnsEncapBlk item
+                                $encapDn = $childItem->fvnsEncapBlk->attributes->dn;
+                                // check if the fvnsEncapBlk dn contains the fvnsVlanInstP dn
+                                if (strpos($encapDn, $vlanDn) !== false) {
+                                    // match found, do something with the data
+                                    array_push($tempData, $childItem->fvnsEncapBlk);
+                                }
+                            }
+                        }
+                        $temp = $item->fvnsVlanInstP;
+                        $temp->children = $tempData;
+                        array_push($dataArr, $temp);
+                    }
+                }
+                return $dataArr;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+            
+    }
+    public function syncVlanPools()
+    {
+        DB::beginTransaction();
+        try {
+            $vlanPools = $this->getVlanPools();
+            $dn = [];
+            foreach ($vlanPools as $vlanPool) {
+                if ($vlanPool->children != null) {
+                    foreach ($vlanPool->children as $children) {
+                        array_push($dn, $children->attributes->dn);
+                        $allocMode = '';
+                        if($children->attributes->allocMode === 'inherit') {
+                            $allocMode = $vlanPool->attributes->allocMode;
+                        } else {
+                            $allocMode = $children->attributes->allocMode;
+                        }
+                        VlanPool::updateOrCreate(['dn' => $children->attributes->dn], [
+                            'name' => $vlanPool->attributes->name,
+                            'dn' => $children->attributes->dn,
+                            'start' => substr($children->attributes->from, 5),
+                            'end' => substr($children->attributes->to, 5),
+                            'parent_dn' => $vlanPool->attributes->dn,
+                            'alloc_mode' => $allocMode
+                        ]);
+                    }
+                }
+            }
+            VlanPool::whereNotIn('dn', $dn)->delete();
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
             throw new APIClientException($e->getMessage());
         }
     }

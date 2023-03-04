@@ -8,6 +8,7 @@ use App\Http\Controllers\NodeController;
 use App\Http\Controllers\RackController;
 use App\Http\Controllers\TerminalServerController;
 use App\Http\Controllers\VSphere\StatusController as VSphereStatus;
+use App\Http\Controllers\ProjectController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +30,8 @@ Route::group(['prefix' => 'aci'], function () {
     });
     Route::group(['prefix' => 'fabric'], function () {
         Route::get('/', [ACIFabric::class, 'getNodes']);
+        Route::get('/vlan-pools', [ACIFabric::class, 'getVlanPools']);
+        Route::post('/vlan-pools', [ACIFabric::class, 'setVlanPool']);
     });
     
     Route::get('/version', [ACIStatus::class, 'getVersion']);
@@ -57,4 +60,12 @@ Route::group(['prefix' => 'ts'], function () {
 
 Route::group(['prefix' => 'rack'], function () {
     Route::get('/', [RackController::class, 'getAll']);
+});
+
+Route::group(['prefix' => 'project'], function () {
+    Route::get('/', [ProjectController::class, 'test']);
+    Route::get('/{id}', [ProjectController::class, 'getById']);
+    Route::post('/', [ProjectController::class, 'create']);
+    Route::patch('/{id}', [ProjectController::class, 'updateById']);
+    Route::delete('/{id}', [ProjectController::class, 'deleteById']);
 });

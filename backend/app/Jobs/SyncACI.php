@@ -39,5 +39,6 @@ class SyncACI implements ShouldQueue
         $aciClient = new ACIClient($this->authToken);
         $aciClient->syncFabricNodes();
         $aciClient->syncFabricInterfaces();
+        $aciClient->syncVlanPools();
     }
 }
