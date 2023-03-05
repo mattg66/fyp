@@ -14,7 +14,7 @@ export default function Aci() {
     const { data: vlanPools } = useSWR('/api/aci/fabric/vlan-pools', fetcher, { suspense: true })
 
     useEffect(() => {
-        setVlanPool(vlanPools.json.filter((vp: any) => vp.project_pool === true).id)
+        setVlanPool(vlanPools?.json?.filter((vp: any) => vp.project_pool == true)[0]?.id)
     }, [vlanPools])
 
     const setVlanPoolReq = (id: string) => {
@@ -57,15 +57,14 @@ export default function Aci() {
             ])
         }
     }, [data])
-
     return (
         <>
             <div>
                 <RenderTable data={tableContent} />
                 <Select
                     id="vlanPool"
-                    className="mt-2"
-                    value={vlanPool}
+                    className="mt-5"
+                    value={vlanPool?.toString()}
                     onChange={(e) => setVlanPoolReq(e.target.value)}
                 >
                     <option value=" "> -- Select a Vlan Pool -- </option>

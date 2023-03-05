@@ -114,7 +114,7 @@ class NodeController extends Controller
 
     public function getAll()
     {
-        $nodes = Node::with('rack', 'label', 'rack.terminalServer', 'rack.fabricNode')->get();
+        $nodes = Node::with('rack', 'label', 'rack.terminalServer', 'rack.fabricNode', 'rack.project')->get();
         foreach ($nodes as $node) {
             if ($node->label == null) {
                 unset($node->label);

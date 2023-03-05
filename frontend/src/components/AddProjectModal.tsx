@@ -1,3 +1,4 @@
+import { Project } from "@/app/projects/page"
 import { TabsInterface } from "flowbite"
 import { Alert, Button, Label, Modal, Tabs, TabsRef, Textarea, TextInput } from "flowbite-react"
 import { useEffect, useRef, useState } from "react"
@@ -10,7 +11,7 @@ import Flow, { NewNode } from "./Flow"
 interface AddProjectModal {
     isOpen: boolean,
     close: () => void,
-    confirm: () => void,
+    confirm: (project: Project) => void,
 }
 export const AddProjectModal = ({ isOpen, close, confirm }: AddProjectModal) => {
     const [activeTab, setActiveTab] = useState<number>(0)
@@ -26,7 +27,7 @@ export const AddProjectModal = ({ isOpen, close, confirm }: AddProjectModal) => 
         network: string,
         subnet_mask: string,
     }
-    const { register, handleSubmit, watch, formState: { errors, submitCount }, getValues } = useForm<NewProject>();
+    const { register, handleSubmit, formState: { errors, submitCount }, getValues, reset } = useForm<NewProject>();
     useEffect(() => {
         if (errors?.description || errors?.name) {
             tabsRef.current?.setActiveTab(0)
@@ -45,7 +46,10 @@ export const AddProjectModal = ({ isOpen, close, confirm }: AddProjectModal) => 
         fetch('/api/project/', requestOptions).then((response) => {
             if (response.status === 201) {
                 response.json().then((data) => {
-
+                    toast.success(data.message)
+                    reset()
+                    tabsRef.current?.setActiveTab(0)
+                    confirm(data.project)
                 })
             } else {
                 response.json().then((data) => {

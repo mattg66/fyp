@@ -25,5 +25,9 @@ class Rack extends Model
         return $this->hasOne(FabricNode::class);
     }
 
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
     protected $hidden = [];
 }

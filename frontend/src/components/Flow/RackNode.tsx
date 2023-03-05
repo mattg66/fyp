@@ -7,8 +7,11 @@ export default memo(({ data, id }: any) => {
   return (
     <>
       <div className="group">
-        <div className={clsx("border bg-white dark:bg-gray-800 h-40 w-20 flex items-center justify-center text-center text-ellipsis overflow-hidden", data.selected && 'border-red-500')}>
-          <p>{data.label}</p>
+        <div className={clsx("border h-40 w-20 flex items-center justify-center text-center text-ellipsis overflow-hidden", data.selected && 'border-white border-4', data.project != null || data.project != undefined ? 'bg-red-600' : 'bg-green-600')}>
+          <div>
+            <p>{data.label}</p>
+            <p>{data.project?.name}</p>
+          </div>
         </div>
         {!data.displayOnly &&
           <div className='group-hover:flex flex-wrap gap-2 pt-2 hidden'>

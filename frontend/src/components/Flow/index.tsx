@@ -13,6 +13,7 @@ import { DeleteModal } from '../DeleteModal';
 import { fetcher } from '@/app/utils/Fetcher';
 import { toast } from 'react-toastify';
 import { EditModal } from './EditRackModal';
+import { Project } from '@/app/projects/page';
 
 interface ControlsProps {
     theme: Theme
@@ -50,7 +51,7 @@ export interface NewNode {
     id: string;
     type: string;
     position: { x: number; y: number };
-    data: { label: string; fn?: string; ts?: string; onChange: (event: any, id: string) => Promise<boolean | undefined>; delete: (node: NewNode) => void, edit: (node: NewNode) => void, displayOnly: boolean, selected: boolean };
+    data: { label: string; project?: Project; fn?: string; ts?: string; onChange: (event: any, id: string) => Promise<boolean | undefined>; delete: (node: NewNode) => void, edit: (node: NewNode) => void, displayOnly: boolean, selected: boolean };
 }
 const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnSelectionChangeParams) => void }) => {
     const { resolvedTheme } = useTheme()
@@ -95,6 +96,7 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
         updated_at: string;
         terminal_server?: TerminalServer;
         fabric_node?: FabricNode;
+        project?: Project;
     }
     interface TerminalServer {
         label: string;
@@ -134,6 +136,7 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
                         position: { x: node.x, y: node.y },
                         data: {
                             label: node.rack ? node.rack.label : node.label?.label,
+                            project: node.rack?.project,
                             fn: node.rack?.fabric_node?.id ? node.rack?.fabric_node?.id : '',
                             ts: node.rack?.terminal_server?.id ? node.rack?.terminal_server?.id : '',
                             onChange: onChange,
@@ -272,7 +275,7 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
                         id: '',
                         type,
                         position,
-                        data: { label: 'New Rack', fn: "", ts: "", onChange: onChange, delete: deleteNode, edit: editNode, displayOnly: props.displayOnly, selected: false },
+                        data: { label: 'New Rack', project: undefined, fn: "", ts: "", onChange: onChange, delete: deleteNode, edit: editNode, displayOnly: props.displayOnly, selected: false },
                     };
                 } else if (type === 'labelNode') {
                     newNode = {

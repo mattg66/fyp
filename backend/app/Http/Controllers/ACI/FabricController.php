@@ -63,7 +63,7 @@ class FabricController extends Controller
         }
         $existing = VlanPool::where('project_pool', '=', true)->first();
         if ($existing != null) {
-            $existing->project_pool = false;
+            $existing->project_pool = null;
             $existing->save();
         }
         $vlanPool = VlanPool::find($request->id);
@@ -72,7 +72,7 @@ class FabricController extends Controller
                 'message' => 'VLAN Pool not found',
             ], 404);
         }
-        $vlanPool->project_pool = null;
+        $vlanPool->project_pool = true;
         $vlanPool->save();
         return response()->json([
             'message' => 'VLAN Pool set',

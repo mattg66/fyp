@@ -27,8 +27,6 @@ return new class extends Migration
         });
         Schema::create('vlans', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('dn');
             $table->unsignedInteger('vlan_id')->unique();
             $table->timestamps();
             $table->unsignedBigInteger('vlan_pool_id');
@@ -41,7 +39,7 @@ return new class extends Migration
             $table->string('network');
             $table->string('subnet_mask');
             $table->timestamps();
-            $table->unsignedBigInteger('vlan_id');
+            $table->unsignedBigInteger('vlan_id')->unique();
             $table->foreign('vlan_id')->references('id')->on('vlans')->onDelete('cascade');
         });
         Schema::table('racks', function (Blueprint $table) {
