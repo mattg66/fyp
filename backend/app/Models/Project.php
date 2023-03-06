@@ -12,4 +12,8 @@ class Project extends Model
     {
         return $this->hasMany(Rack::class);
     }
+    public function vlan()
+    {
+        return $this->hasOne(Vlan::class);
+    }
 }

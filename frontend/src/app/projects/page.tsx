@@ -16,7 +16,7 @@ export interface Project {
 export default function Rackspace() {
     const [addProjectOpen, setAddProjectOpen] = useState(false)
     const { data } = useSWR('/api/project', fetcher, { suspense: true })
-    
+
     const [projects, setProjects] = useState<Project[]>([])
     const [deleteOpen, setDeleteOpen] = useState(false)
     const [deleteId, setDeleteId] = useState('')
@@ -28,6 +28,18 @@ export default function Rackspace() {
         setProjects(data?.json)
     }, [data])
 
+    const deleteProject = () => {
+        const requestOptions = {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+        }
+        fetch(`/api/project/${deleteId}`, requestOptions).then((response) => {
+            if (response.status === 200) {
+                setProjects(projects.filter((project) => project.id !== deleteId))
+                setDeleteOpen(false)
+            }
+        })
+    }
     return (
         <>
             <Button className="float-right" onClick={() => setAddProjectOpen(true)}>Add Project</Button>
@@ -67,13 +79,13 @@ export default function Rackspace() {
                                 {project.subnet_mask}
                             </Table.Cell>
                             <Table.Cell>
-                                <Button onClick={() => {setDeleteOpen(true); setDeleteId(project.id)}} color="failure">Delete</Button>
+                                <Button onClick={() => { setDeleteOpen(true); setDeleteId(project.id) }} color="failure">Delete</Button>
                             </Table.Cell>
                         </Table.Row>
                     ))}
                 </Table.Body>
             </Table>
-            <DeleteModal isOpen={deleteOpen} close={() => setDeleteOpen(false)} confirm={() => { }} label={projects?.filter((project) => project.id === deleteId)[0]?.name}/>
+            <DeleteModal isOpen={deleteOpen} close={() => setDeleteOpen(false)} confirm={deleteProject} label={projects?.filter((project) => project.id === deleteId)[0]?.name} />
         </>
     )
 }

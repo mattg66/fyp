@@ -77,7 +77,7 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
         fetch('/api/node/' + node.id, requestOptions)
     }
 
-    const { data } = useSWR('/api/node', fetcher, { suspense: true })
+    const { data } = useSWR('/api/node', fetcher, { suspense: true }, )
 
     interface ServerNode {
         id: number;

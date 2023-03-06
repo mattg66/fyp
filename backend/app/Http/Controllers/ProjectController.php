@@ -32,7 +32,25 @@ class ProjectController extends Controller
 
         return (bindec($network_address_binary) & bindec($subnet_mask_binary)) == bindec($network_address_binary);
     }
-
+    public function calculateNextSubnet($projects)
+    {
+        $firstIp = explode('.', '10.0.0.0');
+        for ($i = 0; $i < 256; $i++) {
+            $exists = false;
+            foreach ($projects as $project) {
+                $projIp = explode('.', $project->network);
+                if ($projIp[0] == $firstIp[0] && $projIp[1] == $i) {
+                    $exists = true;
+                }
+            }
+            if (!$exists) {
+                return [
+                    'network' => '10' . '.' . $i . '.0.0',
+                    'subnet_mask' => '255.255.0.0',
+                ];
+            }
+        }
+    }
     public function create(Request $request)
     {
         $this->validate($request, [
@@ -43,36 +61,15 @@ class ProjectController extends Controller
             'racks' => 'array',
             'racks.*' => 'integer|exists:racks,id',
         ]);
-        DB::beginTransaction();
         $vlanPool = VlanPool::where('project_pool', true)->first();
         if (!$vlanPool) {
-            DB::rollBack();
             return response()->json([
                 'message' => 'No VLAN Pool has been set',
             ], 400);
         }
+        DB::beginTransaction();
         $existingVlan = Vlan::orderBy('vlan_id', 'desc')->first();
         $project = new Project();
-        if ($existingVlan == null) {
-            $vlan = new Vlan();
-            $vlan->vlan_id = $vlanPool->start;
-            $vlan->vlan_pool_id = $vlanPool->id;
-            $vlan->save();
-            $project->vlan_id = $vlan->id;
-        } else {
-            if ($existingVlan->vlan_id + 1 == $vlanPool->end) {
-                DB::rollBack();
-                return response()->json([
-                    'message' => 'No VLANs available',
-                ], 400);
-            } else {
-                $vlan = new Vlan();
-                $vlan->vlan_id = $existingVlan->vlan_id + 1;
-                $vlan->vlan_pool_id = $vlanPool->id;
-                $vlan->save();
-                $project->vlan_id = $vlan->id;
-            }
-        }
         $project->name = $request->name;
         $project->description = $request->description;
         if ($request->network != null && $request->subnet_mask != null) {
@@ -85,49 +82,59 @@ class ProjectController extends Controller
             $project->network = $request->network;
             $project->subnet_mask = $request->subnet_mask;
         } else {
-            $networks = Project::select('network', 'subnet_mask')
-                ->whereRaw('INET_ATON(network) & INET_ATON(subnet_mask) = INET_ATON(network)')
-                ->orderBy('network')
-                ->get();
-
-            $last_subnet = null;
-
-            foreach ($networks as $network) {
-                $subnet_parts = explode('.', $network->subnet_mask);
-                if ($subnet_parts[0] == 255 && $subnet_parts[1] == 255) {
-                    $last_subnet = $network;
+            $projects = Project::orderBy('network', 'asc')->get();
+            $nextNetwork = $this->calculateNextSubnet($projects);
+            $project->network = $nextNetwork['network'];
+            $project->subnet_mask = '255.255.0.0';
+            $project->save();
+            if ($existingVlan == null) {
+                $vlan = new Vlan();
+                $vlan->vlan_id = $vlanPool->start;
+                $vlan->vlan_pool_id = $vlanPool->id;
+                $vlan->project_id = $project->id;
+                $vlan->save();
+            } else {
+                if ($existingVlan->vlan_id + 1 == $vlanPool->end) {
+                    DB::rollBack();
+                    return response()->json([
+                        'message' => 'No VLANs available',
+                    ], 400);
                 } else {
-                    break;
+                    $vlan = new Vlan();
+                    $vlan->vlan_id = $existingVlan->vlan_id + 1;
+                    $vlan->vlan_pool_id = $vlanPool->id;
+                    $vlan->project_id = $project->id;
+                    $vlan->save();
                 }
             }
-
-            if (!$last_subnet) {
-                $next_subnet = '10.0.0.0';
-            } else {
-                $last_subnet_parts = explode('.', $last_subnet->network);
-                $next_subnet_parts = array_slice($last_subnet_parts, 1);
-                $next_subnet_parts[0]++;
-                $next_subnet = implode('.', array_merge(array_slice($last_subnet_parts, 0, 1), $next_subnet_parts));
+            $racks = Rack::whereIn('id', $request->racks)->get();
+            if ($request->racks) {
+                $project->racks()->saveMany($racks);
             }
-            $project->network = $next_subnet;
-            $project->subnet_mask = '255.255.0.0';
+            DB::commit();
+            return response()->json([
+                'message' => 'Project created successfully',
+                'project' => $project,
+            ], 201);
         }
-
-        $project->save();
-        $racks = Rack::whereIn('id', $request->racks)->get();
-        if ($request->racks) {
-            $project->racks()->saveMany($racks);
-        }
-        DB::commit();
-        return response()->json([
-            'message' => 'Project created successfully',
-            'project' => $project,
-        ], 201);
     }
     public function getAll()
     {
-        $projects = Project::all();
+        $projects = Project::with('vlan')->get();
         return response()->json($projects);
+    }
+    public function deleteById($id)
+    {
+        $project = Project::find($id);
+        if (!$project) {
+            return response()->json([
+                'message' => 'Project not found',
+            ], 404);
+        }
+        $project->delete();
+        return response()->json([
+            'message' => 'Project deleted successfully',
+        ], 200);
     }
     public function test()
     {

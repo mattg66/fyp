@@ -25,13 +25,6 @@ return new class extends Migration
             $table->timestamps();
 
         });
-        Schema::create('vlans', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedInteger('vlan_id')->unique();
-            $table->timestamps();
-            $table->unsignedBigInteger('vlan_pool_id');
-            $table->foreign('vlan_pool_id')->references('id')->on('vlan_pools')->onDelete('cascade');
-        });
         Schema::create('projects', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name');
@@ -39,8 +32,15 @@ return new class extends Migration
             $table->string('network');
             $table->string('subnet_mask');
             $table->timestamps();
-            $table->unsignedBigInteger('vlan_id')->unique();
-            $table->foreign('vlan_id')->references('id')->on('vlans')->onDelete('cascade');
+        });
+        Schema::create('vlans', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->unsignedInteger('vlan_id')->unique();
+            $table->timestamps();
+            $table->unsignedBigInteger('vlan_pool_id');
+            $table->foreign('vlan_pool_id')->references('id')->on('vlan_pools')->onDelete('cascade');
+            $table->unsignedBigInteger('project_id');
+            $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
         });
         Schema::table('racks', function (Blueprint $table) {
             $table->unsignedBigInteger('project_id')->nullable();

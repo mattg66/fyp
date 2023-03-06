@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Vlan extends Model
 {
     use HasFactory;
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
 }
