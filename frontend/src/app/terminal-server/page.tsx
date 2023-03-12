@@ -32,7 +32,7 @@ export default function TerminalServers() {
 
     const { data: racks } = useSWR('/api/rack?withoutTS', fetcher, { suspense: true })
     const { data: nodes } = useSWR('/api/aci/fabric', fetcher, { suspense: true })
-    const { data: interfaces } = useSWR(watchNode ? '/api/aci/fabric/node/' + watchNode + '/interfaces': null, fetcher)
+    const { data: interfaces } = useSWR(watchNode ? '/api/aci/fabric/node/' + watchNode + '/interfaces' : null, fetcher)
 
 
     // useEffect(() => {
@@ -185,15 +185,18 @@ export default function TerminalServers() {
 
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button type="submit">
-                            Add
-                        </Button>
-                        <Button
-                            color="gray"
-                            onClick={() => setAddModal(false)}
-                        >
-                            Cancel
-                        </Button>
+                        <div className='flex flex-row justify-end w-full'>
+
+                            <Button type="submit">
+                                Add
+                            </Button>
+                            <Button
+                                color="gray"
+                                onClick={() => setAddModal(false)}
+                            >
+                                Cancel
+                            </Button>
+                        </div>
                     </Modal.Footer>
                 </form>
 

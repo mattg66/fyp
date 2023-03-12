@@ -30,6 +30,8 @@ Route::group(['prefix' => 'aci'], function () {
     });
     Route::group(['prefix' => 'fabric'], function () {
         Route::get('/', [ACIFabric::class, 'getNodes']);
+        Route::get('/interface-profiles', [ACIFabric::class, 'getInterfaceProfiles']);
+        Route::post('/interface-profiles', [ACIFabric::class, 'setInterfaceProfiles']);
         Route::get('/vlan-pools', [ACIFabric::class, 'getVlanPools']);
         Route::post('/vlan-pools', [ACIFabric::class, 'setVlanPool']);
     });

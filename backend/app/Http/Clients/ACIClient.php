@@ -284,7 +284,6 @@ class ACIClient
         } catch (\Exception $e) {
             throw new APIClientException($e->getMessage());
         }
-            
     }
     public function syncVlanPools()
     {
@@ -297,7 +296,7 @@ class ACIClient
                     foreach ($vlanPool->children as $children) {
                         array_push($dn, $children->attributes->dn);
                         $allocMode = '';
-                        if($children->attributes->allocMode === 'inherit') {
+                        if ($children->attributes->allocMode === 'inherit') {
                             $allocMode = $vlanPool->attributes->allocMode;
                         } else {
                             $allocMode = $children->attributes->allocMode;
@@ -317,6 +316,176 @@ class ACIClient
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function getInterfaceProfiles()
+    {
+
+        try {
+            $leafResponse = $this->client->get('node/mo/uni/infra.json?query-target=subtree&target-subtree-class=infraAccPortP&query-target-filter=not(wcard(infraAccPortP.dn,"__ui_"))&query-target=children&order-by=infraAccPortP.name|asc', [
+                'headers' => [
+                    'Cookie' => 'APIC-cookie=' . $this->authToken,
+                ],
+            ]);
+            $fexResponse = $this->client->get('node/mo/uni/infra.json?query-target=subtree&target-subtree-class=infraFexP&query-target-filter=not(wcard(infraFexP.dn,"__ui_"))&query-target=children&target-subtree-class=infraFexP&order-by=infraFexP.name|asc', [
+                'headers' => [
+                    'Cookie' => 'APIC-cookie=' . $this->authToken,
+                ],
+            ]);
+            if ($leafResponse->getStatusCode() === 200 && $fexResponse->getStatusCode() === 200) {
+                return [
+                    'leaf' => json_decode($leafResponse->getBody())->imdata,
+                    'fex' => json_decode($fexResponse->getBody())->imdata
+                ];
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function upsertPhysDom($vlanPoolDn)
+    {
+        $payload = [
+            'physDomP' => [
+                'attributes' => [
+                    'dn' => 'uni/phys-AutomationPhysDom',
+                    'name' => 'AutomationPhysDom',
+                    'rn' => 'phys-AutomationPhysDom',
+                    'status' => 'created'
+                ],
+                'children' => [
+                    [
+                        'infraRsVlanNs' => [
+                            'attributes' => [
+                                'tDn' => $vlanPoolDn,
+                                'status' => 'created,modified'
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        try {
+            $response = $this->client->post('node/mo/uni/phys-AutomationPhysDom.json', [
+                'headers' => [
+                    'Cookie' => 'APIC-cookie=' . $this->authToken,
+                ],
+                'body' => json_encode($payload, JSON_UNESCAPED_SLASHES),
+                'http_errors' => false
+            ]);
+            if ($response->getStatusCode() === 400) {
+                $update = $this->client->post('node/mo/uni/phys-AutomationPhysDom/rsvlanNs.json', [
+                    'headers' => [
+                        'Cookie' => 'APIC-cookie=' . $this->authToken,
+                    ],
+                    'body' => json_encode([
+                        'infraRsVlanNs' => [
+                            'attributes' => [
+                                'tDn' => $vlanPoolDn,
+                            ]
+                        ]
+                    ], JSON_UNESCAPED_SLASHES),
+                ]);
+                if ($update->getStatusCode() === 200) {
+                    if ($this->upsertAAEP()) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+            if ($response->getStatusCode() === 200) {
+                if ($this->upsertAAEP()) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function upsertAAEP()
+    {
+        $payload = [
+            "infraInfra" => [
+                "attributes" => [
+                    "dn" => "uni/infra",
+                    "status" => "modified"
+                ],
+                "children" => [
+                    [
+                        "infraAttEntityP" => [
+                            "attributes" => [
+                                "dn" => "uni/infra/attentp-AutomationAAEP",
+                                "name" => "AutomationAAEP",
+                                "rn" => "attentp-AutomationAAEP",
+                                "status" => "created"
+                            ],
+                            "children" => [
+                                [
+                                    "infraRsDomP" => [
+                                        "attributes" => [
+                                            "tDn" => "uni/phys-AutomationPhysDom",
+                                            "status" => "created"
+                                        ],
+                                        "children" => []
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        "infraFuncP" => [
+                            "attributes" => [
+                                "dn" => "uni/infra/funcprof",
+                                "status" => "modified"
+                            ],
+                            "children" => []
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        try {
+            $response = $this->client->post('node/mo/uni/infra.json', [
+                'headers' => [
+                    'Cookie' => 'APIC-cookie=' . $this->authToken,
+                ],
+                'body' => json_encode($payload, JSON_UNESCAPED_SLASHES),
+                'http_errors' => false
+            ]);
+            if ($response->getStatusCode() === 200) {
+                return true;
+            } else if ($response->getStatusCode() === 400) {
+                $update = $this->client->post('node/mo/uni/infra/attentp-AutomationAAEP.json', [
+                    'headers' => [
+                        'Cookie' => 'APIC-cookie=' . $this->authToken,
+                    ],
+                    'http_errors' => false,
+                    'body' => json_encode([
+                        "infraRsDomP" => [
+                            "attributes" => [
+                                "tDn" => "uni/phys-AutomationPhysDom",
+                                "status" => "created"
+                            ],
+                            "children" => []
+                        ]
+                    ], JSON_UNESCAPED_SLASHES),
+                ]);
+                if ($update->getStatusCode() === 200 || ($update->getStatusCode() === 400 && json_decode($update->getBody())->imdata[0]->error->attributes->code === '103')) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
             throw new APIClientException($e->getMessage());
         }
     }

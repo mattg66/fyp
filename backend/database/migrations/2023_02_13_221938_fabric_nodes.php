@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('serial')->unique();
             $table->string('description');
             $table->string('dn');
+            $table->string('int_profile')->nullable()->unique();
             $table->timestamps();
             $table->unsignedBigInteger('rack_id')->nullable();
             $table->foreign('rack_id')->references('id')->on('racks')->onDelete('set null');

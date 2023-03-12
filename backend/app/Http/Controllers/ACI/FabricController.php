@@ -9,6 +9,7 @@ use App\Models\FabricNode;
 use App\Models\InterfaceModel;
 use App\Models\Project;
 use App\Models\VlanPool;
+use Illuminate\Database\QueryException;
 
 class FabricController extends Controller
 {
@@ -54,8 +55,8 @@ class FabricController extends Controller
     public function setVlanPool(Request $request)
     {
         $this->validate($request, [
-            'id' => 'required|numeric',
-        ]); 
+            'id' => 'numeric|nullable',
+        ]);
         if (Project::count() != 0) {
             return response()->json([
                 'message' => 'VLAN Pool in use, remove all projects first',
@@ -66,6 +67,11 @@ class FabricController extends Controller
             $existing->project_pool = null;
             $existing->save();
         }
+        if ($request->id == null) {
+            return response()->json([
+                'message' => 'VLAN Pool set',
+            ]);
+        }
         $vlanPool = VlanPool::find($request->id);
         if ($vlanPool == null) {
             return response()->json([
@@ -74,8 +80,49 @@ class FabricController extends Controller
         }
         $vlanPool->project_pool = true;
         $vlanPool->save();
+        $aci = new ACIClient();
+        $aci->upsertPhysDom($vlanPool->parent_dn);
         return response()->json([
             'message' => 'VLAN Pool set',
+        ]);
+    }
+    public function getInterfaceProfiles()
+    {
+        $aci = new ACIClient();
+        return response()->json(
+            $aci->getInterfaceProfiles()
+        );
+    }
+    public function setInterfaceProfiles(Request $request)
+    {
+        $this->validate($request, [
+            '*' => 'required|array',
+            '*.id' => 'numeric',
+            '*.dn' => 'string|nullable',
+        ]);
+        try {
+            foreach ($request->all() as $param) {
+                    $node = FabricNode::find($param['id']);
+                    if ($node == null) {
+                        return response()->json([
+                            'message' => 'Node not found',
+                        ], 404);
+                    }
+                    if ($param['dn'] != null ) {
+                        $node->int_profile = $param['dn'];
+                    } else {
+                        $node->int_profile = null;
+                    }
+                    $node->save();
+            }
+        } catch (QueryException $e) {
+            if ($e->getCode() == 23000)
+                return response()->json([
+                    'message' => 'Duplicate interface profile',
+                ], 400);
+        }
+        return response()->json([
+            'message' => 'Interface Profiles set',
         ]);
     }
 }
