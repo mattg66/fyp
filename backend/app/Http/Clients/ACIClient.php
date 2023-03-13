@@ -9,6 +9,7 @@ use App\Models\FabricNode;
 use App\Models\InterfaceModel;
 use App\Models\VlanPool;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ACIClient
 {
@@ -101,7 +102,7 @@ class ACIClient
     {
         DB::beginTransaction();
         try {
-            $response = $this->client->get('node/mo/topology/pod-' . env('ACI_POD') . '.json?query-target=children&target-subtree-class=fabricNode&query-target-filter=and(not(wcard(fabricNode.dn,"__ui_")),and(ne(fabricNode.role,"controller")))', [
+            $response = $this->client->get('node/mo/topology/pod-' . env('ACI_POD') . '.json?query-target=children&target-subtree-class=fabricNode&query-target-filter=and(not(wcard(fabricNode.dn,\'__ui_\')),and(ne(fabricNode.role,\'controller\')))', [
                 'headers' => [
                     'Cookie' => 'APIC-cookie=' . $this->authToken,
                 ],
@@ -323,12 +324,12 @@ class ACIClient
     {
 
         try {
-            $leafResponse = $this->client->get('node/mo/uni/infra.json?query-target=subtree&target-subtree-class=infraAccPortP&query-target-filter=not(wcard(infraAccPortP.dn,"__ui_"))&query-target=children&order-by=infraAccPortP.name|asc', [
+            $leafResponse = $this->client->get('node/mo/uni/infra.json?query-target=subtree&target-subtree-class=infraAccPortP&query-target-filter=not(wcard(infraAccPortP.dn,\'__ui_\'))&query-target=children&order-by=infraAccPortP.name|asc', [
                 'headers' => [
                     'Cookie' => 'APIC-cookie=' . $this->authToken,
                 ],
             ]);
-            $fexResponse = $this->client->get('node/mo/uni/infra.json?query-target=subtree&target-subtree-class=infraFexP&query-target-filter=not(wcard(infraFexP.dn,"__ui_"))&query-target=children&target-subtree-class=infraFexP&order-by=infraFexP.name|asc', [
+            $fexResponse = $this->client->get('node/mo/uni/infra.json?query-target=subtree&target-subtree-class=infraFexP&query-target-filter=not(wcard(infraFexP.dn,\'__ui_\'))&query-target=children&target-subtree-class=infraFexP&order-by=infraFexP.name|asc', [
                 'headers' => [
                     'Cookie' => 'APIC-cookie=' . $this->authToken,
                 ],
@@ -412,40 +413,40 @@ class ACIClient
     public function upsertAAEP()
     {
         $payload = [
-            "infraInfra" => [
-                "attributes" => [
-                    "dn" => "uni/infra",
-                    "status" => "modified"
+            'infraInfra' => [
+                'attributes' => [
+                    'dn' => 'uni/infra',
+                    'status' => 'modified'
                 ],
-                "children" => [
+                'children' => [
                     [
-                        "infraAttEntityP" => [
-                            "attributes" => [
-                                "dn" => "uni/infra/attentp-AutomationAAEP",
-                                "name" => "AutomationAAEP",
-                                "rn" => "attentp-AutomationAAEP",
-                                "status" => "created"
+                        'infraAttEntityP' => [
+                            'attributes' => [
+                                'dn' => 'uni/infra/attentp-AutomationAAEP',
+                                'name' => 'AutomationAAEP',
+                                'rn' => 'attentp-AutomationAAEP',
+                                'status' => 'created'
                             ],
-                            "children" => [
+                            'children' => [
                                 [
-                                    "infraRsDomP" => [
-                                        "attributes" => [
-                                            "tDn" => "uni/phys-AutomationPhysDom",
-                                            "status" => "created"
+                                    'infraRsDomP' => [
+                                        'attributes' => [
+                                            'tDn' => 'uni/phys-AutomationPhysDom',
+                                            'status' => 'created'
                                         ],
-                                        "children" => []
+                                        'children' => []
                                     ]
                                 ]
                             ]
                         ]
                     ],
                     [
-                        "infraFuncP" => [
-                            "attributes" => [
-                                "dn" => "uni/infra/funcprof",
-                                "status" => "modified"
+                        'infraFuncP' => [
+                            'attributes' => [
+                                'dn' => 'uni/infra/funcprof',
+                                'status' => 'modified'
                             ],
-                            "children" => []
+                            'children' => []
                         ]
                     ]
                 ]
@@ -468,12 +469,12 @@ class ACIClient
                     ],
                     'http_errors' => false,
                     'body' => json_encode([
-                        "infraRsDomP" => [
-                            "attributes" => [
-                                "tDn" => "uni/phys-AutomationPhysDom",
-                                "status" => "created"
+                        'infraRsDomP' => [
+                            'attributes' => [
+                                'tDn' => 'uni/phys-AutomationPhysDom',
+                                'status' => 'created'
                             ],
-                            "children" => []
+                            'children' => []
                         ]
                     ], JSON_UNESCAPED_SLASHES),
                 ]);
@@ -482,6 +483,280 @@ class ACIClient
                 } else {
                     return false;
                 }
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function deleteTenant($projectName)
+    {
+        $payload = [
+            "fvTenant" => [
+                "attributes" => [
+                    "dn" => "uni/tn-Automation_" . $projectName,
+                    "status" => "deleted"
+                ],
+                "children" => []
+            ]
+        ];
+        try {
+            $response = $this->client->post('node/mo/uni/tn-Automation_' . $projectName . '.json', [
+                'headers' => [
+                    'Cookie' => 'APIC-cookie=' . $this->authToken,
+                ],
+                'body' => json_encode($payload, JSON_UNESCAPED_SLASHES),
+                'http_errors' => false
+            ]);
+            if ($response->getStatusCode() === 200) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function createTenant($projectName)
+    {
+        $payload = [
+            'fvTenant' => [
+                'attributes' => [
+                    'dn' => 'uni/tn-Automation_' . $projectName,
+                    'name' => 'Automation_' . $projectName,
+                    'rn' => 'tn-Automation_' . $projectName,
+                    'status' => 'created'
+                ],
+                'children' => [
+                    [
+                        'fvCtx' => [
+                            'attributes' => [
+                                'dn' => 'uni/tn-Automation_' . $projectName . '/ctx-Automation_' . $projectName . 'VRF',
+                                'name' => 'Automation_' . $projectName . 'VRF',
+                                'rn' => 'ctx-Automation_' . $projectName . 'VRF',
+                                'status' => 'created'
+                            ],
+                            'children' => []
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        try {
+            $response = $this->client->post('node/mo/uni/tn-Automation_' . $projectName . '.json', [
+                'headers' => [
+                    'Cookie' => 'APIC-cookie=' . $this->authToken,
+                ],
+                'body' => json_encode($payload, JSON_UNESCAPED_SLASHES),
+                'http_errors' => false
+            ]);
+            Log::debug($response->getBody());
+            if ($response->getStatusCode() === 200) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function createBD($projectName)
+    {
+        $payload =  [
+            "fvBD" => [
+                "attributes" => [
+                    "dn" => "uni/tn-Automation_" . $projectName . "/BD-Automation_" . $projectName . "BD",
+                    "mac" => "00:22:BD:F8:19:FF",
+                    "arpFlood" => "true",
+                    "name" => "Automation_" . $projectName . "BD",
+                    "unicastRoute" => "false",
+                    "rn" => "BD-Automation_" . $projectName . "BD",
+                    "status" => "created"
+                ],
+                "children" => [
+                    [
+                        "fvRsCtx" => [
+                            "attributes" => [
+                                "tnFvCtxName" => "Automation_" . $projectName . "VRF",
+                                "status" => "created,modified"
+                            ],
+                            "children" => []
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        try {
+            $response = $this->client->post('node/mo/uni/tn-Automation_' . $projectName . '/BD-Automation_' . $projectName . 'BD.json', [
+                'headers' => [
+                    'Cookie' => 'APIC-cookie=' . $this->authToken,
+                ],
+                'body' => json_encode($payload, JSON_UNESCAPED_SLASHES),
+                'http_errors' => false
+            ]);
+            Log::debug($response->getBody());
+            if ($response->getStatusCode() === 200) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function createAP($projectName)
+    {
+        $payload = [
+            "fvAp" => [
+                "attributes" => [
+                    "dn" => "uni/tn-Automation_" . $projectName . "/ap-Automation_" . $projectName . "AP",
+                    "name" => "Automation_" . $projectName . "AP",
+                    "rn" => "ap-Automation_" . $projectName . "AP",
+                    "status" => "created"
+                ],
+                "children" => []
+            ]
+        ];
+        try {
+            $response = $this->client->post('node/mo/uni/tn-Automation_' . $projectName . '/ap-Automation_' . $projectName . 'AP.json', [
+                'headers' => [
+                    'Cookie' => 'APIC-cookie=' . $this->authToken,
+                ],
+                'body' => json_encode($payload, JSON_UNESCAPED_SLASHES),
+                'http_errors' => false
+            ]);
+            if ($response->getStatusCode() === 200) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function createEPG($projectName)
+    {
+        $payload = [
+            "fvAEPg" => [
+                "attributes" => [
+                    "dn" => "uni/tn-Automation_" . $projectName . "/ap-Automation_" . $projectName . "AP/epg-Automation_" . $projectName . "EPG",
+                    "prio" => "level3",
+                    "name" => "Automation_" . $projectName . "EPG",
+                    "rn" => "epg-Automation_" . $projectName . "EPG",
+                    "status" => "created"
+                ],
+                "children" => [
+                    [
+                        "fvRsBd" => [
+                            "attributes" => [
+                                "tnFvBDName" => "Automation_" . $projectName . "BD",
+                                "status" => "created,modified"
+                            ],
+                            "children" => []
+                        ]
+                    ],
+                    [
+                        "fvRsDomAtt" => [
+                            "attributes" => [
+                                "tDn" => "uni/vmmp-VMware/dom-" . env('ACI_VMWARE_DOMAIN'),
+                                "resImedcy" => "pre-provision",
+                                "status" => "created"
+                            ],
+                            "children" => []
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        try {
+            $response = $this->client->post('node/mo/uni/tn-Automation_' . $projectName . '/ap-Automation_' . $projectName . 'AP/epg-Automation_' . $projectName . 'EPG.json', [
+                'headers' => [
+                    'Cookie' => 'APIC-cookie=' . $this->authToken,
+                ],
+                'body' => json_encode($payload, JSON_UNESCAPED_SLASHES),
+                'http_errors' => false
+            ]);
+            if ($response->getStatusCode() === 200) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function associatePhysDom($projectName)
+    {
+        $automationDomain = [
+            "fvRsDomAtt" => [
+                "attributes" => [
+                    "resImedcy" => "immediate",
+                    "tDn" => "uni/phys-AutomationPhysDom",
+                    "status" => "created"
+                ],
+                "children" => []
+            ],
+        ];
+        $infraDomain = [
+            "fvRsDomAtt" => [
+                "attributes" => [
+                    "resImedcy" => "immediate",
+                    "tDn" => "uni/phys-" . env('ACI_INFRA_DOMAIN'),
+                    "status" => "created"
+                ],
+                "children" => []
+            ],
+        ];
+        try {
+            $automationResponse = $this->client->post('node/mo/uni/tn-Automation_' . $projectName . '/ap-Automation_' . $projectName . 'AP/epg-Automation_' . $projectName . 'EPG.json', [
+                'headers' => [
+                    'Cookie' => 'APIC-cookie=' . $this->authToken,
+                ],
+                'body' => json_encode($automationDomain, JSON_UNESCAPED_SLASHES),
+                'http_errors' => false
+            ]);
+            $infraResponse = $this->client->post('node/mo/uni/tn-Automation_' . $projectName . '/ap-Automation_' . $projectName . 'AP/epg-Automation_' . $projectName . 'EPG.json', [
+                'headers' => [
+                    'Cookie' => 'APIC-cookie=' . $this->authToken,
+                ],
+                'body' => json_encode($infraDomain, JSON_UNESCAPED_SLASHES),
+                'http_errors' => false
+            ]);
+            if ($automationResponse->getStatusCode() === 200 && $infraResponse->getStatusCode() === 200) {
+                if (env('ACI_VMWARE_ENHANCED_LACP') != null) {
+                    $setEnhancedLACP = [
+                        "fvAEPgLagPolAtt" => [
+                            "attributes" => [
+                                "status" => "created,modified"
+                            ],
+                            "children" => [
+                                [
+                                    "fvRsVmmVSwitchEnhancedLagPol" => [
+                                        "attributes" => [
+                                            "tDn" => "uni/vmmp-VMware/dom-" . env('ACI_VMWARE_DOMAIN') . "/vswitchpolcont/enlacplagp-" . env('ACI_VMWARE_ENHANCED_LACP'),
+                                            "status" => "created,modified"
+                                        ],
+                                        "children" => []
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ];
+                    $enhancedLACPResponse = $this->client->post('node/mo/uni/tn-Automation_' . $projectName . '/ap-Automation_' . $projectName . 'AP/epg-Automation_' . $projectName . 'EPG/rsdomAtt-[uni/vmmp-VMware/dom-' . env('ACI_VMWARE_DOMAIN') . ']/epglagpolatt.json', [
+                        'headers' => [
+                            'Cookie' => 'APIC-cookie=' . $this->authToken,
+                        ],
+                        'body' => json_encode($setEnhancedLACP, JSON_UNESCAPED_SLASHES),
+                        'http_errors' => false
+                    ]);
+                    if ($enhancedLACPResponse->getStatusCode() === 200) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                return true;
             } else {
                 return false;
             }

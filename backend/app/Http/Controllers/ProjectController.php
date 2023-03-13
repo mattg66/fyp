@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Clients\ACIClient;
+use App\Jobs\CreateProject;
 use App\Models\Project;
 use App\Models\Rack;
 use App\Models\Vlan;
@@ -112,6 +113,7 @@ class ProjectController extends Controller
                 $project->racks()->saveMany($racks);
             }
             DB::commit();
+            CreateProject::dispatch($project->name);
             return response()->json([
                 'message' => 'Project created successfully',
                 'project' => $project,
@@ -132,9 +134,16 @@ class ProjectController extends Controller
             ], 404);
         }
         $project->delete();
-        return response()->json([
-            'message' => 'Project deleted successfully',
-        ], 200);
+        $aciClient = new ACIClient();
+        if ($aciClient->deleteTenant($project->name)) {
+            return response()->json([
+                'message' => 'Project deleted successfully',
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Project deleted successfully, but tenant could not be deleted from ACI',
+            ]);
+        }
     }
     public function test()
     {
