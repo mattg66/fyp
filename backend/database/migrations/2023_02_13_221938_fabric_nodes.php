@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('aci_id');
             $table->string('model');
             $table->string('role');
+            $table->string('parent_aci_id');
             $table->string('serial')->unique();
             $table->string('description');
             $table->string('dn');

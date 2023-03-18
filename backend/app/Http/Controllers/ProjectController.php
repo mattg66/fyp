@@ -113,7 +113,7 @@ class ProjectController extends Controller
                 $project->racks()->saveMany($racks);
             }
             DB::commit();
-            CreateProject::dispatch($project->name);
+            CreateProject::dispatch($project->name, $project->id);
             return response()->json([
                 'message' => 'Project created successfully',
                 'project' => $project,

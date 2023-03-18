@@ -20,6 +20,6 @@ class FabricNode extends Model
 
     protected $hidden = [];
     protected $fillable = [
-        'dn', 'aci_id', 'model', 'role', 'serial', 'description'
+        'dn', 'aci_id', 'model', 'role', 'serial', 'description', 'parent_aci_id'
     ];
 }

@@ -20,13 +20,15 @@ class CreateProject implements ShouldQueue
      * @return void
      */
     public $projectName;
+    public $projectId;
 
     public $uniqueFor = 30;
 
 
-    public function __construct($projectName)
+    public function __construct($projectName, $projectId)
     {
         $this->projectName = $projectName;
+        $this->projectId = $projectId;
     }
 
     /**
@@ -42,7 +44,9 @@ class CreateProject implements ShouldQueue
                 if ($aciClient->createAP($this->projectName)) {
                     if ($aciClient->createEPG($this->projectName)) {
                         if ($aciClient->associatePhysDom($this->projectName)){
-                            return true;
+                            if ($aciClient->deployToNode($this->projectId)) {
+                                return true;
+                            }
                         }
                     }
                 }

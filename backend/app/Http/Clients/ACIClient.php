@@ -7,6 +7,8 @@ use App\Exceptions\APIClientException;
 use App\Jobs\SyncACI;
 use App\Models\FabricNode;
 use App\Models\InterfaceModel;
+use App\Models\Project;
+use App\Models\Rack;
 use App\Models\VlanPool;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -102,7 +104,7 @@ class ACIClient
     {
         DB::beginTransaction();
         try {
-            $response = $this->client->get('node/mo/topology/pod-' . env('ACI_POD') . '.json?query-target=children&target-subtree-class=fabricNode&query-target-filter=and(not(wcard(fabricNode.dn,\'__ui_\')),and(ne(fabricNode.role,\'controller\')))', [
+            $response = $this->client->get('node/mo/topology/pod-' . env('ACI_POD') . '.json?query-target=children&target-subtree-class=fabricNode&query-target-filter=and(not(wcard(fabricNode.dn,"__ui_")),and(ne(fabricNode.role,"controller")))', [
                 'headers' => [
                     'Cookie' => 'APIC-cookie=' . $this->authToken,
                 ],
@@ -126,6 +128,7 @@ class ACIClient
                             'aci_id' => $node->fabricNode->attributes->id,
                             'model' => $node->fabricNode->attributes->model,
                             'role' => 'leaf',
+                            'parent_aci_id' => $node->fabricNode->attributes->id,
                             'description' => $node->fabricNode->attributes->name,
                             'serial' => $node->fabricNode->attributes->serial,
                         ]);
@@ -136,6 +139,7 @@ class ACIClient
                                 'aci_id' => $fex->eqptExtCh->attributes->id,
                                 'model' => $fex->eqptExtCh->attributes->model,
                                 'role' => 'fex',
+                                'parent_aci_id' => $node->fabricNode->attributes->id,
                                 'description' => $node->fabricNode->attributes->name . ' - FEX' . $fex->eqptExtCh->attributes->id,
                                 'serial' => $fex->eqptExtCh->attributes->ser,
                             ];
@@ -147,6 +151,7 @@ class ACIClient
                             array_push($nodes, [
                                 'dn' => $node->fabricNode->attributes->dn,
                                 'aci_id' => $node->fabricNode->attributes->id,
+                                'parent_aci_id' => $node->fabricNode->attributes->id,
                                 'model' => $node->fabricNode->attributes->model,
                                 'role' => $node->fabricNode->attributes->role,
                                 'description' => $node->fabricNode->attributes->name,
@@ -157,6 +162,7 @@ class ACIClient
                             array_push($nodes, [
                                 'dn' => $node->fabricNode->attributes->dn,
                                 'aci_id' => $node->fabricNode->attributes->id,
+                                'parent_aci_id' => $node->fabricNode->attributes->id,
                                 'model' => $node->fabricNode->attributes->model,
                                 'role' => $node->fabricNode->attributes->role,
                                 'description' => $node->fabricNode->attributes->name,
@@ -324,12 +330,12 @@ class ACIClient
     {
 
         try {
-            $leafResponse = $this->client->get('node/mo/uni/infra.json?query-target=subtree&target-subtree-class=infraAccPortP&query-target-filter=not(wcard(infraAccPortP.dn,\'__ui_\'))&query-target=children&order-by=infraAccPortP.name|asc', [
+            $leafResponse = $this->client->get('node/mo/uni/infra.json?query-target=subtree&target-subtree-class=infraAccPortP&query-target-filter=not(wcard(infraAccPortP.dn,"__ui_"))&query-target=children&order-by=infraAccPortP.name|asc', [
                 'headers' => [
                     'Cookie' => 'APIC-cookie=' . $this->authToken,
                 ],
             ]);
-            $fexResponse = $this->client->get('node/mo/uni/infra.json?query-target=subtree&target-subtree-class=infraFexP&query-target-filter=not(wcard(infraFexP.dn,\'__ui_\'))&query-target=children&target-subtree-class=infraFexP&order-by=infraFexP.name|asc', [
+            $fexResponse = $this->client->get('node/mo/uni/infra.json?query-target=subtree&target-subtree-class=infraFexP&query-target-filter=not(wcard(infraFexP.dn,"__ui_"))&query-target=children&target-subtree-class=infraFexP&order-by=infraFexP.name|asc', [
                 'headers' => [
                     'Cookie' => 'APIC-cookie=' . $this->authToken,
                 ],
@@ -762,6 +768,46 @@ class ACIClient
             }
         } catch (\Exception $e) {
             throw new APIClientException($e->getMessage());
+        }
+    }
+    public function deployToNode($projectId)
+    {
+        $racks = Rack::with(['fabricNode', 'terminalServer'])->where('project_id', $projectId)->get();
+        $project = Project::with('vlan')->find($projectId);
+        foreach ($racks as $rack) {
+            Log::debug($rack->fabric_node->id);
+            if ($rack->fabric_node !== null) {
+                Log::debug($rack);
+                $interfaces = InterfaceModel::with('terminalServer')->where('fabric_node_id', $rack->fabric_node->id)->get();
+                foreach ($interfaces as $interface) {
+                    if ($interface->terminal_server === null) {
+                        $payload = [
+                            "fvRsPathAtt" => [
+                                "attributes" => [
+                                    "dn" => "uni/tn-Automation_" . $project->name . "/ap-Automation_" . $project->name . "AP/epg-Automation_" . $project->name . "EPG/rspathAtt-[topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabric_node->parent_aci_id . "/extpaths-" . $rack->fabric_node->parent_aci_id . "/pathep-[" . $interface->aci_id . "]]",
+                                    "encap" => "vlan-" . $project->vlan->vlan_id,
+                                    "tDn" => "topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabric_node->parent_aci_id . "/extpaths-" . $rack->fabric_node->parent_aci_id . "/pathep-[" . $interface->aci_id . "]",
+                                    "rn" => "rspathAtt-[topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabric_node->parent_aci_id . "/extpaths-" . $rack->fabric_node->parent_aci_id . "/pathep-[" . $interface->aci_id . "]",
+                                    "status" => "created"
+                                ],
+                                "children" => []
+                            ]
+                        ];
+                        $response = $this->client->post('https://192.168.0.125/api/node/mo/uni/tn-Automation_' . $project->name . '/ap-Automation_' . $project->name . 'AP/epg-Automation_' . $project->name . 'EPG/rspathAtt-[topology/pod-' . env('ACI_POD') . "/paths-" . $rack->fabric_node->parent_aci_id . "/extpaths-" . $rack->fabric_node->parent_aci_id . "/pathep-[" . $interface->aci_id . "]].json", [
+                            'headers' => [
+                                'Cookie' => 'APIC-cookie=' . $this->authToken,
+                            ],
+                            'body' => json_encode($payload, JSON_UNESCAPED_SLASHES),
+                            'http_errors' => false
+                        ]);
+                        if ($response->getStatusCode() !== 200) { 
+                            return false;
+                        } else {
+                            Log::debug($response->getBody()->getContents());
+                        }
+                    }
+                }
+            }
         }
     }
 }
