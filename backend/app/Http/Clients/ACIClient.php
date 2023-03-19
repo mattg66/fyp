@@ -203,7 +203,7 @@ class ACIClient
                                     'aci_id' => $interface->l1PhysIf->attributes->id,
                                     'dn' => $interface->l1PhysIf->attributes->dn,
                                     'state' => $interface->l1PhysIf->children[0]->ethpmPhysIf->attributes->operSt,
-                                    'fabric_node_id' => $fabricNode->id,
+                                    'fabricNode_id' => $fabricNode->id,
                                 ]);
                             } else {
                                 foreach ($fabricNodes as $fabricNode2) {
@@ -212,7 +212,7 @@ class ACIClient
                                             'aci_id' => $interface->l1PhysIf->attributes->id,
                                             'dn' => $interface->l1PhysIf->attributes->dn,
                                             'state' => $interface->l1PhysIf->children[0]->ethpmPhysIf->attributes->operSt,
-                                            'fabric_node_id' => $fabricNode2->id,
+                                            'fabricNode_id' => $fabricNode2->id,
                                         ]);
                                     }
                                 }
@@ -395,20 +395,22 @@ class ACIClient
                 ]);
                 if ($update->getStatusCode() === 200) {
                     if ($this->upsertAAEP()) {
-                        return true;
-                    } else {
-                        return false;
+                        if ($this->upsertLAPPG()) {
+                            return true;
+                        }
                     }
+                    return false;
                 } else {
                     return false;
                 }
             }
             if ($response->getStatusCode() === 200) {
                 if ($this->upsertAAEP()) {
-                    return true;
-                } else {
-                    return false;
+                    if ($this->upsertLAPPG()) {
+                        return true;
+                    }
                 }
+                return false;
             } else {
                 return false;
             }
@@ -489,6 +491,56 @@ class ACIClient
                 } else {
                     return false;
                 }
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function upsertLAPPG()
+    {
+        $payload = [
+            "infraAccPortGrp" => [
+                "attributes" => [
+                    "dn" => "uni/infra/funcprof/accportgrp-AutomationLAPPG",
+                    "name" => "AutomationLAPPG",
+                    "rn" => "accportgrp-AutomationLAPPG",
+                    "status" => "created"
+                ],
+                "children" => [
+                    [
+                        "infraRsAttEntP" => [
+                            "attributes" => [
+                                "tDn" => "uni/infra/attentp-AutomationAAEP",
+                                "status" => "created,modified"
+                            ],
+                            "children" => []
+                        ]
+                    ],
+                    [
+                        "infraRsCdpIfPol" => [
+                            "attributes" => [
+                                "tnCdpIfPolName" => "system-cdp-enabled",
+                                "status" => "created,modified"
+                            ],
+                            "children" => []
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        try {
+            $update = $this->client->post('node/mo/uni/infra/funcprof/accportgrp-AutomationLAPPG.json', [
+                'headers' => [
+                    'Cookie' => 'APIC-cookie=' . $this->authToken,
+                ],
+                'body' => json_encode($payload, JSON_UNESCAPED_SLASHES),
+                'http_errors' => false
+            ]);
+            Log::debug($update->getBody()->getContents());
+            if ($update->getStatusCode() === 200 || ($update->getStatusCode() === 400 && json_decode($update->getBody())->imdata[0]->error->attributes->code === '103')) {
+                return true;
             } else {
                 return false;
             }
@@ -775,39 +827,125 @@ class ACIClient
         $racks = Rack::with(['fabricNode', 'terminalServer'])->where('project_id', $projectId)->get();
         $project = Project::with('vlan')->find($projectId);
         foreach ($racks as $rack) {
-            Log::debug($rack->fabric_node->id);
-            if ($rack->fabric_node !== null) {
-                Log::debug($rack);
-                $interfaces = InterfaceModel::with('terminalServer')->where('fabric_node_id', $rack->fabric_node->id)->get();
-                foreach ($interfaces as $interface) {
-                    if ($interface->terminal_server === null) {
-                        $payload = [
-                            "fvRsPathAtt" => [
-                                "attributes" => [
-                                    "dn" => "uni/tn-Automation_" . $project->name . "/ap-Automation_" . $project->name . "AP/epg-Automation_" . $project->name . "EPG/rspathAtt-[topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabric_node->parent_aci_id . "/extpaths-" . $rack->fabric_node->parent_aci_id . "/pathep-[" . $interface->aci_id . "]]",
-                                    "encap" => "vlan-" . $project->vlan->vlan_id,
-                                    "tDn" => "topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabric_node->parent_aci_id . "/extpaths-" . $rack->fabric_node->parent_aci_id . "/pathep-[" . $interface->aci_id . "]",
-                                    "rn" => "rspathAtt-[topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabric_node->parent_aci_id . "/extpaths-" . $rack->fabric_node->parent_aci_id . "/pathep-[" . $interface->aci_id . "]",
-                                    "status" => "created"
+            if ($rack->fabricNode !== null) {
+                $intArray = [];
+                $interfaces = InterfaceModel::with('terminalServer')->where('fabric_node_id', $rack->fabricNode->id)->get();
+                foreach ($interfaces as $key => $interface) {
+                    if ($interface->terminalServer === null) {
+                        $payload = [];
+                        $response = null;
+                        if ($rack->fabricNode->role === 'fex') {
+                            $payload = [
+                                "fvRsPathAtt" => [
+                                    "attributes" => [
+                                        "dn" => "uni/tn-Automation_" . $project->name . "/ap-Automation_" . $project->name . "AP/epg-Automation_" . $project->name . "EPG/rspathAtt-[topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[eth" . substr($interface->aci_id, 7) . "]]",
+                                        "encap" => "vlan-" . $project->vlan->vlan_id,
+                                        "tDn" => "topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[eth" . substr($interface->aci_id, 7) . "]",
+                                        "rn" => "rspathAtt-[topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[eth" . substr($interface->aci_id, 7) . "]]",
+                                        "status" => "created",
+                                        "mode" => "untagged"
+                                    ],
+                                    "children" => []
+                                ]
+                            ];
+                            $response = $this->client->post('node/mo/uni/tn-Automation_' . $project->name . '/ap-Automation_' . $project->name . 'AP/epg-Automation_' . $project->name . 'EPG/rspathAtt-[topology/pod-' . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[eth" . substr($interface->aci_id, 7) . "]].json", [
+                                'headers' => [
+                                    'Cookie' => 'APIC-cookie=' . $this->authToken,
                                 ],
-                                "children" => []
-                            ]
-                        ];
-                        $response = $this->client->post('https://192.168.0.125/api/node/mo/uni/tn-Automation_' . $project->name . '/ap-Automation_' . $project->name . 'AP/epg-Automation_' . $project->name . 'EPG/rspathAtt-[topology/pod-' . env('ACI_POD') . "/paths-" . $rack->fabric_node->parent_aci_id . "/extpaths-" . $rack->fabric_node->parent_aci_id . "/pathep-[" . $interface->aci_id . "]].json", [
-                            'headers' => [
-                                'Cookie' => 'APIC-cookie=' . $this->authToken,
-                            ],
-                            'body' => json_encode($payload, JSON_UNESCAPED_SLASHES),
-                            'http_errors' => false
-                        ]);
-                        if ($response->getStatusCode() !== 200) { 
+                                'body' => json_encode($payload, JSON_UNESCAPED_SLASHES),
+                                'http_errors' => false
+                            ]);
+                        } else {
+                            $payload = [
+                                "fvRsPathAtt" => [
+                                    "attributes" => [
+                                        "dn" => "uni/tn-Automation_" . $project->name . "/ap-Automation_" . $project->name . "AP/epg-Automation_" . $project->name . "EPG/rspathAtt-[topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[eth" . $interface->aci_id . "]]",
+                                        "encap" => "vlan-" . $project->vlan->vlan_id,
+                                        "tDn" => "topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[" . $interface->aci_id . "]",
+                                        "rn" => "rspathAtt-[topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[" . $interface->aci_id . "]]",
+                                        "status" => "created",
+                                        "mode" => "untagged"
+                                    ],
+                                    "children" => []
+                                ]
+                            ];
+                            $response = $this->client->post('node/mo/uni/tn-Automation_' . $project->name . '/ap-Automation_' . $project->name . 'AP/epg-Automation_' . $project->name . 'EPG/rspathAtt-[topology/pod-' . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[" . $interface->aci_id . "]].json", [
+                                'headers' => [
+                                    'Cookie' => 'APIC-cookie=' . $this->authToken,
+                                ],
+                                'body' => json_encode($payload, JSON_UNESCAPED_SLASHES),
+                                'http_errors' => false
+                            ]);
+                        }
+
+                        if ($response->getStatusCode() !== 200) {
                             return false;
                         } else {
-                            Log::debug($response->getBody()->getContents());
+                            $newInt = [
+                                "infraPortBlk" => [
+                                    "attributes" => [
+                                        "dn" => $rack->fabricNode->int_profile . "/hports-" . $rack->fabricNode->aci_id . "Automation-typ-range/portblk-block" . $key + 2,
+                                        "fromPort" => substr($interface->aci_id, 9),
+                                        "toPort" => substr($interface->aci_id, 9),
+                                        "name" => "block" . $key + 2,
+                                        "rn" => "portblk-block" . $key + 2,
+                                        "status" => "created,modified"
+                                    ],
+                                    "children" => []
+                                ]
+                            ];
+                            array_push($intArray, $newInt);
+
+                            // if ($this->intProfileAssign($rack->fabricNode->int_profile, $interface->aci_id) === false) {
+                            //     return false;
+                            // }
                         }
                     }
                 }
+                if ($this->intProfileAssign($rack->fabricNode->int_profile, $rack->fabricNode->aci_id, $intArray) === false) {
+                    return false;
+                }
             }
+        }
+    }
+    function intProfileAssign($intDn, $nodeId, $interfaces)
+    {
+        $payload = [
+            [
+                "infraHPortS" => [
+                    "attributes" => [
+                        "dn" => $intDn . "/hports-" . $nodeId . "Automation-typ-range",
+                        "name" => $nodeId . "Automation",
+                        "rn" => "hports-" . $nodeId . "Automation-typ-range",
+                        "status" => "created,modified"
+                    ],
+                    "children" => [
+                        $interfaces,
+                        [
+                            "infraRsAccBaseGrp" => [
+                                "attributes" => [
+                                    "tDn" => "uni/infra/funcprof/accportgrp-InfraPortPolicy",
+                                    "status" => "created,modified"
+                                ],
+                                "children" => []
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+        $response = $this->client->post('node/mo/' . $intDn . "/hports-" . $nodeId . "Automation-typ-range.json", [
+            'headers' => [
+                'Cookie' => 'APIC-cookie=' . $this->authToken,
+            ],
+            'body' => json_encode($payload, JSON_UNESCAPED_SLASHES),
+            'http_errors' => false
+        ]);
+        Log::debug($response->getBody());
+        if ($response->getStatusCode() !== 200) {
+            return false;
+        } else {
+            return true;
         }
     }
 }
