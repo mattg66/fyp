@@ -924,7 +924,7 @@ class ACIClient
                         [
                             "infraRsAccBaseGrp" => [
                                 "attributes" => [
-                                    "tDn" => "uni/infra/funcprof/accportgrp-InfraPortPolicy",
+                                    "tDn" => "uni/infra/funcprof/accportgrp-AutomationLAPPG",
                                     "status" => "created,modified"
                                 ],
                                 "children" => []
