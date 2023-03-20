@@ -41,15 +41,14 @@ class CreateProject implements ShouldQueue
     {
         $aciClient = new ACIClient();
         $vmWare = new vSphereClient();
-        $vmWare->deployProjectRouter($this->projectName);
-        
+
         if ($aciClient->createTenant($this->projectName)) {
             if ($aciClient->createBD($this->projectName)) {
                 if ($aciClient->createAP($this->projectName)) {
                     if ($aciClient->createEPG($this->projectName)) {
-                        if ($aciClient->associatePhysDom($this->projectName)){
+                        if ($aciClient->associatePhysDom($this->projectName)) {
                             if ($aciClient->deployToNode($this->projectId)) {
-                                
+                                $vmWare->deployProjectRouter($this->projectName);
                             }
                         }
                     }

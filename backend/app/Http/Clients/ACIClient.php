@@ -902,7 +902,9 @@ class ACIClient
                         }
                     }
                 }
-                if ($this->intProfileAssign($rack->fabricNode->int_profile, $rack->fabricNode->aci_id, $intArray) === false) {
+                if ($this->intProfileAssign($rack->fabricNode->int_profile, $rack->fabricNode->aci_id, $intArray)) {
+                    return true;
+                } else {
                     return false;
                 }
             }

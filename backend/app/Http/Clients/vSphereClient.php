@@ -113,7 +113,6 @@ class vSphereClient
     public function deployProjectRouter($projectName)
     {
         $vmId = $this->getTemplates();
-        Log::debug($vmId);
         $vmName = env('VSPHERE_PROJECT_ROUTER_VM_NAME') . '-' . $projectName;
         $vmSpec = [
             'name' => $vmName,
@@ -128,7 +127,8 @@ class vSphereClient
                 'json' => $vmSpec,
             ]);
             if ($response->getStatusCode() === 200) {
-                $this->getEthernetId($response->getBody()->getContents());
+                if ($this->setNetwork($response->getBody()->getContents(), $projectName)) {
+                }
             }
             return $response->getBody()->getContents();
         } catch (\Exception $e) {
@@ -137,13 +137,14 @@ class vSphereClient
     }
     public function getEthernetId($vmId)
     {
-        $response = $this->client->get('vcenter/vm/' . $vmId . '/hardware', [
+        $response = $this->client->get('vcenter/vm/' . str_replace('"', '', $vmId) . '/hardware/ethernet', [
             'headers' => [
                 'vmware-api-session-id' => $this->authToken,
             ],
         ]);
         $responseData = json_decode($response->getBody(), true);
-        Log::debug($responseData);
+        Log::debug($responseData[0]['nic']);
+        return $responseData[0]['nic'];
     }
     public function findNetwork($projectName)
     {
@@ -159,6 +160,46 @@ class vSphereClient
             ]);
             $responseData = json_decode($response->getBody(), true);
             return $responseData[0]['network'];
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function setNetwork($vmId, $projectName)
+    {
+        try {
+            $response = $this->client->patch('vcenter/vm/' . str_replace('"', '', $vmId) . '/hardware/ethernet/' . $this->getEthernetId($vmId), [
+                'headers' => [
+                    'vmware-api-session-id' => $this->authToken,
+                ],
+                'json' => [
+                    'backing' => [
+                        'type' => 'DISTRIBUTED_PORTGROUP',
+                        'network' => $this->findNetwork($projectName),
+                    ],
+                ],
+            ]);
+            if ($response->getStatusCode() === 204) {
+                return true;
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function getVmIp($vmId)
+    {
+        try {
+            $response = $this->client->get('vcenter/vm/' . str_replace('"', '', $vmId) . '/guest/networking/interfaces', [
+                'headers' => [
+                    'vmware-api-session-id' => $this->authToken,
+                ],
+                'http_errors' => false,
+            ]);
+            $responseData = json_decode($response->getBody(), true);
+            if ($responseData !== [] && $response->getStatusCode() !== 504) {
+                return $responseData[0]['ip']['ip_addresses'][0]['ip_address'];
+            } else {
+                return false;
+            }
         } catch (\Exception $e) {
             throw new APIClientException($e->getMessage());
         }

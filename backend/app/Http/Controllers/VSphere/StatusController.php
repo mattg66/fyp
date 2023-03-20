@@ -25,6 +25,6 @@ class StatusController extends Controller
     public function test()
     {
         $client = new vSphereClient();
-        return response()->json($client->findNetwork('asdfasdfasd'));
+        return response()->json($client->getVmIp('vm-4080'));
     }
 }
