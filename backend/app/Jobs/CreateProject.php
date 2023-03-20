@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Http\Clients\ACIClient;
+use App\Http\Clients\vSphereClient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -39,13 +40,16 @@ class CreateProject implements ShouldQueue
     public function handle()
     {
         $aciClient = new ACIClient();
+        $vmWare = new vSphereClient();
+        $vmWare->deployProjectRouter($this->projectName);
+        
         if ($aciClient->createTenant($this->projectName)) {
             if ($aciClient->createBD($this->projectName)) {
                 if ($aciClient->createAP($this->projectName)) {
                     if ($aciClient->createEPG($this->projectName)) {
                         if ($aciClient->associatePhysDom($this->projectName)){
                             if ($aciClient->deployToNode($this->projectId)) {
-                                return true;
+                                
                             }
                         }
                     }

@@ -16,4 +16,8 @@ class Project extends Model
     {
         return $this->hasOne(Vlan::class);
     }
+    public function routers()
+    {
+        return $this->hasOne(ProjectRouter::class);
+    }
 }

@@ -22,4 +22,9 @@ class StatusController extends Controller
             'health' => ($healthScore / count($serviceStatus)) * 100,
         ]);
     }
+    public function test()
+    {
+        $client = new vSphereClient();
+        return response()->json($client->findNetwork('asdfasdfasd'));
+    }
 }
