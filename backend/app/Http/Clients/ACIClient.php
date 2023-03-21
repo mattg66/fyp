@@ -203,7 +203,7 @@ class ACIClient
                                     'aci_id' => $interface->l1PhysIf->attributes->id,
                                     'dn' => $interface->l1PhysIf->attributes->dn,
                                     'state' => $interface->l1PhysIf->children[0]->ethpmPhysIf->attributes->operSt,
-                                    'fabricNode_id' => $fabricNode->id,
+                                    'fabric_node_id' => $fabricNode->id,
                                 ]);
                             } else {
                                 foreach ($fabricNodes as $fabricNode2) {
@@ -212,7 +212,7 @@ class ACIClient
                                             'aci_id' => $interface->l1PhysIf->attributes->id,
                                             'dn' => $interface->l1PhysIf->attributes->dn,
                                             'state' => $interface->l1PhysIf->children[0]->ethpmPhysIf->attributes->operSt,
-                                            'fabricNode_id' => $fabricNode2->id,
+                                            'fabric_node_id' => $fabricNode2->id,
                                         ]);
                                     }
                                 }
