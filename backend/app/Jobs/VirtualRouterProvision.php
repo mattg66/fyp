@@ -44,7 +44,7 @@ class VirtualRouterProvision implements ShouldQueue
         $project = Project::with('projectRouter')->find($this->projectId);
         for ($i = 0; $i < 5; $i++) {
             $routerIp = $vmWare->getVmIp($project->projectRouter->vm_id);
-            if ($routerIp !== false || $routerIp != '0.0.0.0') {
+            if ($routerIp !== false && $routerIp != '0.0.0.0') {
                 $ssh = new SSHClient();
                 $ssh->provisionCSR($project, $routerIp);
                 return true;
