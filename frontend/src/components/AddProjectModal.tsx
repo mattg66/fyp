@@ -26,6 +26,9 @@ export const AddProjectModal = ({ isOpen, close, confirm }: AddProjectModal) => 
         description: string,
         network: string,
         subnet_mask: string,
+        wan_ip: string,
+        wan_gateway: string,
+        wan_subnet_mask: string,
     }
     const { register, handleSubmit, formState: { errors, submitCount }, getValues, reset } = useForm<NewProject>();
     useEffect(() => {
@@ -36,7 +39,7 @@ export const AddProjectModal = ({ isOpen, close, confirm }: AddProjectModal) => 
             tabsRef.current?.setActiveTab(2)
         }
     }, [submitCount, errors])
-    
+
     const onSubmit = handleSubmit((data) => {
         const requestOptions = {
             method: 'POST',
@@ -87,6 +90,38 @@ export const AddProjectModal = ({ isOpen, close, confirm }: AddProjectModal) => 
         return true;
     };
 
+    const validateWanNetwork = (ipAddress: string, subnetMask: string, gateway: string) => {
+        // Validate IP address
+        if (!/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(ipAddress)) {
+          return "Invalid IP address";
+        }
+      
+        // Validate subnet mask
+        if (!/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(subnetMask)) {
+          return "Invalid subnet mask";
+        }
+      
+        // Validate gateway
+        if (!/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(gateway)) {
+          return "Invalid gateway";
+        }
+      
+        // Check if gateway is on the same subnet as IP address using subnet mask
+        const ipLong = ipToLong(ipAddress);
+        const gatewayLong = ipToLong(gateway);
+        const subnetMaskLong = ipToLong(subnetMask);
+        if ((ipLong & subnetMaskLong) !== (gatewayLong & subnetMaskLong)) {
+          return "Gateway is not on the same subnet as IP address";
+        }
+      
+        // All checks passed
+        return true;
+      }
+      
+      const ipToLong = (ip: string) => {
+        const parts: any = ip.split(".");
+        return (parts[0] << 24) + (parts[1] << 16) + (parts[2] << 8) + parseInt(parts[3]);
+      }
     return (
         <Modal
             show={isOpen}
@@ -95,7 +130,7 @@ export const AddProjectModal = ({ isOpen, close, confirm }: AddProjectModal) => 
             onClose={close}
         >
             <Modal.Header />
-            <Modal.Body className="h-[50vh]">
+            <Modal.Body className="min-h-[50vh]">
                 <form onSubmit={onSubmit} className="h-full flex flex-1 flex-col">
                     <Tabs.Group
                         aria-label="Default tabs"
@@ -177,6 +212,59 @@ export const AddProjectModal = ({ isOpen, close, confirm }: AddProjectModal) => 
                             />
                             {errors?.subnet_mask && <Alert color="failure" className="mt-2">
                                 {<p>{errors?.subnet_mask.message}</p>}
+                            </Alert>}
+
+                            <div className="mt-2">
+                                <Label
+                                    htmlFor="wan_ip"
+                                    value="WAN IP"
+                                />
+                            </div>
+                            <TextInput
+                                id="wan_ip"
+                                placeholder="WAN IP"
+                                maxLength={50}
+                                {...register('wan_ip', {
+                                    validate: value => validateWanNetwork(value, getValues('wan_subnet_mask'), getValues('wan_gateway'))
+                                })}
+                            />
+                            {errors?.wan_ip && <Alert color="failure" className="mt-2">
+                                {<p>{errors?.wan_ip.message}</p>}
+                            </Alert>}
+                            <div className="mt-2">
+                                <Label
+
+                                    htmlFor="wan_subnet_mask"
+                                    value="WAN Subnet Mask"
+                                />
+                            </div>
+                            <TextInput
+                                id="wan_subnet_mask"
+                                placeholder="WAN Subnet Mask"
+                                maxLength={50}
+                                {...register('wan_subnet_mask', {
+                                    validate: value => validateWanNetwork(getValues('wan_ip'), value, getValues('wan_gateway'))
+                                })}
+                            />
+                            {errors?.wan_subnet_mask && <Alert color="failure" className="mt-2">
+                                {<p>{errors?.wan_subnet_mask.message}</p>}
+                            </Alert>}
+                            <div className="mt-2">
+                                <Label
+                                    htmlFor="wan_gateway"
+                                    value="WAN Gateway IP"
+                                />
+                            </div>
+                            <TextInput
+                                id="wan_gateway"
+                                placeholder="WAN Gateway IP"
+                                maxLength={50}
+                                {...register('wan_gateway', {
+                                    validate: value => validateWanNetwork(getValues('wan_ip'), getValues('wan_subnet_mask'), value)
+                                })}
+                            />
+                            {errors?.wan_gateway && <Alert color="failure" className="mt-2">
+                                {<p>{errors?.wan_gateway.message}</p>}
                             </Alert>}
                         </Tabs.Item>
                     </Tabs.Group>

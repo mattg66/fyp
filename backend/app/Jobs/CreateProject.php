@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Http\Clients\ACIClient;
 use App\Http\Clients\vSphereClient;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -48,7 +49,10 @@ class CreateProject implements ShouldQueue
                     if ($aciClient->createEPG($this->projectName)) {
                         if ($aciClient->associatePhysDom($this->projectName)) {
                             if ($aciClient->deployToNode($this->projectId)) {
-                                $vmWare->deployProjectRouter($this->projectName);
+                                 if ($vmWare->deployProjectRouter($this->projectName, $this->projectId)) {
+                                    VirtualRouterProvision::dispatch($this->projectId)->delay(Carbon::now()->addSeconds(120));
+                                    return true;
+                                 }
                             }
                         }
                     }

@@ -3,6 +3,7 @@
 namespace App\Http\Clients;
 
 use App\Exceptions\APIClientException;
+use App\Models\ProjectRouter;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
@@ -110,7 +111,7 @@ class vSphereClient
             throw new APIClientException('Unable to retreive list of VMs');
         }
     }
-    public function deployProjectRouter($projectName)
+    public function deployProjectRouter($projectName, $projectId)
     {
         $vmId = $this->getTemplates();
         $vmName = env('VSPHERE_PROJECT_ROUTER_VM_NAME') . '-' . $projectName;
@@ -127,10 +128,15 @@ class vSphereClient
                 'json' => $vmSpec,
             ]);
             if ($response->getStatusCode() === 200) {
-                if ($this->setNetwork($response->getBody()->getContents(), $projectName)) {
+                $vmId = $response->getBody()->getContents();
+                if ($this->setNetwork($vmId, $projectName)) {
+                    $projectRouter = ProjectRouter::where('project_id', $projectId)->first();
+                    $projectRouter->vm_id = $vmId;
+                    $projectRouter->save();
+                    return true;
                 }
             }
-            return $response->getBody()->getContents();
+            return false;
         } catch (\Exception $e) {
             throw new APIClientException($e->getMessage());
         }
@@ -195,6 +201,7 @@ class vSphereClient
                 'http_errors' => false,
             ]);
             $responseData = json_decode($response->getBody(), true);
+            Log::debug($responseData);
             if ($responseData !== [] && $response->getStatusCode() !== 504) {
                 return $responseData[0]['ip']['ip_addresses'][0]['ip_address'];
             } else {

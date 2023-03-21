@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Clients\ACIClient;
 use App\Jobs\CreateProject;
 use App\Models\Project;
+use App\Models\ProjectRouter;
 use App\Models\Rack;
 use App\Models\Vlan;
 use App\Models\VlanPool;
@@ -52,6 +53,34 @@ class ProjectController extends Controller
             }
         }
     }
+    function validateNetworkSettings($ipAddress, $subnetMask, $gateway)
+    {
+        // Validate IP address
+        if (!filter_var($ipAddress, FILTER_VALIDATE_IP)) {
+            return false;
+        }
+        $subnetMaskLong = ip2long($subnetMask);
+
+        $subnetMaskBinary = decbin($subnetMaskLong);
+        if (!preg_match('/^1+0*$/', $subnetMaskBinary)) {
+            return false;
+        }
+        // Validate subnet mask
+        // Validate gateway
+        if (!filter_var($gateway, FILTER_VALIDATE_IP)) {
+            return false;
+        }
+
+        // Check if gateway is on the same subnet as IP address using subnet mask
+        $ipLong = ip2long($ipAddress);
+        $gatewayLong = ip2long($gateway);
+        if (($ipLong & $subnetMaskLong) != ($gatewayLong & $subnetMaskLong)) {
+            return false;
+        }
+
+        // All checks passed
+        return true;
+    }
     public function create(Request $request)
     {
         $this->validate($request, [
@@ -59,6 +88,9 @@ class ProjectController extends Controller
             'description' => 'required|max:500',
             'network' => 'ip|nullable',
             'subnet_mask' => 'ip|nullable',
+            'wan_ip' => 'ip|nullable',
+            'wan_subnet_mask' => 'ip|nullable',
+            'wan_gateway' => 'ip|nullable',
             'racks' => 'array',
             'racks.*' => 'integer|exists:racks,id',
         ]);
@@ -66,6 +98,11 @@ class ProjectController extends Controller
         if (!$vlanPool) {
             return response()->json([
                 'message' => 'No VLAN Pool has been set',
+            ], 400);
+        }
+        if (!$this->validateNetworkSettings($request->wan_ip, $request->wan_subnet_mask, $request->wan_gateway)) {
+            return response()->json([
+                'message' => 'Invalid WAN settings',
             ], 400);
         }
         DB::beginTransaction();
@@ -112,6 +149,12 @@ class ProjectController extends Controller
             if ($request->racks) {
                 $project->racks()->saveMany($racks);
             }
+            $projectRouter = new ProjectRouter();
+            $projectRouter->project_id = $project->id;
+            $projectRouter->ip = $request->wan_ip;
+            $projectRouter->subnet_mask = $request->wan_subnet_mask;
+            $projectRouter->gateway = $request->wan_gateway;
+            $projectRouter->save();
             DB::commit();
             CreateProject::dispatch($project->name, $project->id);
             return response()->json([
