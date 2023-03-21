@@ -201,9 +201,8 @@ class vSphereClient
                 'http_errors' => false,
             ]);
             $responseData = json_decode($response->getBody(), true);
-            Log::debug($responseData);
             if ($responseData !== [] && $response->getStatusCode() !== 504) {
-                return $responseData[0]['ip']['ip_addresses'][0]['ip_address'];
+                return end($responseData[0]['ip']['ip_addresses'])['ip_address'];
             } else {
                 return false;
             }

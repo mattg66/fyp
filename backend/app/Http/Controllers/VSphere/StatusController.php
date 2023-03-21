@@ -1,9 +1,12 @@
 <?php
 
 namespace App\Http\Controllers\VSphere;
+
+use App\Http\Clients\SSHClient;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Clients\vSphereClient;
+use App\Models\Project;
 
 class StatusController extends Controller
 {
@@ -24,7 +27,9 @@ class StatusController extends Controller
     }
     public function test()
     {
-        $client = new vSphereClient();
-        return response()->json($client->getVmIp('vm-4080'));
+        $client = new SSHClient();
+        $vc = new vSphereClient();
+        $project = Project::where('name', 'testagain')->first();
+        return response()->json($client->provisionCSR($project, $vc->getVmIp('vm-5014')));
     }
 }
