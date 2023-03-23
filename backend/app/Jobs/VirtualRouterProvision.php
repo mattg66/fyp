@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Http\Clients\ACIClient;
+use App\Http\Clients\IOSXEClient;
 use App\Http\Clients\SSHClient;
 use App\Http\Clients\vSphereClient;
 use App\Models\Project;
@@ -45,9 +46,12 @@ class VirtualRouterProvision implements ShouldQueue
         for ($i = 0; $i < 5; $i++) {
             $routerIp = $vmWare->getVmIp($project->projectRouter->vm_id);
             if ($routerIp !== false && $routerIp != '0.0.0.0') {
-                $ssh = new SSHClient();
-                $ssh->provisionCSR($project, $routerIp);
-                return true;
+                $httpClient = new IOSXEClient(null, $routerIp);
+                if ($httpClient->setHostname($project->name . '-CSR') && $httpClient->setAddresses($project->projectRouter->ip, $project->projectRouter->subnet_mask, $project->network, $project->subnet_mask)) {
+                    return true;
+                } else {
+                    return false;
+                }
             } else {
                 sleep(10);
             }

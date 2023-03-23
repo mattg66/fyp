@@ -15,23 +15,7 @@ class SSHClient
             throw new APIClientException('SSH credentials not set');
         }
     }
-    function getHighestUsableIPAddress($networkAddress, $subnetMask)
-    {
-        // Convert network address and subnet mask to long integers
-        $networkAddressLong = ip2long($networkAddress);
-        $subnetMaskLong = ip2long($subnetMask);
-
-        // Calculate the broadcast address (last address in the subnet)
-        $broadcastAddressLong = $networkAddressLong | (~$subnetMaskLong & 0xFFFFFFFF);
-
-        // Calculate the highest usable IP address (one less than the broadcast address)
-        $highestUsableIPAddressLong = $broadcastAddressLong - 1;
-
-        // Convert the highest usable IP address back to dotted decimal notation
-        $highestUsableIPAddress = long2ip($highestUsableIPAddressLong);
-
-        return $highestUsableIPAddress;
-    }
+    
     public function provisionCSR($project, $routerIp)
     {
         define('NET_SSH2_LOGGING', 2);
