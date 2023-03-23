@@ -20,40 +20,16 @@ class IOSXEClient
     public function __construct($token = null, $ipAddr)
     {
         $this->client = new Client([
-            'base_uri' => 'https://' . $ipAddr .  ':1025/api/',
+            'base_uri' => 'https://' . $ipAddr .  ':1025/restconf/',
             'headers' => [
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
+                'Content-Type' => 'application/yang-data+json',
+                'Accept' => 'application/yang-data+json',
             ],
             'verify' => false,
         ]);
-        if ($token === null) {
-            $this->connect();
-        } else {
-            $this->authToken = $token;
-        }
+        return true;
     }
 
-    protected function connect()
-    {
-        try {
-            $response = $this->client->post('v1/auth/token-services', [
-                'auth' => [
-                    env('VSPHERE_CSRV_USERNAME'),
-                    env('VSPHERE_CSRV_SECRET')
-                ]
-            ]);
-            if ($response->getStatusCode() == 200) {
-                $data = json_decode($response->getBody());
-                $this->authToken = $data->{'token-id'};
-                return true;
-            } else {
-                return false;
-            }
-        } catch (\Exception $e) {
-            throw new APIClientException($e->getMessage());
-        }
-    }
     function getHighestUsableIPAddress($networkAddress, $subnetMask)
     {
         // Convert network address and subnet mask to long integers
@@ -71,17 +47,15 @@ class IOSXEClient
 
         return $highestUsableIPAddress;
     }
-
-    public function setHostname($hostname)
+    public function connectionTest()
     {
         try {
-            $response = $this->client->put('v1/global/host-name', [
-                'headers' => [
-                    'X-auth-token' => $this->authToken,
+            $response = $this->client->get('data/Cisco-IOS-XE-native:native/hostname', [
+                'auth' => [
+                    env('VSPHERE_CSRV_USERNAME'),
+                    env('VSPHERE_CSRV_SECRET')
                 ],
-                'json' => [
-                    'host-name' => $hostname
-                ]
+                'http_errors' => false
             ]);
             if ($response->getStatusCode() == 200) {
                 return true;
@@ -93,23 +67,72 @@ class IOSXEClient
         }
     }
 
-    public function setAddresses($wanIp, $subnetMask, $lanNetwork, $lanMask)
+    public function setHostname($hostname)
     {
         try {
-            $response = $this->client->put('v1/interfaces/gigabitEthernet2', [
+            $response = $this->client->patch('data/Cisco-IOS-XE-native:native/hostname', [
+                'auth' => [
+                    env('VSPHERE_CSRV_USERNAME'),
+                    env('VSPHERE_CSRV_SECRET')
+                ],
                 'headers' => [
-                    'X-auth-token' => $this->authToken,
+                    'Content-Type' => 'application/yang-data+json',
+                    'Accept' => 'application/yang-data+json',
                 ],
                 'json' => [
-                    "type" => "ethernet",
-                    "if-name" => "gigabitEthernet2",
-                    "description" => "WAN",
-                    "ip-address" => $wanIp,
-                    "subnet-mask" => $subnetMask,
-                    "nat-direction" => "outside"
+                    'Cisco-IOS-XE-native:hostname' => $hostname
                 ]
             ]);
-            if ($response->getStatusCode() == 204 && $this->setLanIp($this->getHighestUsableIPAddress($lanNetwork, $lanMask), $lanMask)) {
+            if ($response->getStatusCode() == 204) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+
+    public function setAddresses($wanIp, $subnetMask, $lanNetwork, $lanMask, $wanGateway)
+    {
+        try {
+            $response = $this->client->patch('data/Cisco-IOS-XE-native:native/interface/GigabitEthernet=2', [
+                'auth' => [
+                    env('VSPHERE_CSRV_USERNAME'),
+                    env('VSPHERE_CSRV_SECRET')
+                ],
+                'headers' => [
+                    'Content-Type' => 'application/yang-data+json',
+                    'Accept' => 'application/yang-data+json',
+                ],
+                'json' => [
+                    "Cisco-IOS-XE-native:GigabitEthernet" => [
+                        "name" => "2",
+                        "description" => "#WAN#",
+                        "ip" => [
+                            "address" => [
+                                "primary" => [
+                                    "address" => $wanIp,
+                                    "mask" => $subnetMask,
+                                ]
+                            ],
+                            "Cisco-IOS-XE-nat:nat" => [
+                                "outside" => [
+                                    null
+                                ]
+                            ]
+                        ],
+                        "mop" => [
+                            "enabled" => false,
+                            "sysid" => false
+                        ],
+                        "Cisco-IOS-XE-ethernet:negotiation" => [
+                            "auto" => true
+                        ]
+                    ]
+                ]
+            ]);
+            if ($response->getStatusCode() == 204 && $this->setLanIp($this->getHighestUsableIPAddress($lanNetwork, $lanMask), $lanMask) && $this->setStaticRoute($wanGateway) && $this->ACL($lanNetwork, $lanMask)) {
                 return true;
             } else {
                 return false;
@@ -122,17 +145,40 @@ class IOSXEClient
     function setLANIp($lanIp, $subnetMask)
     {
         try {
-            $response = $this->client->put('v1/interfaces/gigabitEthernet1', [
+            $response = $this->client->patch('data/Cisco-IOS-XE-native:native/interface/GigabitEthernet=1', [
+                'auth' => [
+                    env('VSPHERE_CSRV_USERNAME'),
+                    env('VSPHERE_CSRV_SECRET')
+                ],
                 'headers' => [
-                    'X-auth-token' => $this->authToken,
+                    'Content-Type' => 'application/yang-data+json',
+                    'Accept' => 'application/yang-data+json',
                 ],
                 'json' => [
-                    "type" => "ethernet",
-                    "if-name" => "gigabitEthernet1",
-                    "description" => "LAN",
-                    "ip-address" => $lanIp,
-                    "subnet-mask" => $subnetMask,
-                    "nat-direction" => "inside"
+                    "Cisco-IOS-XE-native:GigabitEthernet" => [
+                        "name" => "1",
+                        "description" => "#PROJECT#",
+                        "ip" => [
+                            "address" => [
+                                "primary" => [
+                                    "address" => $lanIp,
+                                    "mask" => $subnetMask,
+                                ]
+                            ],
+                            "Cisco-IOS-XE-nat:nat" => [
+                                "inside" => [
+                                    null
+                                ]
+                            ]
+                        ],
+                        "mop" => [
+                            "enabled" => false,
+                            "sysid" => false
+                        ],
+                        "Cisco-IOS-XE-ethernet:negotiation" => [
+                            "auto" => true
+                        ]
+                    ]
                 ]
             ]);
             if ($response->getStatusCode() == 204) {
@@ -148,16 +194,124 @@ class IOSXEClient
     public function setStaticRoute($wanGateway)
     {
         try {
-            $response = $this->client->post('v1/routing-svc/static-routes', [
-                'headers' => [
-                    'X-auth-token' => $this->authToken,
+            $response = $this->client->patch('data/Cisco-IOS-XE-native:native/ip/route', [
+                'auth' => [
+                    env('VSPHERE_CSRV_USERNAME'),
+                    env('VSPHERE_CSRV_SECRET')
                 ],
-                'json' => [
-                    'destination-network' => '0.0.0.0/0',
-                    'next-hop-router' => $wanGateway,
+                'headers' => [
+                    'Content-Type' => 'application/yang-data+json',
+                    'Accept' => 'application/yang-data+json',
+                ],
+                'json' =>
+                [
+                    "Cisco-IOS-XE-native:route" => [
+                        "ip-route-interface-forwarding-list" => [
+                            [
+                                "prefix" => "0.0.0.0",
+                                "mask" => "0.0.0.0",
+                                "fwd-list" => [
+                                    [
+                                        "fwd" => $wanGateway
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
                 ]
             ]);
-            if ($response->getStatusCode() == 201) {
+            if ($response->getStatusCode() == 204) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function ACL($network, $subnetMask)
+    {
+        try {
+            $wildcardMask = implode(".", array_map(function ($x) {
+                return 255 - $x;
+            }, explode(".", $subnetMask)));
+
+            $response = $this->client->patch('data/Cisco-IOS-XE-native:native/ip/access-list', [
+                'auth' => [
+                    env('VSPHERE_CSRV_USERNAME'),
+                    env('VSPHERE_CSRV_SECRET')
+                ],
+                'headers' => [
+                    'Content-Type' => 'application/yang-data+json',
+                    'Accept' => 'application/yang-data+json',
+                ],
+                'json' => [
+                    "Cisco-IOS-XE-native:access-list" => [
+                        "Cisco-IOS-XE-acl:extended" => [
+                            [
+                                "name" => "NATACL",
+                                "access-list-seq-rule" => [
+                                    [
+                                        "sequence" => "10",
+                                        "ace-rule" => [
+                                            "action" => 'permit',
+                                            "protocol" => 'ip',
+                                            "ipv4-address" => $network,
+                                            "mask" => $wildcardMask,
+                                            "dest-ipv4-address" => '0.0.0.0',
+                                            "dest-mask" => '0.0.0.0'
+                                        ]
+                                    ],
+                                ]
+                            ]
+                        ],
+                        "Cisco-IOS-XE-acl:standard" => [
+                            [
+                                "name" => "VTYACL",
+                                "access-list-seq-rule" => [
+                                    [
+                                        "sequence" => "10",
+                                        "permit" => [
+                                            "std-ace" => [
+                                                "ipv4-prefix" => "172.16.1.0",
+                                                "mask" => "0.0.0.255"
+                                            ]
+                                        ]
+                                    ],
+                                    [
+                                        "sequence" => "20",
+                                        "permit" => [
+                                            "std-ace" => [
+                                                "ipv4-prefix" => "172.16.2.0",
+                                                "mask" => "0.0.0.255"
+                                            ]
+                                        ]
+                                    ],
+                                    [
+                                        "sequence" => "30",
+                                        "permit" => [
+                                            "std-ace" => [
+                                                "ipv4-prefix" => "172.16.3.0",
+                                                "mask" => "0.0.0.255"
+                                            ]
+                                        ]
+                                    ],
+                                    [
+                                        "sequence" => "40",
+                                        "permit" => [
+                                            "std-ace" => [
+                                                "ipv4-prefix" => $network,
+                                                "mask" => $wildcardMask
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]);
+            if ($response->getStatusCode() == 204) {
                 return true;
             } else {
                 return false;

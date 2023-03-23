@@ -129,6 +129,7 @@ class vSphereClient
             ]);
             if ($response->getStatusCode() === 200) {
                 $vmId = $response->getBody()->getContents();
+                Log::debug($this->setNetwork($vmId, $projectName));
                 if ($this->setNetwork($vmId, $projectName)) {
                     $projectRouter = ProjectRouter::where('project_id', $projectId)->first();
                     $projectRouter->vm_id = $vmId;
@@ -155,7 +156,7 @@ class vSphereClient
     public function findNetwork($projectName)
     {
         try {
-            $pgName = 'Automation_' . $projectName . '|Automation_' . $projectName . 'AP|Automation_' . $projectName . 'EPG';
+            $pgName = 'Auto_' . $projectName . '|Auto_' . $projectName . 'AP|Auto_' . $projectName . 'EPG';
             $response = $this->client->get('vcenter/network?names=' . $pgName, [
                 'headers' => [
                     'vmware-api-session-id' => $this->authToken,

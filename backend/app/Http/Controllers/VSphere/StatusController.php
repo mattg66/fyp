@@ -6,7 +6,9 @@ use App\Http\Clients\SSHClient;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Clients\vSphereClient;
+use App\Jobs\VirtualRouterProvision;
 use App\Models\Project;
+use Carbon\Carbon;
 
 class StatusController extends Controller
 {
@@ -29,7 +31,7 @@ class StatusController extends Controller
     {
         $client = new SSHClient();
         $vc = new vSphereClient();
-        $project = Project::where('name', 'testagain')->first();
-        return response()->json($client->provisionCSR($project, $vc->getVmIp('vm-5014')));
+        $project = Project::where('name', 'TestAgainagin')->first();
+        return response()->json(VirtualRouterProvision::dispatch($project->id));
     }
 }

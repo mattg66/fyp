@@ -553,14 +553,14 @@ class ACIClient
         $payload = [
             "fvTenant" => [
                 "attributes" => [
-                    "dn" => "uni/tn-Automation_" . $projectName,
+                    "dn" => "uni/tn-Auto_" . $projectName,
                     "status" => "deleted"
                 ],
                 "children" => []
             ]
         ];
         try {
-            $response = $this->client->post('node/mo/uni/tn-Automation_' . $projectName . '.json', [
+            $response = $this->client->post('node/mo/uni/tn-Auto_' . $projectName . '.json', [
                 'headers' => [
                     'Cookie' => 'APIC-cookie=' . $this->authToken,
                 ],
@@ -581,18 +581,18 @@ class ACIClient
         $payload = [
             'fvTenant' => [
                 'attributes' => [
-                    'dn' => 'uni/tn-Automation_' . $projectName,
-                    'name' => 'Automation_' . $projectName,
-                    'rn' => 'tn-Automation_' . $projectName,
+                    'dn' => 'uni/tn-Auto_' . $projectName,
+                    'name' => 'Auto_' . $projectName,
+                    'rn' => 'tn-Auto_' . $projectName,
                     'status' => 'created'
                 ],
                 'children' => [
                     [
                         'fvCtx' => [
                             'attributes' => [
-                                'dn' => 'uni/tn-Automation_' . $projectName . '/ctx-Automation_' . $projectName . 'VRF',
-                                'name' => 'Automation_' . $projectName . 'VRF',
-                                'rn' => 'ctx-Automation_' . $projectName . 'VRF',
+                                'dn' => 'uni/tn-Auto_' . $projectName . '/ctx-Auto_' . $projectName . 'VRF',
+                                'name' => 'Auto_' . $projectName . 'VRF',
+                                'rn' => 'ctx-Auto_' . $projectName . 'VRF',
                                 'status' => 'created'
                             ],
                             'children' => []
@@ -602,7 +602,7 @@ class ACIClient
             ]
         ];
         try {
-            $response = $this->client->post('node/mo/uni/tn-Automation_' . $projectName . '.json', [
+            $response = $this->client->post('node/mo/uni/tn-Auto_' . $projectName . '.json', [
                 'headers' => [
                     'Cookie' => 'APIC-cookie=' . $this->authToken,
                 ],
@@ -624,19 +624,19 @@ class ACIClient
         $payload =  [
             "fvBD" => [
                 "attributes" => [
-                    "dn" => "uni/tn-Automation_" . $projectName . "/BD-Automation_" . $projectName . "BD",
+                    "dn" => "uni/tn-Auto_" . $projectName . "/BD-Auto_" . $projectName . "BD",
                     "mac" => "00:22:BD:F8:19:FF",
                     "arpFlood" => "true",
-                    "name" => "Automation_" . $projectName . "BD",
+                    "name" => "Auto_" . $projectName . "BD",
                     "unicastRoute" => "false",
-                    "rn" => "BD-Automation_" . $projectName . "BD",
+                    "rn" => "BD-Auto_" . $projectName . "BD",
                     "status" => "created"
                 ],
                 "children" => [
                     [
                         "fvRsCtx" => [
                             "attributes" => [
-                                "tnFvCtxName" => "Automation_" . $projectName . "VRF",
+                                "tnFvCtxName" => "Auto_" . $projectName . "VRF",
                                 "status" => "created,modified"
                             ],
                             "children" => []
@@ -646,7 +646,7 @@ class ACIClient
             ]
         ];
         try {
-            $response = $this->client->post('node/mo/uni/tn-Automation_' . $projectName . '/BD-Automation_' . $projectName . 'BD.json', [
+            $response = $this->client->post('node/mo/uni/tn-Auto_' . $projectName . '/BD-Auto_' . $projectName . 'BD.json', [
                 'headers' => [
                     'Cookie' => 'APIC-cookie=' . $this->authToken,
                 ],
@@ -668,16 +668,16 @@ class ACIClient
         $payload = [
             "fvAp" => [
                 "attributes" => [
-                    "dn" => "uni/tn-Automation_" . $projectName . "/ap-Automation_" . $projectName . "AP",
-                    "name" => "Automation_" . $projectName . "AP",
-                    "rn" => "ap-Automation_" . $projectName . "AP",
+                    "dn" => "uni/tn-Auto_" . $projectName . "/ap-Auto_" . $projectName . "AP",
+                    "name" => "Auto_" . $projectName . "AP",
+                    "rn" => "ap-Auto_" . $projectName . "AP",
                     "status" => "created"
                 ],
                 "children" => []
             ]
         ];
         try {
-            $response = $this->client->post('node/mo/uni/tn-Automation_' . $projectName . '/ap-Automation_' . $projectName . 'AP.json', [
+            $response = $this->client->post('node/mo/uni/tn-Auto_' . $projectName . '/ap-Auto_' . $projectName . 'AP.json', [
                 'headers' => [
                     'Cookie' => 'APIC-cookie=' . $this->authToken,
                 ],
@@ -698,17 +698,17 @@ class ACIClient
         $payload = [
             "fvAEPg" => [
                 "attributes" => [
-                    "dn" => "uni/tn-Automation_" . $projectName . "/ap-Automation_" . $projectName . "AP/epg-Automation_" . $projectName . "EPG",
+                    "dn" => "uni/tn-Auto_" . $projectName . "/ap-Auto_" . $projectName . "AP/epg-Auto_" . $projectName . "EPG",
                     "prio" => "level3",
-                    "name" => "Automation_" . $projectName . "EPG",
-                    "rn" => "epg-Automation_" . $projectName . "EPG",
+                    "name" => "Auto_" . $projectName . "EPG",
+                    "rn" => "epg-Auto_" . $projectName . "EPG",
                     "status" => "created"
                 ],
                 "children" => [
                     [
                         "fvRsBd" => [
                             "attributes" => [
-                                "tnFvBDName" => "Automation_" . $projectName . "BD",
+                                "tnFvBDName" => "Auto_" . $projectName . "BD",
                                 "status" => "created,modified"
                             ],
                             "children" => []
@@ -728,7 +728,7 @@ class ACIClient
             ]
         ];
         try {
-            $response = $this->client->post('node/mo/uni/tn-Automation_' . $projectName . '/ap-Automation_' . $projectName . 'AP/epg-Automation_' . $projectName . 'EPG.json', [
+            $response = $this->client->post('node/mo/uni/tn-Auto_' . $projectName . '/ap-Auto_' . $projectName . 'AP/epg-Auto_' . $projectName . 'EPG.json', [
                 'headers' => [
                     'Cookie' => 'APIC-cookie=' . $this->authToken,
                 ],
@@ -767,14 +767,14 @@ class ACIClient
             ],
         ];
         try {
-            $automationResponse = $this->client->post('node/mo/uni/tn-Automation_' . $projectName . '/ap-Automation_' . $projectName . 'AP/epg-Automation_' . $projectName . 'EPG.json', [
+            $automationResponse = $this->client->post('node/mo/uni/tn-Auto_' . $projectName . '/ap-Auto_' . $projectName . 'AP/epg-Auto_' . $projectName . 'EPG.json', [
                 'headers' => [
                     'Cookie' => 'APIC-cookie=' . $this->authToken,
                 ],
                 'body' => json_encode($automationDomain, JSON_UNESCAPED_SLASHES),
                 'http_errors' => false
             ]);
-            $infraResponse = $this->client->post('node/mo/uni/tn-Automation_' . $projectName . '/ap-Automation_' . $projectName . 'AP/epg-Automation_' . $projectName . 'EPG.json', [
+            $infraResponse = $this->client->post('node/mo/uni/tn-Auto_' . $projectName . '/ap-Auto_' . $projectName . 'AP/epg-Auto_' . $projectName . 'EPG.json', [
                 'headers' => [
                     'Cookie' => 'APIC-cookie=' . $this->authToken,
                 ],
@@ -801,7 +801,7 @@ class ACIClient
                             ]
                         ]
                     ];
-                    $enhancedLACPResponse = $this->client->post('node/mo/uni/tn-Automation_' . $projectName . '/ap-Automation_' . $projectName . 'AP/epg-Automation_' . $projectName . 'EPG/rsdomAtt-[uni/vmmp-VMware/dom-' . env('ACI_VMWARE_DOMAIN') . ']/epglagpolatt.json', [
+                    $enhancedLACPResponse = $this->client->post('node/mo/uni/tn-Auto_' . $projectName . '/ap-Auto_' . $projectName . 'AP/epg-Auto_' . $projectName . 'EPG/rsdomAtt-[uni/vmmp-VMware/dom-' . env('ACI_VMWARE_DOMAIN') . ']/epglagpolatt.json', [
                         'headers' => [
                             'Cookie' => 'APIC-cookie=' . $this->authToken,
                         ],
@@ -838,7 +838,7 @@ class ACIClient
                             $payload = [
                                 "fvRsPathAtt" => [
                                     "attributes" => [
-                                        "dn" => "uni/tn-Automation_" . $project->name . "/ap-Automation_" . $project->name . "AP/epg-Automation_" . $project->name . "EPG/rspathAtt-[topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[eth" . substr($interface->aci_id, 7) . "]]",
+                                        "dn" => "uni/tn-Auto_" . $project->name . "/ap-Auto_" . $project->name . "AP/epg-Auto_" . $project->name . "EPG/rspathAtt-[topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[eth" . substr($interface->aci_id, 7) . "]]",
                                         "encap" => "vlan-" . $project->vlan->vlan_id,
                                         "tDn" => "topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[eth" . substr($interface->aci_id, 7) . "]",
                                         "rn" => "rspathAtt-[topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[eth" . substr($interface->aci_id, 7) . "]]",
@@ -848,7 +848,7 @@ class ACIClient
                                     "children" => []
                                 ]
                             ];
-                            $response = $this->client->post('node/mo/uni/tn-Automation_' . $project->name . '/ap-Automation_' . $project->name . 'AP/epg-Automation_' . $project->name . 'EPG/rspathAtt-[topology/pod-' . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[eth" . substr($interface->aci_id, 7) . "]].json", [
+                            $response = $this->client->post('node/mo/uni/tn-Auto_' . $project->name . '/ap-Auto_' . $project->name . 'AP/epg-Auto_' . $project->name . 'EPG/rspathAtt-[topology/pod-' . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[eth" . substr($interface->aci_id, 7) . "]].json", [
                                 'headers' => [
                                     'Cookie' => 'APIC-cookie=' . $this->authToken,
                                 ],
@@ -859,7 +859,7 @@ class ACIClient
                             $payload = [
                                 "fvRsPathAtt" => [
                                     "attributes" => [
-                                        "dn" => "uni/tn-Automation_" . $project->name . "/ap-Automation_" . $project->name . "AP/epg-Automation_" . $project->name . "EPG/rspathAtt-[topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[eth" . $interface->aci_id . "]]",
+                                        "dn" => "uni/tn-Auto_" . $project->name . "/ap-Auto_" . $project->name . "AP/epg-Auto_" . $project->name . "EPG/rspathAtt-[topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[eth" . $interface->aci_id . "]]",
                                         "encap" => "vlan-" . $project->vlan->vlan_id,
                                         "tDn" => "topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[" . $interface->aci_id . "]",
                                         "rn" => "rspathAtt-[topology/pod-" . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[" . $interface->aci_id . "]]",
@@ -869,7 +869,7 @@ class ACIClient
                                     "children" => []
                                 ]
                             ];
-                            $response = $this->client->post('node/mo/uni/tn-Automation_' . $project->name . '/ap-Automation_' . $project->name . 'AP/epg-Automation_' . $project->name . 'EPG/rspathAtt-[topology/pod-' . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[" . $interface->aci_id . "]].json", [
+                            $response = $this->client->post('node/mo/uni/tn-Auto_' . $project->name . '/ap-Auto_' . $project->name . 'AP/epg-Auto_' . $project->name . 'EPG/rspathAtt-[topology/pod-' . env('ACI_POD') . "/paths-" . $rack->fabricNode->parent_aci_id . "/extpaths-" . $rack->fabricNode->parent_aci_id . "/pathep-[" . $interface->aci_id . "]].json", [
                                 'headers' => [
                                     'Cookie' => 'APIC-cookie=' . $this->authToken,
                                 ],

@@ -50,7 +50,7 @@ class CreateProject implements ShouldQueue
                         if ($aciClient->associatePhysDom($this->projectName)) {
                             if ($aciClient->deployToNode($this->projectId)) {
                                  if ($vmWare->deployProjectRouter($this->projectName, $this->projectId)) {
-                                    VirtualRouterProvision::dispatch($this->projectId)->delay(Carbon::now()->addSeconds(120));
+                                    VirtualRouterProvision::dispatch($this->projectId)->delay(Carbon::now()->addSeconds(140));
                                     return true;
                                  }
                             }
