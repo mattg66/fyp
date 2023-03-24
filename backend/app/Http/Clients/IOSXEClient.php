@@ -4,13 +4,6 @@ namespace App\Http\Clients;
 
 use GuzzleHttp\Client;
 use App\Exceptions\APIClientException;
-use App\Models\FabricNode;
-use App\Models\InterfaceModel;
-use App\Models\Project;
-use App\Models\Rack;
-use App\Models\VlanPool;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class IOSXEClient
 {
