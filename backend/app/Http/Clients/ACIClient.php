@@ -966,12 +966,13 @@ class ACIClient
                             // if ($this->intProfileAssign($rack->fabricNode->int_profile, $interface->aci_id) === false) {
                             //     return false;
                             // }
+                        }
                     }
-                }
-                if ($this->intProfileAssign($rack->fabricNode->int_profile, $rack->fabricNode->aci_id, $intArray)) {
-                    return true;
-                } else {
-                    return false;
+                    if ($this->intProfileAssign($rack->fabricNode->int_profile, $rack->fabricNode->aci_id, $intArray)) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
             }
         }

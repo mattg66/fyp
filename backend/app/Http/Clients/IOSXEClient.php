@@ -40,13 +40,17 @@ class IOSXEClient
 
         return $highestUsableIPAddress;
     }
-    public function connectionTest()
+    public function connectionTest($username = null, $password = null)
     {
         try {
+            if ($username === null && $password === null) {
+                $username = env('VSPHERE_CSRV_USERNAME');
+                $password = env('VSPHERE_CSRV_SECRET');
+            }
             $response = $this->client->get('data/Cisco-IOS-XE-native:native/hostname', [
                 'auth' => [
-                    env('VSPHERE_CSRV_USERNAME'),
-                    env('VSPHERE_CSRV_SECRET')
+                    $username,
+                    $password
                 ],
                 'http_errors' => false
             ]);
@@ -300,6 +304,50 @@ class IOSXEClient
                                     ]
                                 ]
                             ]
+                        ]
+                    ]
+                ]
+            ]);
+            if ($response->getStatusCode() == 204) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function setSubinterface($ipAddr, $subnetMask, $vlanId, $username, $password, $interfaceId)
+    {
+        try {
+            $response = $this->client->patch('data/Cisco-IOS-XE-native:native/interface/GigabitEthernet=' . $interfaceId . '.' . $vlanId, [
+                'auth' => [
+                    $username,
+                    $password
+                ],
+                'headers' => [
+                    'Content-Type' => 'application/yang-data+json',
+                    'Accept' => 'application/yang-data+json',
+                ],
+                'json' => [
+                    "Cisco-IOS-XE-native:GigabitEthernet" => [
+                        "name" => $interfaceId . '.' . $vlanId,
+                        "description" => "#PROJECT#",
+                        "encapsulation" => "dot1Q " . $vlanId,
+                        "ip" => [
+                            "address" => [
+                                "primary" => [
+                                    "address" => $ipAddr,
+                                    "mask" => $subnetMask
+                                ]
+                            ]
+                        ],
+                        "mop" => [
+                            "enabled" => false,
+                            "sysid" => false
+                        ],
+                        "Cisco-IOS-XE-ethernet:negotiation" => [
+                            "auto" => true
                         ]
                     ]
                 ]

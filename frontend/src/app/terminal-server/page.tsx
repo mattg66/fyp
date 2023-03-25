@@ -154,10 +154,10 @@ export default function TerminalServers() {
                         <div className="mt-2">
                             <Label
                                 htmlFor="uplink_port"
-                                value="Uplink Port (IOS Port Identifier)"
+                                value="Uplink Port For Subinterface"
                             />
                         </div>
-                        <TextInput id="uplink_port" placeholder="GigabitEthernet 1/0/1.10" maxLength={50} {...register('uplink_port', { required: true })} />
+                        <TextInput id="uplink_port" placeholder="0/0/0" maxLength={50} {...register('uplink_port', { required: true })} />
                         {errors?.uplink_port && <Alert color="failure" className="mt-2">
                             {errors?.uplink_port?.type === 'required' && <p>Uplink port is required</p>}
                         </Alert>}
