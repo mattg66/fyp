@@ -947,35 +947,15 @@ class ACIClient
 
                         if ($response->getStatusCode() !== 200) {
                             return false;
-                        } else {
-                            $newInt = [
-                                "infraPortBlk" => [
-                                    "attributes" => [
-                                        "dn" => $rack->fabricNode->int_profile . "/hports-" . $rack->fabricNode->aci_id . "Automation-typ-range/portblk-block" . $key + 2,
-                                        "fromPort" => substr($interface->aci_id, 9),
-                                        "toPort" => substr($interface->aci_id, 9),
-                                        "name" => "block" . $key + 2,
-                                        "rn" => "portblk-block" . $key + 2,
-                                        "status" => "created,modified"
-                                    ],
-                                    "children" => []
-                                ]
-                            ];
-                            array_push($intArray, $newInt);
-
-                            // if ($this->intProfileAssign($rack->fabricNode->int_profile, $interface->aci_id) === false) {
-                            //     return false;
-                            // }
                         }
                     }
-                    if ($this->intProfileAssign($rack->fabricNode->int_profile, $rack->fabricNode->aci_id, $intArray)) {
-                        return true;
-                    } else {
-                        return false;
-                    }
+                }
+                if (!$this->intProfileAssign($rack->fabricNode->int_profile, $rack->fabricNode->aci_id, $intArray)) {
+                    return false;
                 }
             }
         }
+        return true;
     }
     function intProfileAssign($intDn, $nodeId, $interfaces)
     {

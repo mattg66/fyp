@@ -6,6 +6,7 @@ use App\Http\Clients\SSHClient;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Clients\vSphereClient;
+use App\Jobs\TSProvision;
 use App\Jobs\VirtualRouterProvision;
 use App\Models\Project;
 use Carbon\Carbon;
@@ -31,7 +32,7 @@ class StatusController extends Controller
     {
         $client = new SSHClient();
         $vc = new vSphereClient();
-        $project = Project::where('name', 'TestAgainagin')->first();
-        return response()->json(VirtualRouterProvision::dispatch($project->id));
+        $project = Project::where('name', 'test222')->first();
+        return response()->json(TSProvision::dispatch($project->id));
     }
 }

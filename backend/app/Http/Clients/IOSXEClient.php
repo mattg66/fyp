@@ -4,6 +4,7 @@ namespace App\Http\Clients;
 
 use GuzzleHttp\Client;
 use App\Exceptions\APIClientException;
+use Illuminate\Support\Facades\Log;
 
 class IOSXEClient
 {
@@ -320,7 +321,26 @@ class IOSXEClient
     public function setSubinterface($ipAddr, $subnetMask, $vlanId, $username, $password, $interfaceId)
     {
         try {
-            $response = $this->client->patch('data/Cisco-IOS-XE-native:native/interface/GigabitEthernet=' . $interfaceId . '.' . $vlanId, [
+            $request = [
+                "Cisco-IOS-XE-native:GigabitEthernet" => [
+                    "name" => $interfaceId . '.' . strval($vlanId),
+                    "description" => "#PROJECT#",
+                    "encapsulation" => [
+                        "dot1Q" => [
+                            "vlan-id" => strval($vlanId)
+                        ]
+                    ],
+                    "ip" => [
+                        "address" => [
+                            "primary" => [
+                                "address" => $ipAddr,
+                                "mask" => $subnetMask
+                            ]
+                        ]
+                    ],
+                ]
+            ];
+            $response = $this->client->put('data/Cisco-IOS-XE-native:native/interface/GigabitEthernet=' . rawurlencode($interfaceId) . '%2E' . $vlanId, [
                 'auth' => [
                     $username,
                     $password
@@ -329,34 +349,12 @@ class IOSXEClient
                     'Content-Type' => 'application/yang-data+json',
                     'Accept' => 'application/yang-data+json',
                 ],
-                'json' => [
-                    "Cisco-IOS-XE-native:GigabitEthernet" => [
-                        "name" => $interfaceId . '.' . $vlanId,
-                        "description" => "#PROJECT#",
-                        "encapsulation" => "dot1Q " . $vlanId,
-                        "ip" => [
-                            "address" => [
-                                "primary" => [
-                                    "address" => $ipAddr,
-                                    "mask" => $subnetMask
-                                ]
-                            ]
-                        ],
-                        "mop" => [
-                            "enabled" => false,
-                            "sysid" => false
-                        ],
-                        "Cisco-IOS-XE-ethernet:negotiation" => [
-                            "auto" => true
-                        ]
-                    ]
-                ]
+                'json' => $request
             ]);
-            if ($response->getStatusCode() == 204) {
+            if ($response->getStatusCode() == 201 || $response->getStatusCode() == 204) {
                 return true;
-            } else {
-                return false;
             }
+            return false;
         } catch (\Exception $e) {
             throw new APIClientException($e->getMessage());
         }
