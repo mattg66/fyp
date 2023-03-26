@@ -53,7 +53,7 @@ export interface NewNode {
     position: { x: number; y: number };
     data: { label: string; project?: Project; fn?: string; ts?: string; onChange: (event: any, id: string) => Promise<boolean | undefined>; delete: (node: NewNode) => void, edit: (node: NewNode) => void, displayOnly: boolean, selected: boolean };
 }
-const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnSelectionChangeParams) => void }) => {
+const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnSelectionChangeParams) => void, selectNodes?: string[]}) => {
     const { resolvedTheme } = useTheme()
     const flowTheme = resolvedTheme === 'light' ? lightTheme : darkTheme;
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -125,6 +125,21 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
             }
         }))
     }, [selectedElements])
+
+    useEffect(() => {
+        if (props.selectNodes !== undefined) {
+            setNodes(nodes.map((node: Node) => {
+                return {
+                    ...node,
+                    data: {
+                        ...node.data,
+                        selected: props.selectNodes.filter(selectedNode => selectedNode === node.id).length > 0
+                    }
+                }
+            }))
+        }
+        console.log('test');
+    }, [props.selectNodes])
 
     useEffect(() => {
         if (data?.status) {

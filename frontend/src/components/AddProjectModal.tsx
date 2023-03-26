@@ -1,4 +1,4 @@
-import { Project } from "@/app/projects/page"
+import { EditProject, Project } from "@/app/projects/page"
 import { TabsInterface } from "flowbite"
 import { Alert, Button, Label, Modal, Tabs, TabsRef, Textarea, TextInput } from "flowbite-react"
 import { useEffect, useRef, useState } from "react"
@@ -11,7 +11,7 @@ import Flow, { NewNode } from "./Flow"
 interface AddProjectModal {
     isOpen: boolean,
     close: () => void,
-    confirm: (project: Project) => void,
+    confirm: (project: EditProject) => void,
 }
 export const AddProjectModal = ({ isOpen, close, confirm }: AddProjectModal) => {
     const [activeTab, setActiveTab] = useState<number>(0)

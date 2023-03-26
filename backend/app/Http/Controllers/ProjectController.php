@@ -166,7 +166,7 @@ class ProjectController extends Controller
     }
     public function getAll()
     {
-        $projects = Project::with(['vlan', 'racks'])->get();
+        $projects = Project::with(['vlan', 'racks', 'projectRouter'])->get();
         return response()->json($projects);
     }
     public function deleteById($id)

@@ -1,4 +1,4 @@
-import { Project } from "@/app/projects/page"
+import { EditProject } from "@/app/projects/page"
 import { TabsInterface } from "flowbite"
 import { Alert, Button, Label, Modal, Tabs, TabsRef, Textarea, TextInput } from "flowbite-react"
 import { useEffect, useRef, useState } from "react"
@@ -10,13 +10,13 @@ import Flow, { NewNode } from "./Flow"
 interface AddProjectModal {
     isOpen: boolean,
     close: () => void,
-    confirm: (project: Project) => void,
-    project: Project
+    confirm: (project: EditProject) => void,
+    project: EditProject
 }
-export const AddProjectModal = ({ isOpen, close, confirm, project }: AddProjectModal) => {
+export const EditProjectModal = ({ isOpen, close, confirm, project }: AddProjectModal) => {
     const [activeTab, setActiveTab] = useState<number>(0)
     const tabsRef = useRef<TabsRef>(null);
-
+    const [existingNodes, setExistingNodes] = useState<string[]>([])
     const [selectedNodes, setSelectedNodes] = useState<any[]>([])
     const handleNodeSelect = (event: OnSelectionChangeParams) => {
         setSelectedNodes(event.nodes)
@@ -30,16 +30,30 @@ export const AddProjectModal = ({ isOpen, close, confirm, project }: AddProjectM
         wan_gateway: string,
         wan_subnet_mask: string,
     }
-    const { register, handleSubmit, formState: { errors, submitCount }, getValues, reset } = useForm<NewProject>();
+    const { register, handleSubmit, formState: { errors, submitCount }, getValues, reset, setValue } = useForm<NewProject>();
     useEffect(() => {
         if (errors?.description) {
             tabsRef.current?.setActiveTab(0)
         }
     }, [submitCount, errors])
+    
+    useEffect(() => {
+        if (existingNodes !== project?.racks.map(rack => String(rack.id))) {
+            setExistingNodes(project?.racks.map(rack => String(rack.id)))
+        }
+        setSelectedNodes(project?.racks.map(rack => { return {data: rack}}))
+        setValue('name', project?.name)
+        setValue('description', project?.description)
+        setValue('network', project?.network)
+        setValue('subnet_mask', project?.subnet_mask)
+        setValue('wan_gateway', project?.project_router?.gateway) 
+        setValue('wan_ip', project?.project_router?.ip)
+        setValue('wan_subnet_mask', project?.project_router?.subnet_mask)
+    }, [project, isOpen])
 
     const onSubmit = handleSubmit((data) => {
         const requestOptions = {
-            method: 'POST',
+            method: 'PATCH',
             headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
             body: JSON.stringify({ ...data, racks: selectedNodes.map((node) => node.id) })
         };
@@ -97,12 +111,12 @@ export const AddProjectModal = ({ isOpen, close, confirm, project }: AddProjectM
                             <div className="w-full h-96 grid grid-cols-4">
                                 <div className="col-span-3">
                                     <h2>Shift + Click to select multiple racks</h2>
-                                    <Flow displayOnly={true} selectedNodesCallback={handleNodeSelect} />
+                                    <Flow displayOnly={true} selectedNodesCallback={handleNodeSelect} selectNodes={existingNodes} />
                                 </div>
                                 <div className="w-32 text-center">
                                     <h2>Selected Racks</h2>
                                     {selectedNodes?.map((node) => {
-                                        if (node?.type === "rackNode") {
+                                        if (node?.type === "rackNode" || node?.type === undefined) {
                                             return <p key={node.id}>{node.data.label}</p>
                                         }
                                     })}
