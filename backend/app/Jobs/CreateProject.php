@@ -48,7 +48,7 @@ class CreateProject implements ShouldQueue
                 if ($aciClient->createAP($this->projectName)) {
                     if ($aciClient->createEPG($this->projectName)) {
                         if ($aciClient->associatePhysDom($this->projectName)) {
-                            if ($aciClient->deployToNode($this->projectId)) {
+                            if ($aciClient->deployToNodes($this->projectId)) {
                                  if ($vmWare->deployProjectRouter($this->projectName, $this->projectId)) {
                                     VirtualRouterProvision::dispatch($this->projectId)->delay(Carbon::now()->addSeconds(140));
                                     TSProvision::dispatch($this->projectId);

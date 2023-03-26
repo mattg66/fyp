@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Clients\ACIClient;
+use App\Jobs\AddRack;
 use App\Jobs\CreateProject;
 use App\Jobs\DeleteProject;
+use App\Jobs\DeleteRack;
 use App\Models\Project;
 use App\Models\ProjectRouter;
 use App\Models\Rack;
@@ -12,6 +14,7 @@ use App\Models\Vlan;
 use App\Models\VlanPool;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProjectController extends Controller
 {
@@ -180,7 +183,7 @@ class ProjectController extends Controller
             'racks' => 'array',
             'racks.*' => 'integer|exists:racks,id',
         ]);
-        $project = Project::with('racks')->find($id);
+        $project = Project::with(['racks', 'vlan'])->find($id);
         if (!$project) {
             return response()->json([
                 'message' => 'Project not found',
@@ -191,16 +194,21 @@ class ProjectController extends Controller
         $project->save();
         $removeRacks = [];
         $addRacks = [];
+
         foreach ($project->racks as $rack) {
-            if (!array_key_exists($rack->id, $request->racks)) {
-                array_push($removeRacks, $rack->id);
+            if (array_search($rack->id, $request->racks) === false) {
+                DeleteRack::dispatch($id, $rack->id);
             }
         }
         foreach ($request->racks as $rack) {
             if (!$this->findObjectById($project->racks, $rack)) {
-                array_push($addRacks, Intval($rack));
+                $rack = Rack::find(Intval($rack));
+                $rack->project_id = $id;
+                $rack->save();
+                AddRack::dispatch($id, $rack->id);
             }
         }
+        DB::commit();
         return response()->json(['add' => $addRacks, 'remove' => $removeRacks]);
     }
     public function getAll()
