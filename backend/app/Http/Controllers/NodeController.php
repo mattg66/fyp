@@ -154,6 +154,12 @@ class NodeController extends Controller
                 $node->rack->save();
             }
         }
+        if (($request->has('fn_id') || $request->has('ts_id')) && $node->rack->project_id !== null) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Cannot change Terminal Server or Fabric Node of a rack with a project',
+            ], 400);
+        }
         if ($request->has('fn_id')) {
             if ($request->fn_id == null) {
                 if ($node->rack != null) {
