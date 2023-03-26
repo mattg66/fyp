@@ -12,6 +12,8 @@ class StatusController extends Controller
     {
         $client = new ACIClient();
         $client->syncVlanPools();
+        $client->syncFabricNodes();
+        $client->syncFabricInterfaces();
         $version = $client->getApicVersion();
         $health = $client->getHealth();
         $fabricHealth = $client->getFabricHealth();

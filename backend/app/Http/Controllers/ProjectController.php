@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Clients\ACIClient;
 use App\Jobs\CreateProject;
+use App\Jobs\DeleteProject;
 use App\Models\Project;
 use App\Models\ProjectRouter;
 use App\Models\Rack;
@@ -84,7 +85,7 @@ class ProjectController extends Controller
     public function create(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|max:50',
+            'name' => 'required|max:15|not_regex:/\s/',
             'description' => 'required|max:500',
             'network' => 'ip|nullable',
             'subnet_mask' => 'ip|nullable',
@@ -177,16 +178,10 @@ class ProjectController extends Controller
             ], 404);
         }
         $project->delete();
-        $aciClient = new ACIClient();
-        if ($aciClient->deleteTenant($project->name)) {
-            return response()->json([
-                'message' => 'Project deleted successfully',
-            ], 200);
-        } else {
-            return response()->json([
-                'message' => 'Project deleted successfully, but tenant could not be deleted from ACI',
-            ]);
-        }
+        DeleteProject::dispatch($project->name, $project->id);
+        return response()->json([
+            'message' => 'Project deleted successfully',
+        ], 200);
     }
     public function test()
     {

@@ -997,4 +997,27 @@ class ACIClient
             return true;
         }
     }
+    public function deleteIntProf($projectId)
+    {
+        $racks = Rack::with(['fabricNode'])->where('project_id', $projectId)->get();
+        foreach ($racks as $rack) {
+            if ($rack->fabricNode !== null) {
+                $response = $this->client->post('node/mo/' . $rack->fabricNode->int_profile . "/hports-" . $rack->fabricNode->aci_id . "Automation-typ-range.json", [
+                    'headers' => [
+                        'Cookie' => 'APIC-cookie=' . $this->authToken,
+                    ],
+                    'body' => json_encode([
+                        "infraHPortS" => [
+                            "attributes" => [
+                                "dn" => $rack->fabricNode->int_profile . "/hports-" . $rack->fabricNode->aci_id . "Automation-typ-range",
+                                "status" => "deleted"
+                            ],
+                            "children" => []
+                        ]
+                    ], JSON_UNESCAPED_SLASHES),
+                ]);
+            }
+        }
+        return true;
+    }
 }

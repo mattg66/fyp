@@ -211,4 +211,40 @@ class vSphereClient
             throw new APIClientException($e->getMessage());
         }
     }
+    public function powerOffVm($vmId)
+    {
+        try {
+            $response = $this->client->post('vcenter/vm/' . str_replace('"', '', $vmId) . '/power?action=stop', [
+                'headers' => [
+                    'vmware-api-session-id' => $this->authToken,
+                ],
+                'http_errors' => false,
+            ]);
+            if ($response->getStatusCode() === 204) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function deleteVm($vmId)
+    {
+        try {
+            $response = $this->client->delete('vcenter/vm/' . str_replace('"', '', $vmId), [
+                'headers' => [
+                    'vmware-api-session-id' => $this->authToken,
+                ],
+                'http_errors' => false,
+            ]);
+            if ($response->getStatusCode() === 204) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
 }

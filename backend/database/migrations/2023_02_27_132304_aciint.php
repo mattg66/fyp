@@ -31,6 +31,7 @@ return new class extends Migration
             $table->string('description');
             $table->string('network');
             $table->string('subnet_mask');
+            $table->string('deleted_at')->nullable();
             $table->timestamps();
         });
         Schema::create('vlans', function (Blueprint $table) {

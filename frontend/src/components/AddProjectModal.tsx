@@ -145,7 +145,7 @@ export const AddProjectModal = ({ isOpen, close, confirm }: AddProjectModal) => 
                                     value="Name"
                                 />
                             </div>
-                            <TextInput id="name" placeholder="Name" maxLength={50} {...register('name', { required: true })} />
+                            <TextInput id="name" placeholder="Name" maxLength={15} {...register('name', { required: true, pattern: /^[a-zA-Z0-9]+$/ })} />
                             {errors?.name && <Alert color="failure" className="mt-2">
                                 {errors?.name?.type === 'required' && <p>Name is required</p>}
                             </Alert>}

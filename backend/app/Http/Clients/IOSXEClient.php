@@ -318,28 +318,9 @@ class IOSXEClient
             throw new APIClientException($e->getMessage());
         }
     }
-    public function setSubinterface($ipAddr, $subnetMask, $vlanId, $username, $password, $interfaceId)
+    public function setSubInterface($ipAddr, $subnetMask, $vlanId, $username, $password, $interfaceId)
     {
         try {
-            $request = [
-                "Cisco-IOS-XE-native:GigabitEthernet" => [
-                    "name" => $interfaceId . '.' . strval($vlanId),
-                    "description" => "#PROJECT#",
-                    "encapsulation" => [
-                        "dot1Q" => [
-                            "vlan-id" => strval($vlanId)
-                        ]
-                    ],
-                    "ip" => [
-                        "address" => [
-                            "primary" => [
-                                "address" => $ipAddr,
-                                "mask" => $subnetMask
-                            ]
-                        ]
-                    ],
-                ]
-            ];
             $response = $this->client->put('data/Cisco-IOS-XE-native:native/interface/GigabitEthernet=' . rawurlencode($interfaceId) . '%2E' . $vlanId, [
                 'auth' => [
                     $username,
@@ -349,9 +330,74 @@ class IOSXEClient
                     'Content-Type' => 'application/yang-data+json',
                     'Accept' => 'application/yang-data+json',
                 ],
-                'json' => $request
+                'json' => [
+                    "Cisco-IOS-XE-native:GigabitEthernet" => [
+                        "name" => $interfaceId . '.' . strval($vlanId),
+                        "description" => "#PROJECT#",
+                        "encapsulation" => [
+                            "dot1Q" => [
+                                "vlan-id" => strval($vlanId)
+                            ]
+                        ],
+                        "ip" => [
+                            "address" => [
+                                "primary" => [
+                                    "address" => $ipAddr,
+                                    "mask" => $subnetMask
+                                ]
+                            ]
+                        ],
+                    ]
+                ]
             ]);
             if ($response->getStatusCode() == 201 || $response->getStatusCode() == 204) {
+                return true;
+            }
+            return false;
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function deleteSubIf($vlanId, $username, $password, $interfaceId)
+    {
+        try {
+            $response = $this->client->delete('data/Cisco-IOS-XE-native:native/interface/GigabitEthernet=' . rawurlencode($interfaceId) . '%2E' . $vlanId, [
+                'auth' => [
+                    $username,
+                    $password
+                ],
+                'headers' => [
+                    'Content-Type' => 'application/yang-data+json',
+                    'Accept' => 'application/yang-data+json',
+                ],
+                'http_errors' => false,
+            ]);
+            if ($response->getStatusCode() == 204) {
+                return true;
+            }
+            return false;
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function save($username = null, $password = null)
+    {
+        try {
+            if ($username === null && $password === null) {
+                $username = env('VSPHERE_CSRV_USERNAME');
+                $password = env('VSPHERE_CSRV_SECRET');
+            }
+            $response = $this->client->post('operations/cisco-ia:save-config', [
+                'auth' => [
+                    $username,
+                    $password
+                ],
+                'headers' => [
+                    'Content-Type' => 'application/yang-data+json',
+                    'Accept' => 'application/yang-data+json',
+                ]
+            ]);
+            if ($response->getStatusCode() == 204) {
                 return true;
             }
             return false;

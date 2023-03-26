@@ -49,6 +49,7 @@ class VirtualRouterProvision implements ShouldQueue
                 $httpClient = new IOSXEClient(null, $routerIp);
                 if ($httpClient->connectionTest()) {
                     if ($httpClient->setHostname($project->name . '-CSR') && $httpClient->setAddresses($project->projectRouter->ip, $project->projectRouter->subnet_mask, $project->network, $project->subnet_mask, $project->projectRouter->gateway)) {
+                        $httpClient->save();
                         return true;
                     } else {
                         return false;
