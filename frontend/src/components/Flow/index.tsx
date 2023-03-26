@@ -116,11 +116,13 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
             props.selectedNodesCallback(selectedElements)
         }
         setNodes(nodes.map((node: Node) => {
+            let selected = selectedElements.nodes.filter((selectedNode: Node) => selectedNode.id === node.id).length > 0
             return {
                 ...node,
+                selected: selected,
                 data: {
                     ...node.data,
-                    selected: selectedElements.nodes.filter((selectedNode: Node) => selectedNode.id === node.id).length > 0
+                    selected: selected
                 }
             }
         }))
@@ -129,11 +131,13 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
     useEffect(() => {
         if (props.selectNodes !== undefined) {
             setNodes(nodes.map((node: Node) => {
+                let selected = props.selectNodes.filter(selectedNode => selectedNode === node.id).length > 0
                 return {
                     ...node,
+                    selected: selected,
                     data: {
                         ...node.data,
-                        selected: props.selectNodes.filter(selectedNode => selectedNode === node.id).length > 0
+                        selected: selected
                     }
                 }
             }))

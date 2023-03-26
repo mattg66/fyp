@@ -20,6 +20,8 @@ export const EditProjectModal = ({ isOpen, close, confirm, project }: AddProject
     const [selectedNodes, setSelectedNodes] = useState<any[]>([])
     const handleNodeSelect = (event: OnSelectionChangeParams) => {
         setSelectedNodes(event.nodes)
+        console.log(event.nodes)
+        console.log(project?.racks)
     }
     interface NewProject {
         name: string,
@@ -55,9 +57,9 @@ export const EditProjectModal = ({ isOpen, close, confirm, project }: AddProject
         const requestOptions = {
             method: 'PATCH',
             headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...data, racks: selectedNodes.map((node) => node.id) })
+            body: JSON.stringify({ ...data, racks: selectedNodes.map((node) => node.id ) })
         };
-        fetch('/api/project/', requestOptions).then((response) => {
+        fetch('/api/project/' + project.id, requestOptions).then((response) => {
             if (response.status === 201) {
                 response.json().then((data) => {
                     toast.success(data.message)

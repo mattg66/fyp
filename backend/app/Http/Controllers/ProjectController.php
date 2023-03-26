@@ -164,6 +164,45 @@ class ProjectController extends Controller
             ], 201);
         }
     }
+    function findObjectById($array, $id)
+    {
+        foreach ($array as $element) {
+            if ($id == $element->id) {
+                return $element;
+            }
+        }
+        return false;
+    }
+    public function updateById(Request $request, $id)
+    {
+        $this->validate($request, [
+            'description' => 'required|max:500',
+            'racks' => 'array',
+            'racks.*' => 'integer|exists:racks,id',
+        ]);
+        $project = Project::with('racks')->find($id);
+        if (!$project) {
+            return response()->json([
+                'message' => 'Project not found',
+            ], 404);
+        }
+        DB::beginTransaction();
+        $project->description = $request->description;
+        $project->save();
+        $removeRacks = [];
+        $addRacks = [];
+        foreach ($project->racks as $rack) {
+            if (!array_key_exists($rack->id, $request->racks)) {
+                array_push($removeRacks, $rack->id);
+            }
+        }
+        foreach ($request->racks as $rack) {
+            if (!$this->findObjectById($project->racks, $rack)) {
+                array_push($addRacks, Intval($rack));
+            }
+        }
+        return response()->json(['add' => $addRacks, 'remove' => $removeRacks]);
+    }
     public function getAll()
     {
         $projects = Project::with(['vlan', 'racks', 'projectRouter'])->get();
