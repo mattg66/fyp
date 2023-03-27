@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default (props: {displayOnly: boolean}) => {
+const Drag = (props: {displayOnly: boolean}) => {
   const onDragStart = (event: any, nodeType: string) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
     event.dataTransfer.effectAllowed = 'move';
@@ -21,3 +21,5 @@ export default (props: {displayOnly: boolean}) => {
     </div>
   );
 };
+Drag.displayName = 'Drag'
+export default Drag

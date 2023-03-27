@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from "react";
 import useSWR, { SWRResponse } from 'swr'
@@ -23,15 +23,15 @@ export default function TerminalServers() {
     }
     const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<NewTerminalServer>();
     const watchNode = watch("node_id");
-    const { data } = useSWR('/api/ts', fetcher, { suspense: true })
+    const { data } = useSWR('/api/ts', fetcher, { suspense: true, fallbackData: {status: false, json: {}} })
     const [terminalServers, setTerminalServers] = useState<TerminalServer[]>([])
 
     useEffect(() => {
         setTerminalServers(data?.json)
     }, [data])
 
-    const { data: racks } = useSWR('/api/rack?withoutTS', fetcher, { suspense: true })
-    const { data: nodes } = useSWR('/api/aci/fabric', fetcher, { suspense: true })
+    const { data: racks } = useSWR('/api/rack?withoutTS', fetcher, { suspense: true, fallbackData: {status: false, json: [{}]} })
+    const { data: nodes } = useSWR('/api/aci/fabric', fetcher, { suspense: true, fallbackData: {status: false, json: [{}]} })
     const { data: interfaces } = useSWR(watchNode ? '/api/aci/fabric/node/' + watchNode + '/interfaces' : null, fetcher)
 
 

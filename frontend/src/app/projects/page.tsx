@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import useSWR from 'swr'
 import { AddProjectModal } from "@/components/AddProjectModal";
 import { DeleteModal } from "@/components/DeleteModal";
@@ -33,7 +33,7 @@ export default function Rackspace() {
     const [addProjectOpen, setAddProjectOpen] = useState(false)
     const [editProjectOpen, setEditProjectOpen] = useState(false)
     const [editProjectId, setEditProjectId] = useState('')
-    const { data } = useSWR('/api/project', fetcher, { suspense: true })
+    const { data } = useSWR('/api/project', fetcher, { suspense: true, fallbackData: {status: false, json: [{}]} })
 
     const [projects, setProjects] = useState<EditProject[]>([])
     const [deleteOpen, setDeleteOpen] = useState(false)

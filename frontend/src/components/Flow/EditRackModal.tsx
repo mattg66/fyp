@@ -9,8 +9,8 @@ import { NewNode } from "."
 interface EditModal {
     isOpen: boolean,
     close: () => void,
-    confirm: () => void,
-    node: NewNode
+    confirm?: () => void,
+    node: Node
 }
 interface Data {
     label?: string;
@@ -74,7 +74,7 @@ export const EditModal = ({ isOpen, close, node }: EditModal) => {
                             >
                                 <option value=" "> -- Select a Fabric Node -- </option>
                                 {fabricNodes?.json.map((fn: any) => (
-                                    <option value={fn.id}>
+                                    <option value={fn.id} key={fn.id}>
                                         {fn.description}
                                     </option>
                                 ))}
@@ -94,7 +94,7 @@ export const EditModal = ({ isOpen, close, node }: EditModal) => {
                             >
                                 <option value=" "> -- Select a TS -- </option>
                                 {terminalServers?.json.map((ts: any) => (
-                                    <option value={ts.id}>
+                                    <option value={ts.id} key={ts.id}>
                                         {ts.label}
                                     </option>
                                 ))}

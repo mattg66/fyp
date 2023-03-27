@@ -1,5 +1,4 @@
-"use client";
-
+'use client';
 import useSWR from 'swr'
 import { useEffect, useState } from "react";
 import { FabricAccordion, RenderTable, RenderTableProps, StatusDot } from "@/components";
@@ -10,11 +9,11 @@ import { useFieldArray, useForm } from 'react-hook-form';
 
 
 export default function Aci() {
-    const { data } = useSWR('/api/aci/health', fetcher, { suspense: true })
-    const { data: nodes } = useSWR('/api/aci/fabric', fetcher, { suspense: true })
-    const { data: interfaceProfiles } = useSWR('/api/aci/fabric/interface-profiles', fetcher, { suspense: true })
+    const { data } = useSWR('/api/aci/health', fetcher, { suspense: true, fallbackData: {status: false, json: {}} })
+    const { data: nodes } = useSWR('/api/aci/fabric', fetcher, { suspense: true, fallbackData: {status: false, json: [{}]} })
+    const { data: interfaceProfiles } = useSWR('/api/aci/fabric/interface-profiles', fetcher, { suspense: true, fallbackData: {status: false, json: [{}]} })
 
-    const { data: vlanPools } = useSWR('/api/aci/fabric/vlan-pools', fetcher, { suspense: true })
+    const { data: vlanPools } = useSWR('/api/aci/fabric/vlan-pools', fetcher, { suspense: true, fallbackData: {status: false, json: [{}]} })
     const { control, register, handleSubmit } = useForm();
     const { fields, append, prepend, remove, swap, move, insert, replace } = useFieldArray({
         control,
@@ -95,10 +94,9 @@ export default function Aci() {
                     onChange={(e) => setVlanPoolReq(e.target.value)}
                 >
                     <option value=""> -- Select a Vlan Pool -- </option>
-                    {vlanPools?.json
-                        .filter((vp: any) => vp.alloc_mode !== 'dynamic')
+                    {vlanPools?.json?.filter((vp: any) => vp.alloc_mode !== 'dynamic')
                         .map((vp: any) => (
-                            <option value={vp.id}>
+                            <option value={vp.id} key={vp.id}>
                                 {vp.name + ' - ' + vp.start + '-' + vp.end}
                             </option>
                         ))
@@ -131,14 +129,14 @@ export default function Aci() {
                                             {...register(`interfaceProfiles.${index}.value`)}
                                         >
                                             <option value=""> -- Select a Interface Profile -- </option>
-                                            {nodes?.json[index]?.role === 'leaf' && interfaceProfiles?.json?.leaf.map((ip: any) => (
+                                            {nodes?.json[index]?.role === 'leaf' && interfaceProfiles?.json?.leaf?.map((ip: any) => (
 
-                                                <option value={ip.infraAccPortP.attributes.dn}>
+                                                <option value={ip.infraAccPortP.attributes.dn} key={ip.infraAccPortP.attributes.dn}>
                                                     {ip.infraAccPortP.attributes.name}
                                                 </option>
                                             ))}
-                                            {nodes?.json[index]?.role === 'fex' && interfaceProfiles?.json?.fex.map((ip: any) => (
-                                                <option value={ip.infraFexP.attributes.dn}>
+                                            {nodes?.json[index]?.role === 'fex' && interfaceProfiles?.json?.fex?.map((ip: any) => (
+                                                <option value={ip.infraFexP.attributes.dn} key={ip.infraFexP.attributes.dn}>
                                                     {ip.infraFexP.attributes.name}
                                                 </option>
                                             ))}

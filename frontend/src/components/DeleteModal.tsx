@@ -1,3 +1,4 @@
+'use client';
 import { Button, Modal } from "flowbite-react"
 import { HiOutlineExclamationCircle } from "react-icons/hi"
 import { NewNode } from "./Flow"
@@ -6,7 +7,7 @@ interface DeleteModal {
     isOpen: boolean,
     close: () => void,
     confirm: () => void,
-    node?: NewNode,
+    node?: any,
     label?: string | undefined
 }
 export const DeleteModal = ({ isOpen, close, confirm, node, label }: DeleteModal) => {

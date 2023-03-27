@@ -1,3 +1,4 @@
+'use client';
 import { EditProject, Project } from "@/app/projects/page"
 import { TabsInterface } from "flowbite"
 import { Alert, Button, Label, Modal, Tabs, TabsRef, Textarea, TextInput } from "flowbite-react"

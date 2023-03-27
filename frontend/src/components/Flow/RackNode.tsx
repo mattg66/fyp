@@ -2,8 +2,7 @@ import clsx from 'clsx';
 import { Button } from 'flowbite-react';
 import React, { memo } from 'react';
 
-
-export default memo(({ data, id }: any) => {
+const RackNode = memo(({ data, id }: any) => {
   return (
     <>
       <div className="group">
@@ -23,3 +22,6 @@ export default memo(({ data, id }: any) => {
     </>
   );
 });
+RackNode.displayName = 'RackNode'
+
+export default RackNode

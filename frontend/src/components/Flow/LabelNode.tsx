@@ -2,9 +2,8 @@ import clsx from 'clsx';
 import { Button, TextInput } from 'flowbite-react';
 import React, { memo, useEffect, useState } from 'react';
 import { Handle } from 'reactflow';
-import { DeleteModal } from '../DeleteModal';
 
-export default memo(({ data, id }: any) => {
+const LabelNode = memo(({ data, id }: any) => {
     const [edit, setEdit] = useState(false)
     const [dataState, setDataState] = useState(data)
     const [deleteOpen, setDeleteOpen] = useState(false)
@@ -41,3 +40,6 @@ export default memo(({ data, id }: any) => {
         </>
     );
 });
+
+LabelNode.displayName = 'LabelNode'
+export default LabelNode

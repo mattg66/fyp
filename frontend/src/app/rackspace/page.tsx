@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import Flow from "@/components/Flow";
 

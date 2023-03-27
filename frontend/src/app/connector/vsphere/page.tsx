@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import useSWR from 'swr'
 import { useEffect, useState } from "react";
@@ -10,7 +10,7 @@ import { ServiceAccordion } from '@/components/ServiceAccordion';
 
 
 export default function Vsphere() {
-  const { data } = useSWR('/api/vsphere/health', fetcher, { suspense: true })
+  const { data } = useSWR('/api/vsphere/health', fetcher, { suspense: true, fallbackData: {status: false, json: {}} })
 
   const [tableContent, setTableContent] = useState<RenderTableProps[]>([])
   useEffect(() => {

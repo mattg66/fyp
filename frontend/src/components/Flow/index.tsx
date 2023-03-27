@@ -77,7 +77,7 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
         fetch('/api/node/' + node.id, requestOptions)
     }
 
-    const { data, mutate } = useSWR('/api/node', fetcher, { suspense: true }, )
+    const { data, mutate } = useSWR('/api/node', fetcher, { suspense: true, fallbackData: {status: false, json: {}} }, )
 
     useEffect(() => {
         mutate({...data})
