@@ -15,7 +15,7 @@ export interface Project {
     subnet_mask: string,
     racks: Racks[]
 }
-interface Racks{
+interface Racks {
     id: number,
     label: string,
     node_id: number,
@@ -55,6 +55,7 @@ export default function Rackspace() {
                 return project2
             }
         }))
+        setEditProjectOpen(false)
     }
 
     const deleteProject = () => {
@@ -74,7 +75,7 @@ export default function Rackspace() {
             <Button className="float-right" onClick={() => setAddProjectOpen(true)}>Add Project</Button>
             <div className="w-full flex justify-between mb-5">
                 <AddProjectModal isOpen={addProjectOpen} close={() => setAddProjectOpen(false)} confirm={addProject} />
-                <EditProjectModal isOpen={editProjectOpen} close={() => setEditProjectOpen(false)} confirm={updateProject} project={projects?.filter((project) => project.id === editProjectId)[0]}/>
+                <EditProjectModal isOpen={editProjectOpen} close={() => setEditProjectOpen(false)} confirm={updateProject} project={projects?.filter((project) => project.id === editProjectId)[0]} />
             </div>
             <Table>
                 <Table.Head>
@@ -89,6 +90,11 @@ export default function Rackspace() {
                     </Table.HeadCell>
                     <Table.HeadCell>
                         Project Subnet Mask
+                    </Table.HeadCell>
+                    <Table.HeadCell>
+                        Project WAN IP
+                    </Table.HeadCell>
+                    <Table.HeadCell>
                     </Table.HeadCell>
                     <Table.HeadCell>
                     </Table.HeadCell>
@@ -109,8 +115,15 @@ export default function Rackspace() {
                                 {project.subnet_mask}
                             </Table.Cell>
                             <Table.Cell>
-                                <Button onClick={() => { setDeleteOpen(true); setDeleteId(project.id) }} color="failure">Delete</Button>
+                                {project?.project_router?.ip}
+                            </Table.Cell>
+                            <Table.Cell>
                                 <Button onClick={() => { setEditProjectOpen(true); setEditProjectId(project.id) }} color="warning">Edit</Button>
+
+                            </Table.Cell>
+                            <Table.Cell>
+                                <Button onClick={() => { setDeleteOpen(true); setDeleteId(project.id) }} color="failure">Delete</Button>
+
                             </Table.Cell>
                         </Table.Row>
                     ))}

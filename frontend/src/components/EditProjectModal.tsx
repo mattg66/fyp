@@ -38,17 +38,17 @@ export const EditProjectModal = ({ isOpen, close, confirm, project }: AddProject
             tabsRef.current?.setActiveTab(0)
         }
     }, [submitCount, errors])
-    
+
     useEffect(() => {
         if (existingNodes !== project?.racks.map(rack => String(rack.id))) {
             setExistingNodes(project?.racks.map(rack => String(rack.id)))
         }
-        setSelectedNodes(project?.racks.map(rack => { return {data: rack}}))
+        setSelectedNodes(project?.racks.map(rack => { return { data: rack } }))
         setValue('name', project?.name)
         setValue('description', project?.description)
         setValue('network', project?.network)
         setValue('subnet_mask', project?.subnet_mask)
-        setValue('wan_gateway', project?.project_router?.gateway) 
+        setValue('wan_gateway', project?.project_router?.gateway)
         setValue('wan_ip', project?.project_router?.ip)
         setValue('wan_subnet_mask', project?.project_router?.subnet_mask)
     }, [project, isOpen])
@@ -57,15 +57,15 @@ export const EditProjectModal = ({ isOpen, close, confirm, project }: AddProject
         const requestOptions = {
             method: 'PATCH',
             headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...data, racks: selectedNodes.map((node) => node.id ) })
+            body: JSON.stringify({ ...data, racks: selectedNodes.filter((node) => (node.data.project === null || node.data.project?.id === project.id)).map((node) => node.id )})
         };
         fetch('/api/project/' + project.id, requestOptions).then((response) => {
-            if (response.status === 201) {
+            if (response.status === 200) {
                 response.json().then((data) => {
+                    confirm(data.project)
                     toast.success(data.message)
                     reset()
                     tabsRef.current?.setActiveTab(0)
-                    confirm(data.project)
                 })
             } else {
                 response.json().then((data) => {
@@ -82,8 +82,9 @@ export const EditProjectModal = ({ isOpen, close, confirm, project }: AddProject
             onClose={close}
         >
             <Modal.Header />
-            <Modal.Body className="min-h-[50vh]">
-                <form onSubmit={onSubmit} className="h-full flex flex-1 flex-col">
+            <form onSubmit={onSubmit} className="h-full flex flex-1 flex-col">
+                <Modal.Body className="min-h-[50vh]">
+
                     <Tabs.Group
                         aria-label="Default tabs"
                         style="default"
@@ -97,7 +98,7 @@ export const EditProjectModal = ({ isOpen, close, confirm, project }: AddProject
                                     value="Name"
                                 />
                             </div>
-                            <TextInput id="name" placeholder="Name" maxLength={15} {...register('name', { required: true, pattern: /^[a-zA-Z0-9]+$/ })} disabled/>
+                            <TextInput id="name" placeholder="Name" maxLength={15} {...register('name', { required: true, pattern: /^[a-zA-Z0-9]+$/ })} disabled />
                             <div className="mt-2">
                                 <Label
                                     htmlFor="description"
@@ -113,12 +114,12 @@ export const EditProjectModal = ({ isOpen, close, confirm, project }: AddProject
                             <div className="w-full h-96 grid grid-cols-4">
                                 <div className="col-span-3">
                                     <h2>Shift + Click to select multiple racks</h2>
-                                    <Flow displayOnly={true} selectedNodesCallback={handleNodeSelect} selectNodes={existingNodes} />
+                                    <Flow displayOnly={true} selectedNodesCallback={handleNodeSelect} selectNodes={existingNodes}/>
                                 </div>
                                 <div className="w-32 text-center">
                                     <h2>Selected Racks</h2>
                                     {selectedNodes?.map((node) => {
-                                        if (node?.type === "rackNode" || node?.type === undefined) {
+                                        if ((node?.type === "rackNode" || node?.type === undefined) && (node.data.project === null || node.data.project?.id === project.id)) {
                                             return <p key={node.id}>{node.data.label}</p>
                                         }
                                     })}
@@ -197,13 +198,16 @@ export const EditProjectModal = ({ isOpen, close, confirm, project }: AddProject
                             />
                         </Tabs.Item>
                     </Tabs.Group>
-                    <div className="flex w-full justify-end mt-auto">
+
+                </Modal.Body>
+                <Modal.Footer>
+                    <div className="flex w-full justify-end mt-5">
                         {activeTab !== 0 && <Button type="button" className="ml-2" onClick={() => tabsRef.current?.setActiveTab(activeTab - 1)}>Back</Button>}
                         {activeTab !== 2 && <Button type="button" className="ml-2" onClick={() => tabsRef.current?.setActiveTab(activeTab + 1)}>Next</Button>}
                         {activeTab === 2 && <Button type="submit" className="ml-2">Update Project</Button>}
                     </div>
-                </form>
-            </Modal.Body>
+                </Modal.Footer>
+            </form>
         </Modal>
     )
 }

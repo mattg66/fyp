@@ -135,6 +135,11 @@ class NodeController extends Controller
             'fn_id' => 'numeric|nullable',
         ]);
         $node = Node::with('rack', 'label')->find($id);
+        if ($node->rack->project_id !== null || ($request->has('x') && $request->has('y'))) {
+            return response()->json([
+                'message' => 'Rack has project assigned',
+            ], 400);
+        }
         if ($node == null) {
             return response()->json([
                 'message' => 'Node not found',
@@ -218,11 +223,16 @@ class NodeController extends Controller
     }
     public function deleteById($id)
     {
-        $node = Node::find($id);
+        $node = Node::with('rack')->find($id);
         if ($node == null) {
             return response()->json([
                 'message' => 'Node not found',
             ], 404);
+        }
+        if ($node->rack->project_id !== null) {
+            return response()->json([
+                'message' => 'Rack has project assigned',
+            ], 400);
         }
         $node->delete();
         return response()->json([

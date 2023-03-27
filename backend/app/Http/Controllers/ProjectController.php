@@ -183,7 +183,7 @@ class ProjectController extends Controller
             'racks' => 'array',
             'racks.*' => 'integer|exists:racks,id',
         ]);
-        $project = Project::with(['racks', 'vlan'])->find($id);
+        $project = Project::with(['racks', 'vlan', 'projectRouter'])->find($id);
         if (!$project) {
             return response()->json([
                 'message' => 'Project not found',
@@ -203,13 +203,19 @@ class ProjectController extends Controller
         foreach ($request->racks as $rack) {
             if (!$this->findObjectById($project->racks, $rack)) {
                 $rack = Rack::find(Intval($rack));
+                if ($rack->project_id !== null) {
+                    DB::rollBack();
+                    return response()->json([
+                        'message' => 'Rack already has project',
+                    ], 403);
+                }
                 $rack->project_id = $id;
                 $rack->save();
                 AddRack::dispatch($id, $rack->id);
             }
         }
         DB::commit();
-        return response()->json(['add' => $addRacks, 'remove' => $removeRacks]);
+        return response()->json(['message' => 'Project updated successfully', 'project' => $project]);
     }
     public function getAll()
     {

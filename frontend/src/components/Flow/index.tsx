@@ -77,8 +77,11 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
         fetch('/api/node/' + node.id, requestOptions)
     }
 
-    const { data } = useSWR('/api/node', fetcher, { suspense: true }, )
+    const { data, mutate } = useSWR('/api/node', fetcher, { suspense: true }, )
 
+    useEffect(() => {
+        mutate({...data})
+    }, [props.displayOnly])
     interface ServerNode {
         id: number;
         x: number;
@@ -117,21 +120,26 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
         }
         setNodes(nodes.map((node: Node) => {
             let selected = selectedElements.nodes.filter((selectedNode: Node) => selectedNode.id === node.id).length > 0
-            return {
-                ...node,
-                selected: selected,
-                data: {
-                    ...node.data,
-                    selected: selected
+            if (node.data.project === null) {
+                return {
+                    ...node,
+                    selected: selected,
+                    data: {
+                        ...node.data,
+                        selected: selected
+                    }
                 }
+            } else {
+                return node
             }
+            
         }))
     }, [selectedElements])
 
     useEffect(() => {
         if (props.selectNodes !== undefined) {
             setNodes(nodes.map((node: Node) => {
-                let selected = props.selectNodes.filter(selectedNode => selectedNode === node.id).length > 0
+                let selected = props.selectNodes!.filter(selectedNode => selectedNode === node.id).length > 0
                 return {
                     ...node,
                     selected: selected,

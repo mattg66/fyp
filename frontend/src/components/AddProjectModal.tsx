@@ -93,35 +93,35 @@ export const AddProjectModal = ({ isOpen, close, confirm }: AddProjectModal) => 
     const validateWanNetwork = (ipAddress: string, subnetMask: string, gateway: string) => {
         // Validate IP address
         if (!/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(ipAddress)) {
-          return "Invalid IP address";
+            return "Invalid IP address";
         }
-      
+
         // Validate subnet mask
         if (!/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(subnetMask)) {
-          return "Invalid subnet mask";
+            return "Invalid subnet mask";
         }
-      
+
         // Validate gateway
         if (!/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(gateway)) {
-          return "Invalid gateway";
+            return "Invalid gateway";
         }
-      
+
         // Check if gateway is on the same subnet as IP address using subnet mask
         const ipLong = ipToLong(ipAddress);
         const gatewayLong = ipToLong(gateway);
         const subnetMaskLong = ipToLong(subnetMask);
         if ((ipLong & subnetMaskLong) !== (gatewayLong & subnetMaskLong)) {
-          return "Gateway is not on the same subnet as IP address";
+            return "Gateway is not on the same subnet as IP address";
         }
-      
+
         // All checks passed
         return true;
-      }
-      
-      const ipToLong = (ip: string) => {
+    }
+
+    const ipToLong = (ip: string) => {
         const parts: any = ip.split(".");
         return (parts[0] << 24) + (parts[1] << 16) + (parts[2] << 8) + parseInt(parts[3]);
-      }
+    }
     return (
         <Modal
             show={isOpen}
@@ -130,8 +130,8 @@ export const AddProjectModal = ({ isOpen, close, confirm }: AddProjectModal) => 
             onClose={close}
         >
             <Modal.Header />
-            <Modal.Body className="min-h-[50vh]">
-                <form onSubmit={onSubmit} className="h-full flex flex-1 flex-col">
+            <form onSubmit={onSubmit} className="h-full flex flex-1 flex-col">
+                <Modal.Body className="min-h-[50vh]">
                     <Tabs.Group
                         aria-label="Default tabs"
                         style="default"
@@ -268,13 +268,16 @@ export const AddProjectModal = ({ isOpen, close, confirm }: AddProjectModal) => 
                             </Alert>}
                         </Tabs.Item>
                     </Tabs.Group>
+
+                </Modal.Body>
+                <Modal.Footer>
                     <div className="flex w-full justify-end mt-auto">
                         {activeTab !== 0 && <Button type="button" className="ml-2" onClick={() => tabsRef.current?.setActiveTab(activeTab - 1)}>Back</Button>}
                         {activeTab !== 2 && <Button type="button" className="ml-2" onClick={() => tabsRef.current?.setActiveTab(activeTab + 1)}>Next</Button>}
                         {activeTab === 2 && <Button type="submit" className="ml-2">Create Project</Button>}
                     </div>
-                </form>
-            </Modal.Body>
+                </Modal.Footer>
+            </form>
         </Modal>
     )
 }
