@@ -1,7 +1,7 @@
 'use client';
 import { EditProject } from "@/app/projects/page"
 import { TabsInterface } from "flowbite"
-import { Alert, Button, Label, Modal, Tabs, TabsRef, Textarea, TextInput } from "flowbite-react"
+import { Alert, Button, Label, Modal, Tabs, TabsRef, Textarea, TextInput } from "@alfiejones/flowbite-react"
 import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { HiOutlineExclamationCircle } from "react-icons/hi"

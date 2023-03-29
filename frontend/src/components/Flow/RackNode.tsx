@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { Button } from 'flowbite-react';
+import { Button } from '@alfiejones/flowbite-react';
 import React, { memo } from 'react';
 
 const RackNode = memo(({ data, id }: any) => {

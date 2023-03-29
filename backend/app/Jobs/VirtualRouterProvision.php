@@ -43,15 +43,19 @@ class VirtualRouterProvision implements ShouldQueue
     {
         $vmWare = new vSphereClient();
         $project = Project::with('projectRouter')->find($this->projectId);
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 10; $i++) {
             $routerIp = $vmWare->getVmIp($project->projectRouter->vm_id);
             if ($routerIp !== false && $routerIp != '0.0.0.0') {
-                $httpClient = new IOSXEClient(null, $routerIp);
+                $httpClient = new IOSXEClient($routerIp);
                 if ($httpClient->connectionTest()) {
                     if ($httpClient->setHostname($project->name . '-CSR') && $httpClient->setAddresses($project->projectRouter->ip, $project->projectRouter->subnet_mask, $project->network, $project->subnet_mask, $project->projectRouter->gateway)) {
                         $httpClient->save();
+                        $project->status = 'Provisioned';
+                        $project->save();
                         return true;
                     } else {
+                        $project->status = 'Error';
+                        $project->save();
                         return false;
                     }
                 } else {

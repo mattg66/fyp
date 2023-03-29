@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@alfiejones/flowbite-react": "^0.4.2",
     "@headlessui/react": "^1.7.13",
     "@next/font": "13.2.4",
     "@theme-toggles/react": "^4.1.0",

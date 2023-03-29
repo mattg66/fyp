@@ -67,6 +67,7 @@ Route::group(['prefix' => 'rack'], function () {
 
 Route::group(['prefix' => 'project'], function () {
     Route::get('/', [ProjectController::class, 'getAll']);
+    Route::get('/status', [ProjectController::class, 'getStatus']);
     Route::get('/{id}', [ProjectController::class, 'getById']);
     Route::post('/', [ProjectController::class, 'create']);
     Route::patch('/{id}', [ProjectController::class, 'updateById']);

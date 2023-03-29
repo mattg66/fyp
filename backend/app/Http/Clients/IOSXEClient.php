@@ -10,9 +10,18 @@ class IOSXEClient
 {
     protected $client;
     protected $authToken;
+    protected $username;
+    protected $password;
 
-    public function __construct($token = null, $ipAddr)
+    public function __construct($ipAddr, $username = null, $password = null)
     {
+        if ($username === null && $password === null) {
+            $this->username = env('VSPHERE_CSRV_USERNAME');
+            $this->password = env('VSPHERE_CSRV_SECRET');
+        } else {
+            $this->username = $username;
+            $this->password = $password;
+        }
         $this->client = new Client([
             'base_uri' => 'https://' . $ipAddr .  ':1025/restconf/',
             'headers' => [
@@ -44,14 +53,10 @@ class IOSXEClient
     public function connectionTest($username = null, $password = null)
     {
         try {
-            if ($username === null && $password === null) {
-                $username = env('VSPHERE_CSRV_USERNAME');
-                $password = env('VSPHERE_CSRV_SECRET');
-            }
             $response = $this->client->get('data/Cisco-IOS-XE-native:native/hostname', [
                 'auth' => [
-                    $username,
-                    $password
+                    $this->username,
+                    $this->password
                 ],
                 'http_errors' => false
             ]);
@@ -64,14 +69,51 @@ class IOSXEClient
             throw new APIClientException($e->getMessage());
         }
     }
-
+    public function getVersion()
+    {
+        try {
+            $response = $this->client->get('data/Cisco-IOS-XE-native:native/version', [
+                'auth' => [
+                    $this->username,
+                    $this->password
+                ],
+                'http_errors' => false
+            ]);
+            if ($response->getStatusCode() == 200) {
+                return json_decode($response->getBody())->{'Cisco-IOS-XE-native:version'};
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
+    public function getSN()
+    {
+        try {
+            $response = $this->client->get('data/Cisco-IOS-XE-device-hardware-oper:device-hardware-data', [
+                'auth' => [
+                    $this->username,
+                    $this->password
+                ],
+                'http_errors' => false
+            ]);
+            if ($response->getStatusCode() == 200) {
+                return json_decode($response->getBody())->{'Cisco-IOS-XE-device-hardware-oper:device-hardware-data'}->{'device-hardware'}->{'device-inventory'}[0]->{'serial-number'};
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            throw new APIClientException($e->getMessage());
+        }
+    }
     public function setHostname($hostname)
     {
         try {
             $response = $this->client->patch('data/Cisco-IOS-XE-native:native/hostname', [
                 'auth' => [
-                    env('VSPHERE_CSRV_USERNAME'),
-                    env('VSPHERE_CSRV_SECRET')
+                    $this->username,
+                    $this->password
                 ],
                 'headers' => [
                     'Content-Type' => 'application/yang-data+json',
@@ -96,8 +138,8 @@ class IOSXEClient
         try {
             $response = $this->client->patch('data/Cisco-IOS-XE-native:native/interface/GigabitEthernet=2', [
                 'auth' => [
-                    env('VSPHERE_CSRV_USERNAME'),
-                    env('VSPHERE_CSRV_SECRET')
+                    $this->username,
+                    $this->password
                 ],
                 'headers' => [
                     'Content-Type' => 'application/yang-data+json',
@@ -145,8 +187,8 @@ class IOSXEClient
         try {
             $response = $this->client->patch('data/Cisco-IOS-XE-native:native/interface/GigabitEthernet=1', [
                 'auth' => [
-                    env('VSPHERE_CSRV_USERNAME'),
-                    env('VSPHERE_CSRV_SECRET')
+                    $this->username,
+                    $this->password
                 ],
                 'headers' => [
                     'Content-Type' => 'application/yang-data+json',
@@ -194,8 +236,8 @@ class IOSXEClient
         try {
             $response = $this->client->patch('data/Cisco-IOS-XE-native:native/ip/route', [
                 'auth' => [
-                    env('VSPHERE_CSRV_USERNAME'),
-                    env('VSPHERE_CSRV_SECRET')
+                    $this->username,
+                    $this->password
                 ],
                 'headers' => [
                     'Content-Type' => 'application/yang-data+json',
@@ -236,8 +278,8 @@ class IOSXEClient
 
             $response = $this->client->patch('data/Cisco-IOS-XE-native:native/ip/access-list', [
                 'auth' => [
-                    env('VSPHERE_CSRV_USERNAME'),
-                    env('VSPHERE_CSRV_SECRET')
+                    $this->username,
+                    $this->password
                 ],
                 'headers' => [
                     'Content-Type' => 'application/yang-data+json',
@@ -256,8 +298,7 @@ class IOSXEClient
                                             "protocol" => 'ip',
                                             "ipv4-address" => $network,
                                             "mask" => $wildcardMask,
-                                            "dest-ipv4-address" => '0.0.0.0',
-                                            "dest-mask" => '0.0.0.0'
+                                            "dst-any" => [null]
                                         ]
                                     ],
                                 ]
@@ -318,13 +359,13 @@ class IOSXEClient
             throw new APIClientException($e->getMessage());
         }
     }
-    public function setSubInterface($ipAddr, $subnetMask, $vlanId, $username, $password, $interfaceId)
+    public function setSubInterface($ipAddr, $subnetMask, $vlanId, $interfaceId)
     {
         try {
             $response = $this->client->put('data/Cisco-IOS-XE-native:native/interface/GigabitEthernet=' . rawurlencode($interfaceId) . '%2E' . $vlanId, [
                 'auth' => [
-                    $username,
-                    $password
+                    $this->username,
+                    $this->password
                 ],
                 'headers' => [
                     'Content-Type' => 'application/yang-data+json',
@@ -358,13 +399,13 @@ class IOSXEClient
             throw new APIClientException($e->getMessage());
         }
     }
-    public function deleteSubIf($vlanId, $username, $password, $interfaceId)
+    public function deleteSubIf($vlanId, $interfaceId)
     {
         try {
             $response = $this->client->delete('data/Cisco-IOS-XE-native:native/interface/GigabitEthernet=' . rawurlencode($interfaceId) . '%2E' . $vlanId, [
                 'auth' => [
-                    $username,
-                    $password
+                    $this->username,
+                    $this->password
                 ],
                 'headers' => [
                     'Content-Type' => 'application/yang-data+json',
@@ -380,17 +421,13 @@ class IOSXEClient
             throw new APIClientException($e->getMessage());
         }
     }
-    public function save($username = null, $password = null)
+    public function save()
     {
         try {
-            if ($username === null && $password === null) {
-                $username = env('VSPHERE_CSRV_USERNAME');
-                $password = env('VSPHERE_CSRV_SECRET');
-            }
             $response = $this->client->post('operations/cisco-ia:save-config', [
                 'auth' => [
-                    $username,
-                    $password
+                    $this->username,
+                    $this->password
                 ],
                 'headers' => [
                     'Content-Type' => 'application/yang-data+json',

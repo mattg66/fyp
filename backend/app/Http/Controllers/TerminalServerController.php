@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\CheckTS;
 use App\Models\InterfaceModel;
 use App\Models\Label;
 use App\Models\Node;
@@ -66,12 +67,14 @@ class TerminalServerController extends Controller
         }
         $ts = TerminalServer::with('rack', 'interface')->find($ts->id);
         DB::commit();
+        CheckTS::dispatch();
         return response()->json([
             $ts,
         ], 201);
     }
     public function getAll(Request $request)
     {
+        CheckTS::dispatch();
         if ($request->has('withoutRack')) {
             if ($request->has('rackId')) {
                 $ts = TerminalServer::where('rack_id', null)->orWhere('rack_id', '=', $request->rackId)->get();

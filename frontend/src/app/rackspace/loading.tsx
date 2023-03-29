@@ -1,5 +1,5 @@
 'use client';
-import { Spinner } from "flowbite-react";
+import { Spinner } from "@alfiejones/flowbite-react";
 
 export default function Loading() {
     // You can add any UI inside Loading, including a Skeleton.

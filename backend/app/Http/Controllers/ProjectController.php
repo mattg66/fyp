@@ -111,6 +111,10 @@ class ProjectController extends Controller
         }
         DB::beginTransaction();
         $existingVlan = Vlan::orderBy('vlan_id', 'desc')->first();
+        if (Project::where('name', $request->name)->first() !== null) {
+            return response()->json([
+                'message' => 'Name must be unique between projects',
+            ], 400);        }
         $project = new Project();
         $project->name = $request->name;
         $project->description = $request->description;
@@ -128,6 +132,7 @@ class ProjectController extends Controller
             $nextNetwork = $this->calculateNextSubnet($projects);
             $project->network = $nextNetwork['network'];
             $project->subnet_mask = '255.255.0.0';
+            $project->status = 'ACI';
             $project->save();
             if ($existingVlan == null) {
                 $vlan = new Vlan();
@@ -159,11 +164,13 @@ class ProjectController extends Controller
             $projectRouter->subnet_mask = $request->wan_subnet_mask;
             $projectRouter->gateway = $request->wan_gateway;
             $projectRouter->save();
+            $temp = $project;
+            $temp->projectRouter = $projectRouter;
             DB::commit();
             CreateProject::dispatch($project->name, $project->id);
             return response()->json([
                 'message' => 'Project created successfully',
-                'project' => $project,
+                'project' => $temp,
             ], 201);
         }
     }
@@ -240,5 +247,12 @@ class ProjectController extends Controller
     {
         $aciClient = new ACIClient();
         return response()->json($aciClient->getVlanPools());
+    }
+    public function getStatus()
+    {
+        $project = Project::all(['status']);
+        return response()->json(
+            $project
+        );
     }
 }

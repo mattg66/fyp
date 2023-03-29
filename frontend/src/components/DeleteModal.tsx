@@ -1,5 +1,5 @@
 'use client';
-import { Button, Modal } from "flowbite-react"
+import { Button, Modal } from "@alfiejones/flowbite-react"
 import { HiOutlineExclamationCircle } from "react-icons/hi"
 import { NewNode } from "./Flow"
 

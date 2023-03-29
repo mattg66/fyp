@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { Button, TextInput } from 'flowbite-react';
+import { Button, TextInput } from '@alfiejones/flowbite-react';
 import React, { memo, useEffect, useState } from 'react';
 import { Handle } from 'reactflow';
 

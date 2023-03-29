@@ -27,9 +27,10 @@ return new class extends Migration
         });
         Schema::create('projects', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
+            $table->string('name')->unique();
             $table->string('description');
             $table->string('network');
+            $table->string('status')->nullable();
             $table->string('subnet_mask');
             $table->string('deleted_at')->nullable();
             $table->timestamps();

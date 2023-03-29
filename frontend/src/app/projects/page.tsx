@@ -3,10 +3,12 @@ import useSWR from 'swr'
 import { AddProjectModal } from "@/components/AddProjectModal";
 import { DeleteModal } from "@/components/DeleteModal";
 import Flow from "@/components/Flow";
-import { Button, Table } from "flowbite-react";
+import { Button, Table, Tooltip } from "@alfiejones/flowbite-react";
 import { useEffect, useState } from "react";
 import { fetcher } from '../utils/Fetcher';
 import { EditProjectModal } from '@/components/EditProjectModal';
+import dynamic from 'next/dynamic';
+import clsx from 'clsx';
 export interface Project {
     id: string,
     name: string,
@@ -29,19 +31,28 @@ export interface EditProject extends Project {
     racks: Racks[]
     project_router: ProjectRouter
 }
-export default function Rackspace() {
+const NoSSR = () => {
     const [addProjectOpen, setAddProjectOpen] = useState(false)
     const [editProjectOpen, setEditProjectOpen] = useState(false)
     const [editProjectId, setEditProjectId] = useState('')
-    const { data } = useSWR('/api/project', fetcher, { suspense: true, fallbackData: {status: false, json: [{}]} })
+    const { data } = useSWR('/api/project', fetcher, { suspense: true })
+    const { data: status } = useSWR('/api/project/status', fetcher, { suspense: true, refreshInterval: 5000 })
 
     const [projects, setProjects] = useState<EditProject[]>([])
+    const [projectStatus, setProjectStatus] = useState<Status[]>([])
     const [deleteOpen, setDeleteOpen] = useState(false)
     const [deleteId, setDeleteId] = useState('')
     const addProject = (project: EditProject) => {
         setProjects([...projects, project])
+        setProjectStatus([...projectStatus, { status: 'ACI' }])
         setAddProjectOpen(false)
     }
+    interface Status {
+        status: string | null
+    }
+    useEffect(() => {
+        setProjectStatus(status.json)
+    }, [status])
 
     useEffect(() => {
         setProjects(data?.json)
@@ -70,6 +81,7 @@ export default function Rackspace() {
             }
         })
     }
+    console.log(projects)
     return (
         <>
             <Button className="float-right" onClick={() => setAddProjectOpen(true)}>Add Project</Button>
@@ -98,9 +110,11 @@ export default function Rackspace() {
                     </Table.HeadCell>
                     <Table.HeadCell>
                     </Table.HeadCell>
+                    <Table.HeadCell>
+                    </Table.HeadCell>
                 </Table.Head>
                 <Table.Body className="divide-y">
-                    {projects?.map((project: any) => (
+                    {projects?.map((project: any, key) => (
                         <Table.Row key={project.id}>
                             <Table.Cell>
                                 {project.name}
@@ -123,13 +137,25 @@ export default function Rackspace() {
                             </Table.Cell>
                             <Table.Cell>
                                 <Button onClick={() => { setDeleteOpen(true); setDeleteId(project.id) }} color="failure">Delete</Button>
-
+                            </Table.Cell>
+                            <Table.Cell>
+                                <Tooltip content={projectStatus[key]?.status === 'Provisioned' ? 'Provisioned' : 'Provisioning ' + projectStatus[key]?.status} trigger='hover'>
+                                    <span className="relative flex h-3 w-3">
+                                        <span className={clsx("animate-ping absolute inline-flex h-full w-full rounded-full opacity-75", projectStatus[key]?.status == null || projectStatus[key] == undefined && 'bg-sky-400', projectStatus[key]?.status === 'ACI' && 'bg-amber-400', projectStatus[key]?.status === 'VMware' && 'bg-blue-400', projectStatus[key]?.status === 'Provisioned' && 'bg-green-500', projectStatus[key]?.status === 'Error' && 'bg-red-500')}></span>
+                                        <span className={clsx("relative inline-flex rounded-full h-3 w-3", projectStatus[key]?.status == null || projectStatus[key] == undefined && 'bg-sky-500', projectStatus[key]?.status === 'ACI' && 'bg-amber-500', projectStatus[key]?.status === 'VMware' && 'bg-blue-500', projectStatus[key]?.status === 'Provisioned' && 'bg-green-500', projectStatus[key]?.status === 'Error' && 'bg-red-500')}></span>
+                                    </span>
+                                </Tooltip>
                             </Table.Cell>
                         </Table.Row>
                     ))}
+
                 </Table.Body>
             </Table>
             <DeleteModal isOpen={deleteOpen} close={() => setDeleteOpen(false)} confirm={deleteProject} label={projects?.filter((project) => project.id === deleteId)[0]?.name} />
         </>
     )
 }
+const Projects = dynamic(() => Promise.resolve(NoSSR), {
+    ssr: false
+})
+export default Projects

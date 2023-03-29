@@ -2,18 +2,19 @@
 import useSWR from 'swr'
 import { useEffect, useState } from "react";
 import { FabricAccordion, RenderTable, RenderTableProps, StatusDot } from "@/components";
-import { Button, Label, Modal, Progress, Select } from 'flowbite-react';
+import { Button, Label, Modal, Progress, Select } from '@alfiejones/flowbite-react';
 import { fetcher, poster } from '@/app/utils/Fetcher';
 import { toast } from 'react-toastify';
 import { useFieldArray, useForm } from 'react-hook-form';
+import dynamic from 'next/dynamic';
 
 
-export default function Aci() {
-    const { data } = useSWR('/api/aci/health', fetcher, { suspense: true, fallbackData: {status: false, json: {}} })
-    const { data: nodes } = useSWR('/api/aci/fabric', fetcher, { suspense: true, fallbackData: {status: false, json: [{}]} })
-    const { data: interfaceProfiles } = useSWR('/api/aci/fabric/interface-profiles', fetcher, { suspense: true, fallbackData: {status: false, json: [{}]} })
+const NoSSR = () => {
+    const { data } = useSWR('/api/aci/health', fetcher, { suspense: true })
+    const { data: nodes } = useSWR('/api/aci/fabric', fetcher, { suspense: true })
+    const { data: interfaceProfiles } = useSWR('/api/aci/fabric/interface-profiles', fetcher, { suspense: true })
 
-    const { data: vlanPools } = useSWR('/api/aci/fabric/vlan-pools', fetcher, { suspense: true, fallbackData: {status: false, json: [{}]} })
+    const { data: vlanPools } = useSWR('/api/aci/fabric/vlan-pools', fetcher, { suspense: true })
     const { control, register, handleSubmit } = useForm();
     const { fields, append, prepend, remove, swap, move, insert, replace } = useFieldArray({
         control,
@@ -167,3 +168,7 @@ export default function Aci() {
         </>
     )
 }
+const ACI = dynamic(() => Promise.resolve(NoSSR), {
+    ssr: false
+})
+export default ACI

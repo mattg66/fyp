@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from "clsx";
-import { Accordion } from "flowbite-react";
+import { Accordion } from "@alfiejones/flowbite-react";
 import React from "react";
 import { RenderTable } from "./RenderTable";
 import { StatusDot } from "./StatusDot";

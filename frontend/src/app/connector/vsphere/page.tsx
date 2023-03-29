@@ -3,14 +3,15 @@
 import useSWR from 'swr'
 import { useEffect, useState } from "react";
 import { FabricAccordion, RenderTable, RenderTableProps, StatusDot } from "@/components";
-import { Progress } from 'flowbite-react';
+import { Progress } from '@alfiejones/flowbite-react';
 import { fetcher } from '@/app/utils/Fetcher';
 import { ServiceAccordion } from '@/components/ServiceAccordion';
+import dynamic from 'next/dynamic';
 
 
 
-export default function Vsphere() {
-  const { data } = useSWR('/api/vsphere/health', fetcher, { suspense: true, fallbackData: {status: false, json: {}} })
+const NoSSR = () => {
+  const { data } = useSWR('/api/vsphere/health', fetcher, { suspense: true })
 
   const [tableContent, setTableContent] = useState<RenderTableProps[]>([])
   useEffect(() => {
@@ -42,3 +43,7 @@ export default function Vsphere() {
     </>
   )
 }
+const VSphere = dynamic(() => Promise.resolve(NoSSR), {
+  ssr: false
+})
+export default VSphere

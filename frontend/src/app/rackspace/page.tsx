@@ -1,14 +1,16 @@
 'use client';
 
 import Flow from "@/components/Flow";
+import dynamic from "next/dynamic";
 
-export default function Rackspace() {
-
-    
-
+const NoSSR = () => {
     return (
         <>
             <Flow displayOnly={false}/>
         </>
     )
 }
+const Rackspace = dynamic(() => Promise.resolve(NoSSR), {
+    ssr: false
+})
+export default Rackspace

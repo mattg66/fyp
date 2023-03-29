@@ -1,7 +1,7 @@
 'use client';
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { Navbar } from 'flowbite-react';
+import { Navbar } from '@alfiejones/flowbite-react';
 import { Expand } from "@theme-toggles/react"
 import { useTheme } from 'next-themes'
 import "@theme-toggles/react/css/Expand.css"

@@ -135,7 +135,7 @@ class NodeController extends Controller
             'fn_id' => 'numeric|nullable',
         ]);
         $node = Node::with('rack', 'label')->find($id);
-        if ($node->rack->project_id !== null || ($request->has('x') && $request->has('y'))) {
+        if ($node->rack->project_id !== null && ($request->has('x') && $request->has('y'))) {
             return response()->json([
                 'message' => 'Rack has project assigned',
             ], 400);

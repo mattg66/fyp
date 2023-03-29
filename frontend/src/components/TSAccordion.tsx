@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from "clsx";
-import { Accordion, Button } from "flowbite-react";
+import { Accordion, Button } from "@alfiejones/flowbite-react";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { DeleteModal } from "./DeleteModal";
@@ -14,7 +14,7 @@ export interface TerminalServer {
     model: string;
     status: string;
     version: string;
-    serial: string;
+    serial_number: string;
     ip: string;
     rack_id: number;
     rack?: Rack;
@@ -62,7 +62,7 @@ export const TSAccordion = (props: { data: Array<TerminalServer>, className?: st
                 <Accordion className={clsx(props.className, '!mt-0')} alwaysOpen={true} key={element.id}>
                 <Accordion.Panel isOpen={false} >
                     <Accordion.Title className="focus:ring-0">
-                        <StatusDot color={element.status === 'ok' ? 'green-500' : 'red-600'} />
+                        <StatusDot color={element.status === 'Connected' ? 'green-500' : 'red-600'} />
                     </Accordion.Title>
                     <Accordion.Content>
                         <RenderTable data={[
@@ -72,7 +72,7 @@ export const TSAccordion = (props: { data: Array<TerminalServer>, className?: st
                             },
                             {
                                 rowText: 'Serial',
-                                element: <p>{element.serial}</p>
+                                element: <p>{element.serial_number}</p>
                             },
                             {
                                 rowText: 'Version',

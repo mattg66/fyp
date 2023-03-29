@@ -48,8 +48,8 @@ class DeleteRack implements ShouldQueue
         $rack = Rack::with('terminalServer')->find($this->rackId);
         if ($aciClient->removeFromNode($this->rackId, $project) && $aciClient->deleteIntProfRack($this->projectId, $rack)){
             if ($rack->terminalServer !== null) {
-                $iosXEClient = new IOSXEClient(null, $rack->terminalServer->ip);
-                $iosXEClient->deleteSubIf($project->vlan->vlan_id, $rack->terminalServer->username, $rack->terminalServer->password, $rack->terminalServer->uplink_port);
+                $iosXEClient = new IOSXEClient($rack->terminalServer->ip, $rack->terminalServer->username, $rack->terminalServer->password);
+                $iosXEClient->deleteSubIf($project->vlan->vlan_id, $rack->terminalServer->uplink_port);
                 $iosXEClient->save();
             }
             $rack->project_id = null;

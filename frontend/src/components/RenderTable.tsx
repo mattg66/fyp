@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from "clsx";
-import { Table } from "flowbite-react";
+import { Table } from "@alfiejones/flowbite-react";
 import React from "react";
 export interface RenderTableProps {
     rowText: string,

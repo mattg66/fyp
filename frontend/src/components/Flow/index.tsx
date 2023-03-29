@@ -3,7 +3,6 @@ import ReactFlow, { useNodesState, useEdgesState, Controls, Background, ReactFlo
 import styled, { ThemeProvider } from 'styled-components';
 import { darkTheme, lightTheme } from './Theme';
 import useSWR from 'swr'
-
 import 'reactflow/dist/style.css';
 import { useTheme } from 'next-themes';
 import Drag from './Drag';
@@ -77,7 +76,7 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
         fetch('/api/node/' + node.id, requestOptions)
     }
 
-    const { data, mutate } = useSWR('/api/node', fetcher, { suspense: true, fallbackData: {status: false, json: {}} }, )
+    const { data, mutate } = useSWR('/api/node', fetcher, { suspense: true }, )
 
     useEffect(() => {
         mutate({...data})
@@ -150,7 +149,6 @@ const Flow = (props: { displayOnly: boolean, selectedNodesCallback?: (nodes: OnS
                 }
             }))
         }
-        console.log('test');
     }, [props.selectNodes])
 
     useEffect(() => {

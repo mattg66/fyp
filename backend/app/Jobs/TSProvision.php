@@ -52,9 +52,9 @@ class TSProvision implements ShouldQueue
         $project = Project::with('racks.terminalServer', 'vlan')->find($this->projectId);
         foreach ($project->racks as $key => $rack) {
             if ($rack->terminalServer !== null) {
-                $iosXE = new IOSXEClient(null, $rack->terminalServer->ip);
+                $iosXE = new IOSXEClient($rack->terminalServer->ip, $rack->terminalServer->username, $rack->terminalServer->password);
                 if ($iosXE->connectionTest()) {
-                    if ($iosXE->setSubInterface($this->firstUsableIP($project->network, $project->subnet_mask, $key), $project->subnet_mask, $project->vlan->vlan_id, $rack->terminalServer->username, $rack->terminalServer->password, $rack->terminalServer->uplink_port)) {
+                    if ($iosXE->setSubInterface($this->firstUsableIP($project->network, $project->subnet_mask, $key), $project->subnet_mask, $project->vlan->vlan_id, $rack->terminalServer->uplink_port)) {
                         $iosXE->save($rack->terminalServer->username, $rack->terminalServer->password);
                         return true;
                     }

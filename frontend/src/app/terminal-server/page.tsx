@@ -1,15 +1,16 @@
-'use client';
+'use client'
 
 import { useEffect, useState } from "react";
 import useSWR, { SWRResponse } from 'swr'
 import { fetcher } from "../utils/Fetcher";
 import { RenderTable } from "@/components";
 import { TerminalServer, TSAccordion } from "@/components/TSAccordion";
-import { Alert, Button, Label, Modal, Select, TextInput } from "flowbite-react";
+import { Alert, Button, Label, Modal, Select, TextInput } from "@alfiejones/flowbite-react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import dynamic from "next/dynamic";
 
-export default function TerminalServers() {
+const NoSSR = () => {
     interface NewTerminalServer {
         label: string,
         ip: string,
@@ -23,24 +24,16 @@ export default function TerminalServers() {
     }
     const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<NewTerminalServer>();
     const watchNode = watch("node_id");
-    const { data } = useSWR('/api/ts', fetcher, { suspense: true, fallbackData: {status: false, json: {}} })
+    const { data } = useSWR('/api/ts', fetcher, { suspense: true, refreshInterval: 5000 })
     const [terminalServers, setTerminalServers] = useState<TerminalServer[]>([])
 
     useEffect(() => {
         setTerminalServers(data?.json)
     }, [data])
 
-    const { data: racks } = useSWR('/api/rack?withoutTS', fetcher, { suspense: true, fallbackData: {status: false, json: [{}]} })
-    const { data: nodes } = useSWR('/api/aci/fabric', fetcher, { suspense: true, fallbackData: {status: false, json: [{}]} })
+    const { data: racks } = useSWR('/api/rack?withoutTS', fetcher, { suspense: true })
+    const { data: nodes } = useSWR('/api/aci/fabric', fetcher, { suspense: true })
     const { data: interfaces } = useSWR(watchNode ? '/api/aci/fabric/node/' + watchNode + '/interfaces' : null, fetcher)
-
-
-    // useEffect(() => {
-    //     if (watchNode !== "") {
-    //         const { data: interfaces } = useSWR('/api/aci/fabric/node/' + watchNode + '/interface', fetcher)
-    //         setInterfaces(interfaces?.json)
-    //     }
-    // }, [watchNode])
 
     const [addModal, setAddModal] = useState(false)
     const openModal = () => {
@@ -204,3 +197,8 @@ export default function TerminalServers() {
         </>
     )
 }
+
+const TerminalServers = dynamic(() => Promise.resolve(NoSSR) , {
+    ssr: false
+})
+export default TerminalServers
