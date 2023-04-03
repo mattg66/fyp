@@ -1,10 +1,17 @@
 %%%%%%%%%%%%% You can ignore this stuff
 \documentclass[bsc]{abdnthesis}
+\usepackage[linktocpage=true,hidelinks]{hyperref}
+
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{csquotes}
+\usepackage[acronym]{glossaries}
+\usepackage[automake]{glossaries-extra}
+
+\makeglossaries
+
 
 \usepackage[style=apa, backend=biber, natbib=true]{biblatex}
 \DefineBibliographyStrings{english}{%
@@ -14,7 +21,6 @@
 \addbibresource{refs.bib}
 
 % This creates hyperlinks and moves the contents links to the page number for clarity
-\usepackage[linktocpage=true,hidelinks]{hyperref}
 
 \def\subsectionautorefname{Section}
 \def\subsubsectionautorefname{Section}
@@ -30,6 +36,7 @@
 \usepackage{algorithmic} %Algorithm styles, need to be nested for the example shown
 \usepackage{graphicx,color}
 \usepackage{listings}
+\graphicspath{ {./images/} }
 
 \hypersetup{linktocpage}
 \hypersetup{
@@ -147,11 +154,16 @@
 \makedeclaration
 
 %%%% Then the abstract and acknowledgements
+\newacronym{ny}{NY}{New York}
+\newacronym{la}{LA}{Los Angeles}
+\newacronym{un}{UN}{United Nations}
 
 \include{sections/Preamble/Abstract}
 \include{sections/Preamble/Acknowledgements}
 \include{sections/Preamble/Consent-To-Share}
-\include{sections/Preamble/Abbreviations}
+\glsaddall
+\printglossary[type=\acronymtype]
+
 
 %% please indicate whether you are happy for other students to
 %% view your project in the future
@@ -204,6 +216,9 @@
 
 \include{sections/C1 - Introduction/Introduction}
 \include{sections/C2 - LitReview/LitReview}
+\include{sections/C3 - Methodology/Methodology}
+
+
 
 %%%%%%%%%%%%%% REFERENCES SECTION
 \newpage
@@ -212,4 +227,6 @@
 % In order to try and get a consistent format I copy and paste the INSPIRE bibtex code into my bibtex file.
 \printbibliography
 %%%%%%%%%%%% Include your appendices here
+
+
 \end{document}

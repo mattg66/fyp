@@ -43,12 +43,47 @@ rack space for the racking and stacking of new equipment.
 \label{intro:aims}
 
 The aim of this project is to provide an easy to use dashboard that allows
-CX Labs to easily onboard new projects and manage the existing projects. This
+CX Labs to easily onboard and manage projects. This
 will be achieved by providing a web based interface that allows the user to
 create a new project, which will then automatically create the required
 configuration within ACI, vCenter, and other associated network infrastructure.
-This will also allow the user to easily manage the existing projects, such as
+Management of existing projects will also be supported, operations such as
 expanding a projects rackspace utilisation, or removing a project from the
-environment. The dashboard will also provide a view of the current projects
-utilisation of the lab space, and the current utilisation of the lab space as a
+environment will be supported. The dashboard will also provide a view of the current projects
+utilisation of the lab space, as well as the current utilisation of the lab space as a
 whole. 
+
+\subsection{Deliverables}
+\label{intro:aims:deliverables}
+
+\begin{itemize}
+    \item A web based dashboard that allows the user to manage and provision projects
+    \item User guides
+          \begin{itemize}
+              \item User guide for the dashboard
+              \item User guide for how to provision ACI, vCenter and other associated network infrastructure so that it will be compatible with the automation solution
+          \end{itemize}
+    \item A report detailing the design and implementation of the solution
+\end{itemize}
+
+\section{Constraints}
+\label{intro:constraints}
+
+Due to the fact that the testbed utilised for testing and development is in a remote datacenter, physical access to the testbed will be limited.
+This may result in delays if a problem with the physical infrastructure occurs which could lead to the project running over time.
+The solution will be designed to be as resilient as possible, but there is a chance that the solution may not be able to recover from a failure.
+There may also be a chance that access to the testbed is revoked, which would result in the project being delayed until access is restored.
+
+External factors such as the availability of the testbeds internet uplink and power supply may also have an impact on the projects delivery within the required timescale.
+
+\section{Evaluation}
+\label{intro:evaluation}
+
+To ensure that the project delivers on the required functionality, the following evaluation criteria will be used to evaluate the project:
+
+\begin{itemize}
+    \item Does the dashboard allow for the easy creation, management and deletion of lab projects?
+    \item Does the dashboard allow for a logical view of the entire lab space as a whole?
+    \item Does the dashboard show project status and health of the associated devices?
+    \item Does the automation platform create a schema in ACI that is easy to follow and troubleshoot should a problem arise?
+\end{itemize}
