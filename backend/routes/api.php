@@ -42,7 +42,6 @@ Route::group(['prefix' => 'aci'], function () {
 
 Route::group(['prefix' => 'vsphere'], function () {
     Route::get('/health', [VSphereStatus::class, 'getStatus']);
-    Route::get('/test', [VSphereStatus::class, 'test']);
 });
 
 Route::group(['prefix' => 'node'], function () {

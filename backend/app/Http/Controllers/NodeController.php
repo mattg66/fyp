@@ -135,10 +135,12 @@ class NodeController extends Controller
             'fn_id' => 'numeric|nullable',
         ]);
         $node = Node::with('rack', 'label')->find($id);
-        if ($node->rack->project_id !== null && ($request->has('x') && $request->has('y'))) {
-            return response()->json([
-                'message' => 'Rack has project assigned',
-            ], 400);
+        if ($node->rack !== null) {
+            if ($node->rack->project_id !== null && ($request->has('x') && $request->has('y'))) {
+                return response()->json([
+                    'message' => 'Rack has project assigned',
+                ], 400);
+            }
         }
         if ($node == null) {
             return response()->json([
@@ -183,7 +185,7 @@ class NodeController extends Controller
                             'message' => 'Fabric Node already assigned',
                         ], 400);
                     }
-                    if ($node->rack->fabricNode !== null && $node->rack->fabricNode->id != $fn->id){
+                    if ($node->rack->fabricNode !== null && $node->rack->fabricNode->id != $fn->id) {
                         FabricNode::where('rack_id', $node->rack->id)->update(['rack_id' => null]);
                     }
                     $node->rack->fabricNode()->save($fn);
@@ -208,7 +210,7 @@ class NodeController extends Controller
                             'message' => 'Terminal Server already assigned',
                         ], 400);
                     }
-                    if ($node->rack->terminalServer !== null && $node->rack->terminalServer->id != $ts->id){
+                    if ($node->rack->terminalServer !== null && $node->rack->terminalServer->id != $ts->id) {
                         TerminalServer::where('rack_id', $node->rack->id)->update(['rack_id' => null]);
                     }
                     $node->rack->terminalServer()->save($ts);
@@ -229,10 +231,12 @@ class NodeController extends Controller
                 'message' => 'Node not found',
             ], 404);
         }
-        if ($node->rack->project_id !== null) {
-            return response()->json([
-                'message' => 'Rack has project assigned',
-            ], 400);
+        if ($node->rack !== null) {
+            if ($node->rack->project_id !== null) {
+                return response()->json([
+                    'message' => 'Rack has project assigned',
+                ], 400);
+            }
         }
         $node->delete();
         return response()->json([

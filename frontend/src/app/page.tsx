@@ -1,15 +1,16 @@
 'use client';
-import { Inter } from '@next/font/google'
-import { useTheme } from 'next-themes'
 
-const inter = Inter({ subsets: ['latin'] })
+import Flow from "@/components/Flow";
+import dynamic from "next/dynamic";
 
-export default function Home() {
-
-  return (
-    <>
-      <div>
-      </div>
-    </>
-  )
+const NoSSR = () => {
+    return (
+        <>
+            <Flow displayOnly={false}/>
+        </>
+    )
 }
+const Rackspace = dynamic(() => Promise.resolve(NoSSR), {
+    ssr: false
+})
+export default Rackspace

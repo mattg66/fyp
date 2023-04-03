@@ -28,11 +28,4 @@ class StatusController extends Controller
             'health' => ($healthScore / count($serviceStatus)) * 100,
         ]);
     }
-    public function test()
-    {
-        $client = new SSHClient();
-        $vc = new vSphereClient();
-        $project = Project::where('name', 'test222')->first();
-        return response()->json(TSProvision::dispatch($project->id));
-    }
 }

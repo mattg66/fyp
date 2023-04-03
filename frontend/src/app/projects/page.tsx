@@ -51,7 +51,7 @@ const NoSSR = () => {
         status: string | null
     }
     useEffect(() => {
-        setProjectStatus(status.json)
+        setProjectStatus(status?.json)
     }, [status])
 
     useEffect(() => {

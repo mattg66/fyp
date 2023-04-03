@@ -10,9 +10,8 @@ export const Nav = () => {
     const pathName = usePathname()
     const { resolvedTheme, setTheme } = useTheme()
     const routes = [
-        { path: '/', name: 'Overview' },
+        { path: '/', name: 'Rackspace' },
         { path: '/projects', name: 'Projects' },
-        { path: '/rackspace', name: 'Rackspace' },
         { path: '/connector/aci', name: 'ACI' },
         { path: '/connector/vsphere', name: 'vSphere' },
         { path: '/terminal-server', name: 'Terminal Servers' },
