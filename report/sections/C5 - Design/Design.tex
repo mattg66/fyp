@@ -19,6 +19,6 @@ React.js also has an extensive library of open-source components and libraries t
 
 \subsection{Backend}
 \label{design:web-application:backend}
-The backend of the application will be written in PHP, using the Laravel PHP framework. Laravel is a popular PHP framework that will accelerate the development process, as it features an inbuilt ORM, API routing system and an authentication system that can be implemented. Laravel utilises SQL-based databases, and as such MariaDB will be used as the database for the application. Laravel also features an in-built HTTP client which will be required to interact with the ACI and vCenter APIs which are all REST-based.
+The backend of the application will be written in PHP, using the Laravel PHP framework. Laravel is a popular PHP framework that will accelerate the development process, as it features an inbuilt \gls{orm}, \gls{api} routing system and an authentication system that can be implemented. Laravel utilises SQL-based databases, and as such MariaDB will be used as the database for the application. Laravel also features an in-built \gls{http} client which will be required to interact with the \gls{aci} and vCenter \gls{api}s which are all REST-based.
 
-Laravel follows the MVC architecture, however as the frontend is a React SPA, Laravel will only be used to provide and consume the data via its REST API.
+Laravel follows the MVC architecture, however as the frontend is a React \gls{spa}, Laravel will only be used to provide and consume the data via its \gls{rest} \gls{api}.
