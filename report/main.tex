@@ -9,7 +9,10 @@
 \usepackage{csquotes}
 \usepackage[acronym]{glossaries}
 \usepackage[automake]{glossaries-extra}
-
+\newglossarystyle{modsuper}{%
+  \glossarystyle{super}%
+  \renewcommand{\glsgroupskip}{}
+}
 \makeglossaries
 
 
@@ -154,15 +157,12 @@
 \makedeclaration
 
 %%%% Then the abstract and acknowledgements
-\newacronym{ny}{NY}{New York}
-\newacronym{la}{LA}{Los Angeles}
-\newacronym{un}{UN}{United Nations}
 
+\include{sections/Preamble/Abbreviations}
 \include{sections/Preamble/Abstract}
 \include{sections/Preamble/Acknowledgements}
 \include{sections/Preamble/Consent-To-Share}
-\glsaddall
-\printglossary[type=\acronymtype]
+
 
 
 %% please indicate whether you are happy for other students to
@@ -217,6 +217,7 @@
 \include{sections/C1 - Introduction/Introduction}
 \include{sections/C2 - LitReview/LitReview}
 \include{sections/C3 - Methodology/Methodology}
+\include{sections/C4 - Requirements/Requirements}
 
 
 
