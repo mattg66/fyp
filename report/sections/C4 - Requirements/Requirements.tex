@@ -1,0 +1,84 @@
+\chapter{Requirements}
+\label{chap:requirements}
+This chapter will provide in more detail the requirements of the automation
+platform. The requirements will be split into 2 sections, namely the functional
+requirements and the non-functional requirements. The functional requirements
+will outline the features that the platform must have, and the non-functional
+requirements will outline the requirements that the platform must meet in order
+to be successful.
+In order to prioritise the requirements, the MoSCoW method will be used. This
+method will allow for the requirements to be prioritised and will ensure that
+the most important requirements are met first. The MoSCoW method is a
+prioritisation method that splits requirements into 4 categories, namely Must
+Have, Should Have, Could Have and Won’t Have.
+\section{Functional Requirements}
+\label{requirements:functional}
+\begin{center}
+    \begin{table}[H]
+        \begin{tabular}{l l l}
+            \hline
+            \textbf{ID} & \textbf{Details}
+                        & \textbf{Priority}
+            \\ \hline
+            FR1         & Visual representation of rack space
+                        & Must Have
+            \\ \hline
+            FR2         & Add and remove racks from the space
+                        & Must Have
+            \\ \hline
+            FR3         & Add and remove Terminal Servers from racks
+                        & Must Have
+            \\ \hline
+            FR4         & Add and remove Fabric Nodes from racks
+                        & Must Have
+            \\ \hline
+            FR5         & Add, remove and update projects
+                        & Must Have
+            \\ \hline
+            FR6         & Expand or contract a projects consumption of rack
+            space       & Must Have
+            \\ \hline
+            FR7         & Automate configuration of ACI fabric
+                        & Must Have
+            \\ \hline
+            FR8         & Deploy virtual router using vCenter API
+                        & Must Have
+            \\ \hline
+            FR9         & Deploy virtual services stack to provide remote
+            access VPN  & Could
+            Have
+            \\ \hline
+            FR10        & Continuous monitoring of ACI and vCenter health
+                        & Won’t Have
+            \\
+            \hline
+            FR11        & Terminal server automated management
+                        & Must Have
+            \\ \hline
+            FR12        & Login system to restrict access                   &
+            Could Have                                                        \\
+        \end{tabular}
+        \caption{Functional Requirements}
+    \end{table}
+\end{center}
+
+\section{Non-Functional Requirements}
+\label{requirements:non-functional}
+\begin{center}
+    \begin{table}[H]
+        \begin{tabular}{l l l}
+            \hline
+            \textbf{ID}             & \textbf{Details}
+                                    & \textbf{Priority}
+            \\ \hline
+            NFR1                    & Must be easy to use for staff with less technical
+            knowledge
+                                    & Must Have
+            \\ \hline
+            NFR2                    & The system status should be easily visible to staff (e.g.
+            errors, project status) & Must Have                                                 \\ \hline
+            NFR3
+        \end{tabular}
+        \caption{Non-Functional Requirements}
+    \end{table}
+\end{center}
