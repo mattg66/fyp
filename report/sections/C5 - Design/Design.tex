@@ -33,7 +33,7 @@ Laravel follows the \gls{mvc} architecture, however as the frontend is a React \
 
 \subsection{Database Design}
 \label{design:web-application:database}
-As the project will need to store data persistently, ensuring that the database has an appropriately designed schema will ensure that the data is stored in a way that is easily accessible and can be queried efficiently. The design of the database was tweaked and refined throuhgout the development process, however the final \gls{erd} is shown below in Figure \ref{fig:database-erd}.
+As the project will need to store data persistently, ensuring that the database has an appropriately designed schema will ensure that the data is stored in a way that is easily accessible and can be queried efficiently. The design of the database was tweaked and refined throughout the development process, however, the final \gls{erd} is shown below in Figure \ref{fig:database-erd}.
 
 \begin{figure}[H]
     \centering
@@ -60,8 +60,41 @@ The projects table will store all projects present in the application. Each proj
 
 \subsubsection{Project Routers}
 \label{design:web-application:database:project-routers}
-A project router will have a one to one relationship with a project, allowing only one project router per project. This table will keep track of the virutal router that is created for each project, and will also store the WAN IP address assigned to the router.
+A project router will have a one-to-one relationship with a project, allowing only one project router per project. This table will keep track of the virtual router that is created for each project, and will also store the WAN IP address assigned to the router.
 
 \subsubsection{VLANs and VLAN Pool}
 \label{design:web-application:database:vlan-and-vlan-pool}
 The VLAN pool table will store a list of all VLAN pools present in \gls{aci}. It will also store the selection that the user has made as to the VLAN pool that should be used by the automation platform for its endpoint groups. The VLANs table will be used to keep a record of which project is using which VLAN within a VLAN pool so that a VLAN cannot be used more than once.
+
+\section{Testbed}
+\label{design:Testbed}
+To support the development of the automation platform, it is necessary to have a network that can be used to test the automation functionality on real hardware and software that would be used in production. The network will be built using a scaled-down version of what could be deployed in a real scenario, the same also applies to the associated compute and storage resources.
+
+\subsection{Network Design}
+\label{design:Testbed:network-design}
+As the automation platform is designed to automate \gls{aci} fabrics, a reduced \gls{aci} fabric will be deployed for development and testing. The base fabric will consist of one spine and two leafs, these being the N9K-C9336PQ and N9K-C93180YC-EX respectively. The leafs will also have a total of 3 \gls{fex}s attached to provide RJ45 connectivity to the fabric, and to also ensure that the automation platform will correctly support FEXs. The FEXs used will be the N2K-C2248TP-E-1GE. \gls{aci} also requires at least one \gls{apic} to function, so a single APIC M2 will be connected to the pair of leafs to provide overall administration and control over the fabric.
+
+A single ESXi host will also be included in the network, which will be also dual-homed to both leafs to provide connectivity, and also test LACP functionality. The ESXi host will be used to host the automation platform and will also host the associated infrastructure required for the automation platform to function, such as vCenter.
+
+Two routers simulating terminal servers will also be included in the design. Cisco routers can have additional modules inserted into them allowing them to provide console connectivity to devices via SSH or Telnet.
+Shown in figure \ref{fig:fabric-topology} is the fabric topology that will be used for the testbed. Device names/hostnames are shown in the figure for clarity.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.3]{images/aci-topology.png}
+    \caption{Fabric Topology}
+    \label{fig:fabric-topology}
+\end{figure}
+
+\subsubsection{OOB Network Design}
+\label{design:Testbed:network-design:oob}
+To provide connectivity for management and day-zero configuration, it is important to have a reliable \gls{oob} network. The purpose of a \gls{oob} network is to provide access to networking and infrastructure that is external to the main network so that in the event of a failure, the devices can still be reached to rectify any problem that may have occurred. The \gls{oob} network will be a single layer 2 network, with a single switch providing connectivity to all devices. The switch will be a Cisco Catalyst 2960-XR, and will be connected to external infrastructure which will host a VPN server and a NAT router so that devices connected to the \gls{oob} network also have access to the internet. The VMs hosted on the ESXi server are also detailed in the topology shown in figure \ref{fig:oob-topology}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.25]{images/oob-topology.png}
+    \caption{OOB Topology}
+    \label{fig:oob-topology}
+\end{figure}
+
+\subsec
