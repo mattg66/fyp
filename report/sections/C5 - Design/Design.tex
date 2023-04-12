@@ -70,7 +70,18 @@ The VLAN pool table will store a list of all VLAN pools present in \gls{aci}. It
 \label{design:Testbed}
 To support the development of the automation platform, it is necessary to have a network that can be used to test the automation functionality on real hardware and software that would be used in production. The network will be built using a scaled-down version of what could be deployed in a real scenario, the same also applies to the associated compute and storage resources.
 
-\subsection{Network Design}
+\subsection{OOB Network}
+\label{design:Testbed:network-design:oob}
+To provide connectivity for management and day-zero configuration, it is important to have a reliable \gls{oob} network. The purpose of a \gls{oob} network is to provide access to networking and infrastructure that is external to the main network so that in the event of a failure, the devices can still be reached to rectify any problem that may have occurred. The \gls{oob} network will be a single layer 2 network, with a single switch providing connectivity to all devices. The switch will be a Cisco Catalyst 2960-XR, and will be connected to external infrastructure which will host a \gls{vpn} server and a \gls{nat} router so that devices connected to the \gls{oob} network also have access to the internet. The \gls{vm}s hosted on the ESXi server are also detailed in the topology shown in figure \ref{fig:oob-topology}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.25]{images/oob-topology.png}
+    \caption{OOB Topology}
+    \label{fig:oob-topology}
+\end{figure}
+
+\subsection{ACI Fabric}
 \label{design:Testbed:network-design}
 As the automation platform is designed to automate \gls{aci} fabrics, a reduced \gls{aci} fabric will be deployed for development and testing. The base fabric will consist of one spine and two leafs, these being the N9K-C9336PQ and N9K-C93180YC-EX respectively. The leafs will also have a total of 3 \gls{fex}s attached to provide RJ45 connectivity to the fabric, and to also ensure that the automation platform will correctly support FEXs. The FEXs used will be the N2K-C2248TP-E-1GE. \gls{aci} also requires at least one \gls{apic} to function, so a single APIC M2 will be connected to the pair of leafs to provide overall administration and control over the fabric.
 
@@ -86,15 +97,46 @@ Shown in figure \ref{fig:fabric-topology} is the fabric topology that will be us
     \label{fig:fabric-topology}
 \end{figure}
 
-\subsubsection{OOB Network Design}
-\label{design:Testbed:network-design:oob}
-To provide connectivity for management and day-zero configuration, it is important to have a reliable \gls{oob} network. The purpose of a \gls{oob} network is to provide access to networking and infrastructure that is external to the main network so that in the event of a failure, the devices can still be reached to rectify any problem that may have occurred. The \gls{oob} network will be a single layer 2 network, with a single switch providing connectivity to all devices. The switch will be a Cisco Catalyst 2960-XR, and will be connected to external infrastructure which will host a VPN server and a NAT router so that devices connected to the \gls{oob} network also have access to the internet. The VMs hosted on the ESXi server are also detailed in the topology shown in figure \ref{fig:oob-topology}
+\subsection{ACI Policy}
+\label{design:Testbed:network-design:aci-policy}
+To provide internal connectivity within the \gls{aci} testbed, the correct policy will need to be designed to facilitate this. As \gls{aci} is policy-based, conventional networking paradigms are shifted and abstracted behind \gls{aci}. Figure \ref{fig:epg-topology} shows the tenant and the policy it houses that will be created to provide connectivity within the testbed.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[scale=0.25]{images/oob-topology.png}
-    \caption{OOB Topology}
-    \label{fig:oob-topology}
+    \includegraphics[scale=0.17]{images/epg-topology.png}
+    \caption{ACI Policy Overview}
+    \label{fig:epg-topology}
 \end{figure}
 
-\subsec
+\subsubsection{Infra VRF}
+The infra \gls{vrf} will provide L3 routing ability between all associated bridge domains and \gls{epg}s for the sake of simplicity, all testbed connectivity for infrastructure will be able to communicate with one another.
+
+\subsubsection{InfraL3Out}
+The InfraL3Out will be used to advertise connectivity to outside the \gls{aci} fabric, the purpose of this is to provide internet connectivity via a \gls{nat} router as \gls{aci} can't provide \gls{nat}. This results in any packets destined for anything other than locally attached routes present in the InfraVRF will be routed out of the InfraL3Out.
+
+\gls{ospf} will be used to share routes between \gls{aci} and the \gls{nat} router.
+
+\subsubsection{Infra Bridge Domains}
+Three bridge domains bring the ability to split connectivity into different subnets and broadcast domains. This allows for L2 functionality such as DHCP to be easily controlled and connectivity to be segmented. There will be a bridge domain to provide connectivity for the following:
+\begin{itemize}
+    \item Virtual Project Routers
+    \begin{itemize}
+        \item DHCP relay will be operational to forward DHCP discover requests onto the \gls{ddi} server attached to the VM bridge domain, thus allowing newly created VMs to receive an IP address automatically, to facilitate being provisioned by the automation platform.
+    \end{itemize}
+    \item Terminal Servers
+    \begin{itemize}
+        \item Allows the automation platform to reach the terminal servers via their RESTCONF \gls{api} to apply the configuration.
+    \end{itemize}
+    \item Infrastructure and testing \gls{vm}s
+    \begin{itemize}
+        \item Provides connectivity to the fabric for testing and provides services such as DHCP.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Infra EPGs}
+Each EPG has a one-to-one relationship with a bridge domain and is used to provide connectivity via VMWare \gls{aci} integration and static port associations.
+
+\subsubsection{Internet VRF/BD/EPG}
+This \gls{vrf}/\gls{bd}/\gls{epg} will be used to emulate the project routers having a connection to the internet. This will be used to test the automation platform's ability to configure the project routers to have internet connectivity.
+
+Connectivity will be provided via the InternetL3Out using \gls{ospf} for routing advertisements to the same \gls{nat} router that provides internet connectivity to the Infra \gls{vrf}, although a different subnet will be used.
