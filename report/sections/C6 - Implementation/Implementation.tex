@@ -195,18 +195,22 @@ For virtual routing, the Cisco CSR1000v Virtual Router was chosen. The interface
 To verify the \gls{ospf} configuration is working correctly, the following command and output was executed on the \gls{nat} router.
 
 \begin{figure}[H]
+    \centering
     \begin{small}
     \begin{verbatim}
 InternetRouter#show ip ospf neighbor
 
-Neighbor ID     Pri   State           Dead Time   Address         Interface
-172.16.254.10     1   FULL/BDR        00:00:35    172.16.254.10   GigabitEthernet2
-172.16.254.11     1   FULL/DR         00:00:33    172.16.254.11   GigabitEthernet2
-172.16.254.2      1   FULL/BDR        00:00:39    172.16.254.2    GigabitEthernet1
-172.16.254.3      1   FULL/DR         00:00:32    172.16.254.3    GigabitEthernet1
+Neighbor ID    Pri  State      Dead Time   Address         Interface
+172.16.254.10    1  FULL/BDR   00:00:35    172.16.254.10   GigabitEthernet2
+172.16.254.11    1  FULL/DR    00:00:33    172.16.254.11   GigabitEthernet2
+172.16.254.2     1  FULL/BDR   00:00:39    172.16.254.2    GigabitEthernet1
+172.16.254.3     1  FULL/DR    00:00:32    172.16.254.3    GigabitEthernet1
 
     \end{verbatim}
 \end{small}
 \caption{NAT Router OSPF Neighbors}
 \label{fig:nat-ospf-db}
 \end{figure}
+
+Basic \gls{nat} overload can then be configured for all subnets present on \gls{aci} so that the various bridge domains now have internet via the router.
+
