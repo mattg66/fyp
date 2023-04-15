@@ -73,7 +73,7 @@ function EditProjectForm({ project, isOpen }: { project: EditProject, isOpen: bo
         const requestOptions = {
             method: 'PATCH',
             headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...data, racks: selectedNodes.filter((node) => (node.data.project === null || node.data.project?.id === project.id)).map((node) => node.id) })
+            body: JSON.stringify({ ...data, racks: selectedNodes.filter((node) => (node.data.project === null || node.data.project?.id === project?.id)).map((node) => node.id) })
         };
         fetch('/api/project/' + project.id, requestOptions).then((response) => {
             if (response.status === 200) {
