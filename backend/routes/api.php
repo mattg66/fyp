@@ -45,11 +45,11 @@ Route::group(['prefix' => 'vsphere'], function () {
 });
 
 Route::group(['prefix' => 'node'], function () {
-    Route::post('/', [NodeController::class, 'create']);
     Route::get('/{id}', [NodeController::class, 'getById']);
     Route::patch('/{id}', [NodeController::class, 'updateById']);
     Route::delete('/{id}', [NodeController::class, 'deleteById']);
     Route::get('/', [NodeController::class, 'getAll']);
+    Route::post('/', [NodeController::class, 'create']);
 });
 
 Route::group(['prefix' => 'ts'], function () {
