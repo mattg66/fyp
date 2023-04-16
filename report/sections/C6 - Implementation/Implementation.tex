@@ -13,10 +13,10 @@ BGP route reflector, this is because \gls{mp-bgp} is used internally inside of
 \gls{as} 65001 was chosen.
 
 \begin{figure}[H]
-
+    
     \centering
     \includegraphics[scale=0.5]{images/bgp-reflection.png}
-
+    
     \caption{BGP Route Relfection}
     \label{fig:bgp-reflection}
 \end{figure}
@@ -28,10 +28,10 @@ reached via \gls{ssh} for troubleshooting purposes, figure \ref{fig:aci-oob-ip}
 shows the configuration of the \gls{oob} IP addresses.
 
 \begin{figure}[H]
-
+    
     \centering
     \includegraphics[scale=0.5]{images/aci-oob-ip.png}
-
+    
     \caption{ACI Out of Band IP Configuration}
     \label{fig:aci-oob-ip}
 \end{figure}
@@ -45,10 +45,10 @@ automatically be associated with \gls{epg}s and \gls{dpg}s. Figure
 \ref{fig:vmm-integration} shows the configuration of the VMWare integration.
 
 \begin{figure}[H]
-
+    
     \centering
     \includegraphics[scale=0.6]{images/vmm-integration.png}
-
+    
     \caption{VMWare Integration Configuration}
     \label{fig:vmm-integration}
 \end{figure}
@@ -58,10 +58,10 @@ the two leafs must be brought together to form a \gls{vpc} pair.
 Firstly, a \gls{vpc} protection group must be created to inform \gls{aci} that
 these two leafs should have a keepalive link formed via the spine between them.
 \begin{figure}[H]
-
+    
     \centering
     \includegraphics[scale=0.7]{images/vpc-protection.png}
-
+    
     \caption{vPC Protection Group}
     \label{fig:vpc-protection}
 \end{figure}
@@ -71,10 +71,10 @@ integration with the \gls{aaep}, and to also configure the interfaces
 associated with the group to use LACP.
 
 \begin{figure}[H]
-
+    
     \centering
     \includegraphics[scale=0.7]{images/vpc-interface-policy.png}
-
+    
     \caption{vPC Interface Policy Group}
     \label{fig:vpc-int-pol}
 \end{figure}
@@ -83,10 +83,10 @@ This \gls{vpc} policy group can then be applied to the interfaces on the leafs
 via an interface profile which is shown in figure
 \ref{fig:vpc-interface-assignment}.
 \begin{figure}[H]
-
+    
     \centering
     \includegraphics[scale=0.7]{images/vpc-interface-assignment.png}
-
+    
     \caption{vPC Interface Assignment}
     \label{fig:vpc-interface-assignment}
 \end{figure}
@@ -95,10 +95,10 @@ In vCenter, figure \ref{fig:vcenter-dvs} shows that \gls{aci} has correctly
 pushed the \gls{dvs} to vCenter.
 
 \begin{figure}[H]
-
+    
     \centering
     \includegraphics[scale=0.7]{images/vcenter-dvs.png}
-
+    
     \caption{vCenter Distributed Virtual Switch}
     \label{fig:vcenter-dvs}
 \end{figure}
@@ -107,17 +107,17 @@ created by ACI. Figure \ref{fig:uplink-lacp} shows the configuration of the
 uplinks to use LACP.
 
 \begin{figure}[H]
-
+    
     \centering
     \includegraphics[scale=0.7]{images/lacp-interface-assignment.png}
-
+    
     \caption{Uplink LACP Configuration}
     \label{fig:uplink-lacp}
 \end{figure}
 The command \verb|fab 101 show vpc extended| can then be executed on the \gls{apic} via \gls{ssh} to retrieve the status of all \gls{vpc} present on leaf 101.
 \begin{figure}[H]
-\begin{small}
-    \begin{verbatim}
+    \begin{small}
+        \begin{verbatim}
     vPC status
 -----------------------------------------------------------------------------
 id   Port   Status Consistency Reason      Active vlans         Bndl Grp Name
@@ -126,9 +126,9 @@ id   Port   Status Consistency Reason      Active vlans         Bndl Grp Name
                                             1201
 
     \end{verbatim}
-\end{small}
-\caption{vPC Status on Leaf 101}
-\label{fig:vpc-status}
+    \end{small}
+    \caption{vPC Status on Leaf 101}
+    \label{fig:vpc-status}
 \end{figure}
 
 
@@ -138,19 +138,19 @@ With vCenter integration complete, the tenant can now be created that will house
 To get external connectivity working with the \gls{nat} router that will be provisioned inside vCenter, L3Out configuration must be created. Figure \ref{fig:l3out} shows the configuration of the L3Out that will be used for the Infra \gls{vrf}, an \gls{ospf} area of 1 has been specified. A floating \gls{svi} has been utilised so that the VMWare integration configured earlier can be used to pass the L3out \gls{epg} to vCenter automatically. A new static VLAN pool was created along with a new L3 domain. This L3 domain was then added to the VMWare integration so that L3Outs can then use the VMWare virtual domain.
 
 \begin{figure}[H]
-
+    
     \centering
     \includegraphics[scale=0.6]{images/InfraL3Out.png}
-
+    
     \caption{Infra L3Out Configuration}
     \label{fig:l3out}
 \end{figure}
 
 \begin{figure}[H]
-
+    
     \centering
     \includegraphics[scale=0.47]{images/InfraL3OutNodes.png}
-
+    
     \caption{Adding the leafs to the L3Out}
     \label{fig:l3out-nodes}
 \end{figure}
@@ -158,10 +158,10 @@ To get external connectivity working with the \gls{nat} router that will be prov
 It is then important to assign the L3out interface profiles to the enhanced \gls{lacp} group so that the OSPF and traffic flow utilise \gls{lacp} to vCenter correctly. Figure \ref{fig:l3out-lacp} shows the configuration of the L3Out interface profiles.
 
 \begin{figure}[H]
-
+    
     \centering
     \includegraphics[scale=0.8]{images/l3out-lacp.png}
-
+    
     \caption{L3Out Interface Profile Configuration}
     \label{fig:l3out-lacp}
 \end{figure}
@@ -188,8 +188,8 @@ For virtual routing, the Cisco CSR1000v Virtual Router was chosen. The interface
         network 172.16.254.8 0.0.0.7 area 2
         default-information originate
     \end{verbatim}
-\caption{NAT Router OSPF Configuration}
-\label{fig:nat-ospf}
+    \caption{NAT Router OSPF Configuration}
+    \label{fig:nat-ospf}
 \end{figure}
 
 To verify the \gls{ospf} configuration is working correctly, the following command and output was executed on the \gls{nat} router.
@@ -197,7 +197,7 @@ To verify the \gls{ospf} configuration is working correctly, the following comma
 \begin{figure}[H]
     \centering
     \begin{small}
-    \begin{verbatim}
+        \begin{verbatim}
 InternetRouter#show ip ospf neighbor
 
 Neighbor ID    Pri  State      Dead Time   Address         Interface
@@ -207,10 +207,162 @@ Neighbor ID    Pri  State      Dead Time   Address         Interface
 172.16.254.3     1  FULL/DR    00:00:32    172.16.254.3    GigabitEthernet1
 
     \end{verbatim}
-\end{small}
-\caption{NAT Router OSPF Neighbors}
-\label{fig:nat-ospf-db}
+    \end{small}
+    \caption{NAT Router OSPF Neighbors}
+    \label{fig:nat-ospf-db}
 \end{figure}
 
 Basic \gls{nat} overload can then be configured for all subnets present on \gls{aci} so that the various bridge domains now have internet via the router.
+
+\section{vCenter Configuration}
+As \gls{aci} has configured the virtual switch and port groups for us, the only configuration required is to make a \gls{vm} that will serve as a project router template that the automation scripts will then clone. Due to a limitation with the vCenter \gls{rest} \gls{api}, the \gls{vm} to be cloned will be a regular \gls{vm} and not a template. This is because the \gls{rest} \gls{api} does not support cloning templates.
+
+The router will have 3 ethernet interfaces:
+\begin{itemize}
+    \item GigabitEthernet 0 - Project Network
+          \begin{itemize}
+              \item IP Address set by automation platform.
+          \end{itemize}
+    \item GigabitEthernet 1 - WAN Uplink
+          \begin{itemize}
+              \item IP Address set by automation platform.
+          \end{itemize}
+    \item GigabitEthernet 2 - Management
+          \begin{itemize}
+              \item IP Address obtained by DHCP so the automation platform can connect.
+          \end{itemize}
+\end{itemize}
+
+
+The router will need to obtain an IP address from \gls{dhcp} on the CSRMgmt \gls{epg} so that the automation platform can connect via RESTCONF. The router will also have an interface in the Internet \gls{epg} and then the other interface will be set to the quarantine \gls{dpg} so that it can be assigned to the \gls{epg} created for the project by the automation platform. \gls{nat} overload can also be preconfigured on the router so that the project can access the internet, however, the \gls{nat} \gls{acl} will need to be configured via RESTCONF by the automation platform.
+
+\section{Automation Platform}
+Both backend and frontend features were developed simultaneously as that was the most efficient way of development. Instead of backend and frontend implementation detailed separately, development of features will instead be covered.
+\subsection{Packages}
+To accelerate development, many packages and libraries were used.
+\subsubsection{Next.js}
+Next.js is based on React and is a framework for server-side rendering and static site generation. It is used to create the frontend of the automation platform. It features many benefits over using plain React, such as the ability to pre-render many parts of the web application resulting in a reduction of load times upon page load. TypeScript is also supported which was used to aid development by enforcing the usage of types when defining variables and functions.
+
+\subsubsection{Tailwind CSS}
+Tailwind CSS is a utility-first CSS framework. It is used to style the frontend of the automation platform. It has many benefits over plain CSS, such as the ability to rapidly create a responsive UI through the use of pre-defined classes. The Flowbite React package was also utilised, which is a library of components that utilise Tailwind CSS for styling. Tailwind also features dark mode support which was used to create a dark theme for the automation platform.
+
+\subsubsection{React Flow}
+React Flow is a library that provides the ability to create and programmatically define flowcharts within React. It is used to create the rackspace layout feature and is the core of the automation platform. By using React Flow, development time was greatly reduced. It also has features such as the ability to define custom nodes to be displayed, which is required to get the desired look, feel and functionality for the application.
+
+\subsubsection{Laravel}
+Laravel is a PHP framework that makes it quick and easy to create feature-rich \gls{api}s which is why it was chosen. It features an easy-to-use routing system for easily routing \gls{api} requests to the correct controller classes. It also makes use of the Eloquent \gls{orm} which makes it easy to create and query the database. The inbuilt Guzzle \gls{http} client also makes interacting with the various \gls{api}s required to build the automation scripts easy and simple.
+
+\subsection{Recreation of Rackspace}
+To allow for the recreation of the rackspace in a map-like user interface, React Flow was used with custom nodes that represent racks. To save the positions of the racks in 2D space, the following \gls{api} endpoints were created:
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{@{} c c c @{}}
+        \toprule
+        \textbf{API Path}     & \textbf{Method} & \textbf{Description} \\
+        \midrule
+        \texttt{/node/\{id\}} & \texttt{GET}    & Get a node by ID     \\
+        \texttt{/node/\{id\}} & \texttt{PATCH}  & Update a node by ID  \\
+        \texttt{/node/\{id\}} & \texttt{DELETE} & Delete a node by ID  \\
+        \texttt{/node}        & \texttt{GET}    & Get all nodes        \\
+        \texttt{/node}        & \texttt{POST}   & Create a new node    \\
+        \bottomrule
+    \end{tabular}
+    \caption{API Routing Table}
+\end{table}
+As React Flow uses the term 'node' to refer to the individual elements in the flowchart, the \gls{api} endpoints were also named 'node' to avoid confusion. Every time a node is moved on the flowchart, the \gls{api} is called to update the position of the node in the database. 
+
+The ability to add labels to the rackspace representation was also deemed an important feature, as it would allow for useful pieces of information to be placed on the map. To facilitate this, a new custom node was created that just displays text. Shown below in figure \ref{fig:rackspace-layout} is the rackspace layout feature with a label used to illustrate the name of the row.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.7]{rackspace-layout.png}
+    \caption{Rackspace Layout}
+    \label{fig:rackspace-layout}
+\end{figure}
+
+React Flow provides a handy interface for allowing custom nodes to be dragged and dropped, allowing for a user-friendly way to add racks and labels to the space. Shown in figure \ref{fig:drag-drop} is the utility panel where racks and labels can be dragged and dropped onto the rackspace representation.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.7]{drag-drop.png}
+    \caption{Drag and Drop}
+    \label{fig:drag-drop}
+\end{figure}
+
+\subsection{Initial ACI Integration}
+\subsubsection{Fabric Nodes}
+With the ability to add racks to the space, the next feature to be developed was the integration with \gls{aci}. As the premise of the application is that each rack has a top of rack switch, the automation platform needs to be able to pull all of the available leafs and \gls{fex}s from the \gls{aci} fabric so that they can then be assigned to a rack. Because \gls{aci} treats a \gls{fex} as an extension of a leaf node, some logic is required to differentiate between the two.
+To retrieve \gls{fex}s, a list of all leaf nodes can be retrieved from \gls{aci}, the list of leaf nodes can then be iterated over and the following \gls{api} endpoint can be used to retrieve a list of all \gls{fex}s attached to the leaf node:
+\begin{verbatim}
+https://apic-ip/api/node/class/topology/pod-1/node-{leafID}/eqptExtCh.json
+\end{verbatim}
+
+The returned objects are \gls{fex}s that are attached to the leaf with the given ID. This information can be stored in the database with the \verb|role| column used to differentiate between a leaf and \gls{fex}. The column \verb|aci_parent_id| is also set to the parent leaf as that will be required for subsequent \gls{api} calls.
+
+With the nodes synced to the database, the next step is to provide the user to specify which interface profiles should be used by the automation platform to select the access ports on the leafs and \gls{fex}s. A requirement of the platform will be that an interface profile that belongs to a single node will have to be manually created as it is not easy to automate the creation of this. Two \gls{api} queries will have to be made as \gls{fex} and leaf interface profiles are treated separately. The following \gls{api} endpoints were used to retrieve this information:
+\begin{verbatim}
+https://apic-ip/api/node/mo/uni/infra.json?query-
+target=subtree&target-subtree-class=infraAccPortP
+
+https://apic-ip/api/node/mo/uni/infra.json?query-
+target=subtree&target-subtree-class=infraFexP
+\end{verbatim}
+
+A basic modal can then be created with a dynamic form that will allow the user to map the fabric nodes to an interface profile. Figure \ref{fig:interfaceprof-mapping} shows the modal with the interface profile mapping form.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.7]{interfaceprof-mapping.png}
+    \caption{Interface Profile Mapping}
+    \label{fig:interfaceprof-mapping}
+\end{figure}
+
+The distinguished name of the interface profile selected can then be stored in the corresponding \verb|int_profile| column of the fabric node.
+
+\subsubsection{VLAN Pools}
+So that the automation platform can assign unique VLANs to projects, the correct VLAN pool from \gls{aci} must be used so that the physical domain that the automation platform will create is attached to the correct VLAN pool. The list of valid VLAN pools will then be presented to the user in the form of a dropdown menu where the desired VLAN pool can be set. Figure \ref{fig:vlan-pool-selection} shows the selection dropdown.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.7]{vlan-pool-selection.png}
+    \caption{VLAN Pool Selection}
+    \label{fig:vlan-pool-selection}
+\end{figure}
+
+The selected VLAN pool can then be saved in the database using the \verb|project_pool| column set to \verb|true| for the corresponding pool. The future project logic will then be able to retrieve the start and ending VLAN that can be used and allocate individual VLANs to projects.
+
+\subsection{Terminal Servers}
+Terminal servers will have a dedicated management page so that the status of connected terminal servers can be monitored. Cisco IOS-XE has an inbuilt RESTCONF server which will be used to retrieve and push configuration to the devices. A form modal to consume data was created which is shown in figure \ref{fig:terminal-server-form}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{add-ts.png}
+    \caption{Terminal Server Addition Form}
+    \label{fig:terminal-server-form}
+\end{figure}
+
+The notable features are the ability to assign the newly created terminal server straight to a rack, although that feature will also be added to the rackspace view.
+The port that is connected to the fabric from the terminal server will need to be manually provided, as the automation scripts will need to create sub-interfaces on top of that interface to facilitate communication to the project network.
+The port on the side of that link, the fabric side, will also need to be specified so that the automation scripts can create a trunk interface. The username and password to gain access to the terminal server are also required to be entered by the user.
+
+\subsection{Rack ACI Integration}
+As the premise of the automation platform is the ability to automatically include racks into a project's network, the platform needs to be aware of which fabric nodes belong to which rack. To achieve this easily, it was determined that the best method would be to provide an 'edit rack' modal that can be accessed by hovering over a rack. Figure \ref{fig:edit-rack-popover} shows the popover that appears when hovering over a rack.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.7]{edit-rack-popover.png}
+    \caption{Edit Rack Popover}
+    \label{fig:edit-rack-popover}
+\end{figure}
+
+The ability to change a rack's name, as well as associate a fabric node and terminal server was provided in the edit modal, which is shown in figure \ref{fig:edit-rack-modal}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{edit-rack-modal.png}
+    \caption{Edit Rack Modal}
+    \label{fig:edit-rack-modal}
+\end{figure}
+
+The logic to only allow a single fabric node and terminal server to a single rack was also incorporated to prevent user error. The \verb|rack_id| column of the fabric node and terminal server tables were updated to reflect the rack that they were assigned to.
 
