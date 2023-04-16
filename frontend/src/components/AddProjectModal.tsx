@@ -159,7 +159,7 @@ function Form({ isOpen, confirm }: { isOpen: boolean, confirm: (project: EditPro
                         </div>
                         <TextInput id="name" placeholder="Name" maxLength={15} {...register('name', { required: true, pattern: /^[a-zA-Z0-9]+$/ })} />
                         {errors?.name && <Alert color="failure" className="mt-2">
-                            {errors?.name?.type === 'required' ? <p>Name is required</p> : <p>Name must not have spaces</p> }
+                            {errors?.name?.type === 'required' ? <p>Name is required</p> : <p>Name must not have spaces</p>}
                         </Alert>}
                         <div className="mt-2">
                             <Label
@@ -189,43 +189,44 @@ function Form({ isOpen, confirm }: { isOpen: boolean, confirm: (project: EditPro
                         </div>
                     </Tabs.Item>
                     <Tabs.Item title="Infrastructure">
-                        <h1>If left blank, a /16 subnet will be automatically assigned (recommended)</h1>
-                        <div className="mt-2">
-                            <Label
-                                htmlFor="network"
-                                value="Network"
+                        <div className="border-dashed border-2 p-5">
+                            <h1>If left blank, a /16 subnet will be automatically assigned (recommended)</h1>
+                            <div className="mt-2">
+                                <Label
+                                    htmlFor="network"
+                                    value="Network"
+                                />
+                            </div>
+                            <TextInput
+                                id="network"
+                                placeholder="Network"
+                                maxLength={50}
+                                {...register('network', {
+                                    validate: value => validateNetworkAndSubnetMask(value, getValues('subnet_mask'))
+                                })}
                             />
-                        </div>
-                        <TextInput
-                            id="network"
-                            placeholder="Network"
-                            maxLength={50}
-                            {...register('network', {
-                                validate: value => validateNetworkAndSubnetMask(value, getValues('subnet_mask'))
-                            })}
-                        />
-                        {errors?.network && <Alert color="failure" className="mt-2">
-                            {<p>{errors?.network.message}</p>}
-                        </Alert>}
-                        <div className="mt-2">
-                            <Label
+                            {errors?.network && <Alert color="failure" className="mt-2">
+                                {<p>{errors?.network.message}</p>}
+                            </Alert>}
+                            <div className="mt-2">
+                                <Label
 
-                                htmlFor="subnet_mask"
-                                value="Subnet Mask"
+                                    htmlFor="subnet_mask"
+                                    value="Subnet Mask"
+                                />
+                            </div>
+                            <TextInput
+                                id="subnet_mask"
+                                placeholder="Subnet Mask"
+                                maxLength={50}
+                                {...register('subnet_mask', {
+                                    validate: value => validateNetworkAndSubnetMask(getValues('network'), value)
+                                })}
                             />
+                            {errors?.subnet_mask && <Alert color="failure" className="mt-2">
+                                {<p>{errors?.subnet_mask.message}</p>}
+                            </Alert>}
                         </div>
-                        <TextInput
-                            id="subnet_mask"
-                            placeholder="Subnet Mask"
-                            maxLength={50}
-                            {...register('subnet_mask', {
-                                validate: value => validateNetworkAndSubnetMask(getValues('network'), value)
-                            })}
-                        />
-                        {errors?.subnet_mask && <Alert color="failure" className="mt-2">
-                            {<p>{errors?.subnet_mask.message}</p>}
-                        </Alert>}
-
                         <div className="mt-2">
                             <Label
                                 htmlFor="wan_ip"

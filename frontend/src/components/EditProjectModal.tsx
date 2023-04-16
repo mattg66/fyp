@@ -133,35 +133,36 @@ function EditProjectForm({ project, isOpen }: { project: EditProject, isOpen: bo
                         </div>
                     </Tabs.Item>
                     <Tabs.Item title="Infrastructure">
-                        <h1>If left blank, a /16 subnet will be automatically assigned (recommended)</h1>
-                        <div className="mt-2">
-                            <Label
-                                htmlFor="network"
-                                value="Network"
+                        <div className="border-dashed border-2 p-5">
+                            <h1>If left blank, a /16 subnet will be automatically assigned (recommended)</h1>
+                            <div className="mt-2">
+                                <Label
+                                    htmlFor="network"
+                                    value="Network"
+                                />
+                            </div>
+                            <TextInput
+                                id="network"
+                                placeholder="Network"
+                                maxLength={50}
+                                {...register('network')}
+                                disabled
+                            />
+                            <div className="mt-2">
+                                <Label
+
+                                    htmlFor="subnet_mask"
+                                    value="Subnet Mask"
+                                />
+                            </div>
+                            <TextInput
+                                id="subnet_mask"
+                                placeholder="Subnet Mask"
+                                maxLength={50}
+                                {...register('subnet_mask')}
+                                disabled
                             />
                         </div>
-                        <TextInput
-                            id="network"
-                            placeholder="Network"
-                            maxLength={50}
-                            {...register('network')}
-                            disabled
-                        />
-                        <div className="mt-2">
-                            <Label
-
-                                htmlFor="subnet_mask"
-                                value="Subnet Mask"
-                            />
-                        </div>
-                        <TextInput
-                            id="subnet_mask"
-                            placeholder="Subnet Mask"
-                            maxLength={50}
-                            {...register('subnet_mask')}
-                            disabled
-                        />
-
                         <div className="mt-2">
                             <Label
                                 htmlFor="wan_ip"
