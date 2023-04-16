@@ -34,8 +34,6 @@ function EditProjectForm({ project, isOpen }: { project: EditProject, isOpen: bo
     const [selectedNodes, setSelectedNodes] = useState<any[]>([])
     const handleNodeSelect = (event: OnSelectionChangeParams) => {
         setSelectedNodes(event.nodes)
-        console.log(event.nodes)
-        console.log(project?.racks)
     }
     interface NewProject {
         name: string,
@@ -78,7 +76,6 @@ function EditProjectForm({ project, isOpen }: { project: EditProject, isOpen: bo
         fetch('/api/project/' + project.id, requestOptions).then((response) => {
             if (response.status === 200) {
                 response.json().then((data) => {
-                    confirm(data.project)
                     toast.success(data.message)
                     reset()
                     tabsRef.current?.setActiveTab(0)
