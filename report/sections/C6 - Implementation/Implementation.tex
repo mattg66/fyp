@@ -366,3 +366,124 @@ The ability to change a rack's name, as well as associate a fabric node and term
 
 The logic to only allow a single fabric node and terminal server to a single rack was also incorporated to prevent user error. The \verb|rack_id| column of the fabric node and terminal server tables were updated to reflect the rack that they were assigned to.
 
+\subsection{Project Creation}
+The final user-facing feature to be developed is the ability to create projects, which is the main feature of the automation platform. The user will have the ability to create and edit projects as well as delete them. The edit functionality will include adding and removing racks from the project, to facilitate project expansion and contraction which is a very common requirement.
+
+A modal was decided upon as being the most user-friendly way of adding and editing projects. A multi-stage form that guides the user through the process of onboarding the project was also decided upon. The flow will be as follows:
+\begin{enumerate}
+    \item The user will be presented with a form to enter the project name and description.
+    \item The user will be presented with a list of racks that are available to be added to the project.
+    \item The user will be asked to specify a subnet to be used in the project network along with a WAN IP address. If no project subnet is specified, the next available subnet will be automatically assigned.
+\end{enumerate}
+Shown in figure \ref{fig:add-project-racks} is the modal form section that allows the user to select the racks that the project will occupy.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.4]{add-project-racks.png}
+    \caption{Add Project Racks}
+    \label{fig:add-project-racks}
+\end{figure}
+
+Because of the componentised nature of React, the rackspace layout can just be imported again instead of redefining all code and properties. The racks shown in red are occupied by another project, and thus cannot be included in a newly created project. The form for specifying IP addressing is shown below.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{add-project-infrastructure.png}
+    \caption{Specifying project IP addressing}
+    \label{fig:add-project-infrastructure}
+\end{figure}
+
+The same modal layout is used for editing a project, however, the logic is revised to allow racks to be deselected and removed from the project, at the same time as allowing new racks to be added.
+
+\subsection{Project Automation}
+With the ability to create projects, the automation platform needs to be able to automatically create the project's network infrastructure. To perform this, Laravel Queues were decided upon, as they allow tasks and \gls{api} queries to be performed outside of the process that responds to the user's request. This allows the user to continue using the platform while the automation scripts are running in the background.
+
+The first step when provisioning a project is to configure the \gls{aci} fabric, as that will be required before any \gls{vm}s can be created and attached to the project network.
+
+\begin{figure}[H]
+    \begin{lstlisting}[basicstyle=\scriptsize]
+{
+    $aciClient = new ACIClient();
+    $vmWare = new vSphereClient();
+    $project = Project::find($this->projectId);
+    if ($aciClient->createTenant($this->projectName)) {
+        if ($aciClient->createBD($this->projectName)) {
+            if ($aciClient->createAP($this->projectName)) {
+                if ($aciClient->createEPG($this->projectName)) {
+                    if ($aciClient->associatePhysDom($this->projectName)) {
+                        if ($aciClient->deployToNodes($this->projectId)) {
+                            $project->status = 'VMware';
+                            $project->save();
+                            if ($vmWare->deployProjectRouter($this->projectName,
+                            $this->projectId)) {
+                                VirtualRouterProvision::dispatch($this->projectId)
+                                ->delay(Carbon::now()->addSeconds(140));
+
+                                TSProvision::dispatch($this->projectId);
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    $project->status = 'Error';
+    $project->save();
+    return false;
+}
+\end{lstlisting}
+    \caption{Project Creation Job}
+    \label{fig:project-creation-job}
+\end{figure}
+
+Figure \ref{fig:project-creation-job} shows the job that is dispatched when a project is created. The job performs the following actions:
+\begin{enumerate}
+    \item Creates the tenant in \gls{aci} where all network configurations related to the project will be stored. The project \gls{vrf} will automatically be created with this \gls{api} call.
+    \item Creates the bridge domain to allow L2 communication between attached ports and \gls{vm}s.
+    \item Creates the application profile that will house the \gls{epg}.
+    \item Creates the \gls{epg} that will be used to attach static ports and \gls{vm}s to the project network.
+    \item Associates the created \gls{epg} with the Automation and Terminal Server physical domains. It also associates with the VMware integration domain so that the created \gls{epg} is automatically extended into VMware vCenter.
+    \item The fabric node and their ports that are attached to the member racks that the project has been allocated to are then added into the \gls{epg}s static mapping.
+    \item The project router is then deployed through the use of vCenters ability to clone a \gls{vm} using the \gls{api}. When the \gls{vm} has been cloned, a new job is dispatched with an initial delay of 140 seconds. This job will find the newly created \gls{vm}s IP address via VMWare guest tools and then configure the \gls{vm} with the appropriate network configuration. The delay is added to give the \gls{vm} time to boot up and acquire an IP from \gls{dhcp}. 
+\end{enumerate}
+Shown in figure \ref{fig:project-router-configuration-job} is the job that is dispatched from the create project job.
+\begin{figure}[H]
+    \begin{lstlisting}[basicstyle=\scriptsize]
+        {
+        $vmWare = new vSphereClient();
+        $project = Project::with('projectRouter')->find($this->projectId);
+        for ($i = 0; $i < 10; $i++) {
+            $routerIp = $vmWare->getVmIp($project->projectRouter->vm_id);
+            if ($routerIp !== false && $routerIp != '0.0.0.0') {
+                $httpClient = new IOSXEClient($routerIp);
+                if ($httpClient->connectionTest()) {
+                    if ($httpClient->setHostname($project->name . '-CSR') &&
+                        $httpClient->setAddresses($project->projectRouter->ip,
+                        $project->projectRouter->subnet_mask, $project->network,
+                        $project->subnet_mask, $project->projectRouter->gateway)) {
+
+                        $httpClient->save();
+                        $project->status = 'Provisioned';
+                        $project->save();
+                        return true;
+                    } else {
+                        $project->status = 'Error';
+                        $project->save();
+                        return false;
+                    }
+                } else {
+                    sleep(10);
+                }
+            } else {
+                sleep(10);
+            }
+        }
+        return false;
+        }
+    \end{lstlisting}
+    \caption{Project Router Configuration Job}
+    \label{fig:project-router-configuration-job}
+\end{figure}
+
+The first step the algorithm takes is to enter a for loop that will iterate for a maximum of 10 times. The vCenter \gls{api} will be contacted to retrieve a list of IP addresses belonging to a specific \gls{vm}. As the ID of each project router associated with a project is stored in the database, this ID can be used to get the IP address of a project's router. If the \gls{vm} has not yet received an IP address, then the loop will sleep for 10 seconds and then try again. Once an IP address has been received and registered by vCenter, the next step can be performed. The IP address is then used to create a new instance of the IOS-XE client, which is used to configure the router via RESTCONF. The hostname and addresses are pulled from the database and pushed to the router. Other settings such as \gls{acl}s are also generated from the addresses provided. Once the router has been configured, the project status is updated to 'Provisioned' and the project is ready to be used.
