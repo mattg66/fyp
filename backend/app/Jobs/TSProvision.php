@@ -56,11 +56,10 @@ class TSProvision implements ShouldQueue
                 if ($iosXE->connectionTest()) {
                     if ($iosXE->setSubInterface($this->firstUsableIP($project->network, $project->subnet_mask, $key), $project->subnet_mask, $project->vlan->vlan_id, $rack->terminalServer->uplink_port)) {
                         $iosXE->save($rack->terminalServer->username, $rack->terminalServer->password);
-                        return true;
                     }
                 }
             }
         }
-        return false;
+        return true;
     }
 }
