@@ -444,8 +444,8 @@ Figure \ref{fig:project-creation-job} shows the job that is dispatched when a pr
     \item Creates the application profile that will house the \gls{epg}.
     \item Creates the \gls{epg} that will be used to attach static ports and \gls{vm}s to the project network.
     \item Associates the created \gls{epg} with the Automation and Terminal Server physical domains. It also associates with the VMware integration domain so that the created \gls{epg} is automatically extended into VMware vCenter.
-    \item The fabric node and their ports that are attached to the member racks that the project has been allocated to are then added into the \gls{epg}s static mapping.
-    \item The project router is then deployed through the use of vCenters ability to clone a \gls{vm} using the \gls{api}. When the \gls{vm} has been cloned, a new job is dispatched with an initial delay of 140 seconds. This job will find the newly created \gls{vm}s IP address via VMWare guest tools and then configure the \gls{vm} with the appropriate network configuration. The delay is added to give the \gls{vm} time to boot up and acquire an IP from \gls{dhcp}. 
+    \item The fabric node and their ports that are attached to the member racks that the project has been allocated to are then added into the \gls{epg}s static mapping. This also includes the creation of the interface profiles that are required to associate the static ports to the automation physical domain.
+    \item The project router is then deployed through the use of vCenter's ability to clone a \gls{vm} using the \gls{api}. When the \gls{vm} has been cloned, a new job is dispatched with an initial delay of 140 seconds. This job will find the newly created \gls{vm}s IP address via VMWare guest tools and then configure the \gls{vm} with the appropriate network configuration. The delay is added to give the \gls{vm} time to boot up and acquire an IP from \gls{dhcp}. 
 \end{enumerate}
 Shown in figure \ref{fig:project-router-configuration-job} is the job that is dispatched from the create project job.
 \begin{figure}[H]
