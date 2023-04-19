@@ -398,6 +398,7 @@ The same modal layout is used for editing a project, however, the logic is revis
 \subsection{Project Automation}
 With the ability to create projects, the automation platform needs to be able to automatically create the project's network infrastructure. To perform this, Laravel Queues were decided upon, as they allow tasks and \gls{api} queries to be performed outside of the process that responds to the user's request. This allows the user to continue using the platform while the automation scripts are running in the background.
 
+\subsubsection{ACI Fabric}
 The first step when provisioning a project is to configure the \gls{aci} fabric, as that will be required before any \gls{vm}s can be created and attached to the project network.
 
 \begin{figure}[H]
@@ -444,10 +445,12 @@ Figure \ref{fig:project-creation-job} shows the job that is dispatched when a pr
     \item Creates the application profile that will house the \gls{epg}.
     \item Creates the \gls{epg} that will be used to attach static ports and \gls{vm}s to the project network.
     \item Associates the created \gls{epg} with the Automation and Terminal Server physical domains. It also associates with the VMware integration domain so that the created \gls{epg} is automatically extended into VMware vCenter.
-    \item The fabric node and their ports that are attached to the member racks that the project has been allocated to are then added into the \gls{epg}s static mapping. This also includes the creation of the interface profiles that are required to associate the static ports to the automation physical domain.
-    \item The project router is then deployed through the use of vCenter's ability to clone a \gls{vm} using the \gls{api}. When the \gls{vm} has been cloned, a new job is dispatched with an initial delay of 140 seconds. This job will find the newly created \gls{vm}s IP address via VMWare guest tools and then configure the \gls{vm} with the appropriate network configuration. The delay is added to give the \gls{vm} time to boot up and acquire an IP from \gls{dhcp}. 
+    \item The fabric node and their ports that are attached to the member racks that the project has been allocated to are then added into the \gls{epg}s static mapping.
+    \item The project router is then deployed through the use of vCenters ability to clone a \gls{vm} using the \gls{api}. When the \gls{vm} has been cloned, a new job is dispatched with an initial delay of 140 seconds. This job will find the newly created \gls{vm}s IP address via VMWare guest tools and then configure the \gls{vm} with the appropriate network configuration. The delay is added to give the \gls{vm} time to boot up and acquire an IP from \gls{dhcp}. 
+    \item A job to configure the terminal servers is also dispatched.
 \end{enumerate}
-Shown in figure \ref{fig:project-router-configuration-job} is the job that is dispatched from the create project job.
+\subsubsection{Virtual Router Provisioning}
+Shown in figure \ref{fig:project-router-configuration-job} is the job that is dispatched from the create project job, which will in turn provision the newly cloned project router.
 \begin{figure}[H]
     \begin{lstlisting}[basicstyle=\scriptsize]
         {
@@ -487,3 +490,32 @@ Shown in figure \ref{fig:project-router-configuration-job} is the job that is di
 \end{figure}
 
 The first step the algorithm takes is to enter a for loop that will iterate for a maximum of 10 times. The vCenter \gls{api} will be contacted to retrieve a list of IP addresses belonging to a specific \gls{vm}. As the ID of each project router associated with a project is stored in the database, this ID can be used to get the IP address of a project's router. If the \gls{vm} has not yet received an IP address, then the loop will sleep for 10 seconds and then try again. Once an IP address has been received and registered by vCenter, the next step can be performed. The IP address is then used to create a new instance of the IOS-XE client, which is used to configure the router via RESTCONF. The hostname and addresses are pulled from the database and pushed to the router. Other settings such as \gls{acl}s are also generated from the addresses provided. Once the router has been configured, the project status is updated to 'Provisioned' and the project is ready to be used.
+
+\subsubsection{Terminal Server Provisioning}
+The terminal server provisioning job is shown in figure \ref{fig:terminal-server-configuration-job}. This job is dispatched from the create project job, and will configure the terminal servers that are attached to the project's racks.
+\begin{figure}[H]
+    \begin{lstlisting}[basicstyle=\scriptsize]
+    {
+        $project = Project::with('racks.terminalServer', 'vlan')->find($this->projectId);
+        foreach ($project->racks as $key => $rack) {
+            if ($rack->terminalServer !== null) {
+                $iosXE = new IOSXEClient($rack->terminalServer->ip,
+                $rack->terminalServer->username, $rack->terminalServer->password);
+                if ($iosXE->connectionTest()) {
+                    if ($iosXE->setSubInterface($this->firstUsableIP($project->network,
+                      $project->subnet_mask, $key), $project->subnet_mask,
+                      $project->vlan->vlan_id, $rack->terminalServer->uplink_port)) {
+                        $iosXE->save($rack->terminalServer->username,
+                          $rack->terminalServer->password);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    \end{lstlisting}
+    \caption{Terminal Server Configuration Job}
+    \label{fig:terminal-server-configuration-job}
+\end{figure}
+The algorithm iterates through all of the terminal servers that belong to the project via the relation that a terminal server belongs to a rack. The first step is to check if the rack has a terminal server associated with it, if it does then the algorithm can proceed. A sub-interface on the terminal server is then configured with an appropriate IP address, which is generated from the first address in the subnet and up. The project VLAN is also included so that the correct encapsulation can be set on the sub-interface. The sub-interface is then saved to the terminal server. The algorithm then returns true to indicate that the job has been completed successfully.
