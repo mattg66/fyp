@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Http\Clients\ACIClient;
+use App\Http\Clients\IOSXEClient;
 use App\Http\Clients\vSphereClient;
 use App\Models\Project;
 use Carbon\Carbon;
@@ -43,17 +44,26 @@ class DeleteProject implements ShouldQueue
     {
         $aciClient = new ACIClient();
         $vmWare = new vSphereClient();
-        $project = Project::with('projectRouter')->where('id', $this->projectId)->withTrashed()->first();
+        $project = Project::with('projectRouter', 'racks.terminalServer', 'vlan')->where('id', $this->projectId)->withTrashed()->first();
         if ($vmWare->powerOffVm($project->projectRouter->vm_id)) {
             if ($vmWare->deleteVm($project->projectRouter->vm_id)) {
                 if ($aciClient->deleteTenant($this->projectName)) {
-                    if ($aciClient->deleteIntProf($this->projectId)){
+                    if ($aciClient->deleteIntProf($this->projectId)) {
+                        foreach ($project->racks as $key => $rack) {
+                            if ($rack->terminalServer !== null) {
+                                $iosXE = new IOSXEClient($rack->terminalServer->ip, $rack->terminalServer->username, $rack->terminalServer->password);
+                                if ($iosXE->connectionTest()) {
+                                    if ($iosXE->deleteSubIf($project->vlan->vlan_id, $rack->terminalServer->uplink_port)) {
+                                        $iosXE->save($rack->terminalServer->username, $rack->terminalServer->password);
+                                    }
+                                }
+                            }
+                        }
                         $project->forceDelete();
                         return true;
                     }
                 }
             }
         }
-        
     }
 }

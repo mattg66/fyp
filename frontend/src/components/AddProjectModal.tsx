@@ -181,7 +181,7 @@ function Form({ isOpen, confirm }: { isOpen: boolean, confirm: (project: EditPro
                             <div className="w-32 text-center">
                                 <h2>Selected Racks</h2>
                                 {selectedNodes?.map((node) => {
-                                    if (node?.type === "rackNode") {
+                                    if ((node?.type === "rackNode" || node?.type === undefined) && (node.data.project === null)) {
                                         return <p key={node.id}>{node.data.label}</p>
                                     }
                                 })}
