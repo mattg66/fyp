@@ -22,6 +22,8 @@ Research was conducted that was related to the following set of topics:
     \item What is software defined networking?
     \item What types of software defined networking exist?
     \item What are the advantages and disadvantages?
+    \item What automation is currently used in the networking world?
+    \item What automation solutions exist in the industry?
 \end{itemize}
 
 \section{Definition of Software Defined Networks}
@@ -30,7 +32,7 @@ Research was conducted that was related to the following set of topics:
 All industry experts and academics define software defined networking
 similarly, that is providing automation and intelligence to networks via the
 means of software and APIs.~\citet{11} state that ``SDN was originally coined
-to represent the ideas and work around OpenFlow at Stanford University''.\\ SDN
+to represent the ideas and work around OpenFlow at Stanford University''.\\ OpenFlow
 is often defined using four pillars, \citet{11} define these as the following:
 \begin{enumerate}
     \item ``The control and data planes are decoupled. Control functionality is
@@ -47,13 +49,30 @@ is often defined using four pillars, \citet{11} define these as the following:
           on top of the NOS that in-teracts with the underlying data plane
           devices.''
 \end{enumerate}
+These four pillars outline the overall function and principles of OpenFlow. Whilst this sounds good, OpenFlow has many disadvantages that have lead to it become less favourable when deploying larger networks. As a network switch/router has to submit a flow request to the controller for every unkown source/destination contained in a packet, a large demand on the controller will occr. ``Sending a flow request (Packet-In message) to the SDN-Controller for each unknown packet will confuse the SDN-Controller because the SDN-Controller has to compute the forwarding rules for each new packet and then install it to the flow tables in all the data forwarding nodes (SDN-Switches)'' \citep{app11156999}. \citeauthor{app11156999} go on to say that ``This high volume of traffic and computational overhead will cause SDN-Controller overhead and increase the time it takes for flow rules to be placed, affecting network efficiency and scalability''. This makes OpenFlow unsuitable for larger networks, as for every new flow, a lookup must occur which results in higher latency and high system demands when it comes to forwarding packets. This has led to the term 'Software Defined Networking' being used as a more general term, as it is not limited to the use of OpenFlow, but for any solution that tackles conventional networking with a programmatic view. There are ``the two main
+delivery models: Imperative and declarative'' \citet{10}. \citet{10} go on to
+state that Imperative SDN is
+where ``A centralized controller (typically a clustered set of controllers)
+functions as the network’s ‘brain’'' and that declarative SDN is where
+``the intelligence is distributed out to the network fabric. While policy is
+centralized, policy enforcement isn’t''. \citet{10} give ``a protocol such as
+OpenFlow explicitly
+telling network switches precisely what to do and how to do it'' to be an
+example of imperative SDN.
 
-\section{Overview of Software Defined Networks}
+In summary, \gls{sdn} is a blanket term for a variety of methods of delivery intelligence to conventionally statically configured networks.
+
+\section{Declarative vs Imperative SDN}
+\label{litreview:declarativevsimperative}
+As briefly touched upon in the previous section, \gls{sdn} is broken up into two main types, imperative and declarative. This section will explore the differences between the two in more detail. The imperative and declarative definitions originate from software development. The ``Imperative paradigm can be viewed as a traditional programming structure and allows the programmer to specify all the steps to solve any particular problem. In the declarative paradigm, one only needs to specify what program must do, not how to do it'' \citep{LATIF2020102563}. Translated into networking, imperative SDN perfectly explains what OpenFlow set out to do, and that is for the controller to make the decision and inform the end networking device exactly how to forward and handle the packet. Declarative solutions such as OpFlex are designed for ``transferring abstract policy from a modern network controller to a set of smart devices capable of rendering policy'' \cite{bhardwaj_2020}. \citeauthor{bhardwaj_2020} goes on to state how ``OpFlex is designed to work as part of a declarative control system such as Cisco ACI in which abstract policy can be shared on demand.''
+
+
+\section{Why Use Software Defined Networks}
 \label{litreview:overview}
 
-Since this project is centred around software defined networking and the
+Since this project is centered around \gls{sdn} and the
 automation of these networks, it is critical to ensure that the principles and
-their method of operations are understood.\\
+their method of operations are understood, and the benefits of using it.\\
 An official survey paper from the IEEE that analysed the state of SDN provides
 a good explanation as to why the need for network programmability arose in the
 first place. Conventionally, “Computer networks are typically built from a
@@ -70,17 +89,13 @@ defined networking “is designed to use standardized application programming
 interfaces (APIs) to quickly allow network programmers to define and
 reconfigure the way data or resources are handled within a network.” \cite{9}
 
-\section{Types of Software Defined Networks}
+\section{Software Defined Networking Solutions}
 \label{litreview:types}
+As expected, many manufacturers have released and developed solutions that use the principles of \gls{sdn} to automate network operations using a variety of hardware. This section will explore the different types of \gls{sdn} solutions that are available in the industry.
 
-Software Defined Networking is a blanket term for any solution that tackles
-conventional networking with a programmatic view. There are ``the two main
-delivery models: Imperative and declarative'' \citet{10}. \citet{10} go on to
-state that Imperative SDN is
-where ``A centralized controller (typically a clustered set of controllers)
-functions as the network’s ‘brain’'' and that declarative SDN is where
-``the intelligence is distributed out to the network fabric. While policy is
-centralized, policy enforcement isn’t''. \citet{10} give ``a protocol such as
-OpenFlow explicitly
-telling network switches precisely what to do and how to do it'' to be an
-example of imperative SDN.
+\subsubsection{Cisco ACI}
+Cisco \gls{aci} is a proprietary solution from Cisco that uses the Nexus 9000 series of switches using a special firmware version. Whilst the design of the fabric remains essentially unchanged, with spine-and-leaf being the required design, where \gls{aci} does introduce change is with how configuration and policy are applied to the networking devices. ``In a leaf-spine ACI fabric, Cisco is provisioning a native Layer 3 IP fabric that supports equal-cost multi-path (ECMP) routing between any two endpoints in the network, but uses overlay protocols, such as virtual extensible local area network (VXLAN) under the covers to allow any workload to exist anywhere in the network'' \citep{duffy2014cisco}. \gls{aci} also features plug-and-play fabric discovery, where new switches are automatically discovered by the controller and can be onboarded with ease, making future network expansion very easy to achieve.
+
+\subsubsection{Juniper Apstra}
+``Juniper’s Apstra solution provides
+a deployment method called connectivity templates, which allow administrators to create and reuse validated templates to set up multi-vendor networks. It supports multiple device operation systems, including Cisco NX-OS, Nvidia Cumulus and Juniper Junos OS'' \citep{9914530}. The main advantage over Cisco \gls{aci} is the fact that it supports multiple vendors so you are not locked to just one manufacturer's current and future hardware. Apstra is still in its infancy, as it was only released in December 2020 \citep{9914530}, which means that documentation and training material is still sparse, and it has not been proven in the field to be as reliable in a mission-critical environment as Cisco \gls{aci}.
