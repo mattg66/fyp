@@ -99,3 +99,10 @@ Cisco \gls{aci} is a proprietary solution from Cisco that uses the Nexus 9000 se
 \subsubsection{Juniper Apstra}
 ``Juniper’s Apstra solution provides
 a deployment method called connectivity templates, which allow administrators to create and reuse validated templates to set up multi-vendor networks. It supports multiple device operation systems, including Cisco NX-OS, Nvidia Cumulus and Juniper Junos OS'' \citep{9914530}. The main advantage over Cisco \gls{aci} is the fact that it supports multiple vendors so you are not locked to just one manufacturer's current and future hardware. Apstra is still in its infancy, as it was only released in December 2020 \citep{9914530}, which means that documentation and training material is still sparse, and it has not been proven in the field to be as reliable in a mission-critical environment as Cisco \gls{aci}.
+
+\subsubsection{VMWare NSX}
+VMWare NSX is a software-defined networking solution that is designed to be used in a virtualised environment. Whilst this provides many advantages for improving networking when using virtual machines and applications, ``NSX provides no management or visibility into the physical network that the NSX application utilizes, you'll want to ensure that any network chosen for NSX provides native automation for provisioning and network change, as well as advanced visibility and telemetry tools for troubleshooting and day-two operations'' \citep{2}. This means that whilst NSX is a good solution for virtualised environments, it is not suitable for physical networking deployments.
+
+\section{Software Defined Networking Alternatives}
+\label{litreview:alternatives}
+Whilst \gls{sdn} is a great solution for automating networks, it is not the only solution. This section will explore the alternatives to \gls{sdn} and their advantages and disadvantages.
