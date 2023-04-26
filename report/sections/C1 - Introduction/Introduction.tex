@@ -22,38 +22,42 @@ connectivity to a testbed, allowing for a VPN tunnel to be established and
 hence remote access granted to a testbed from any location to any permitted
 person.
 
+\subsubsection{Current Infrastructure}
+The current infrastructure to support the testbeds consists of four Nexus 9K core switches, with \gls{fex}s to provide copper connectivity. Currently, the N9Ks do not have any form of \gls{vpc} configured, and just use \gls{stp} for redundancy. Top-of-rack connectivity is provided by Catalyst switches. Each project has a dedicated VLAN to isolate communications between different projects, and a virtual router and services stack is hosted on a vCenter environment to provide internet and \gls{vpn} connectivity to the project. Each project also has several terminal servers attached to its VLAN so that the console ports of the testbed devices can be easily accessed in case of a device problem.
+
 \subsubsection{Current Project Pipeline}
-When a new project is requested, the project topology is reviewed, which will indicate how much rackspace will be required to accommodate the project. A new VLAN for the project will then be manually created across all of the associated networking equipment, including the core N9Ks, and the top-of-rack switches that live in the selected racks. Terminal servers will also have to be reconfigured so that they have the correct subnet configured and the correct sub-interface configured. The next step is to provision a virtual CSR1000v router hosted on vCenter that will provide \gls{nat} and internet access to the newly created VLAN. A services stack will then be deployed to take care of remote access \gls{vpn} and other associated services. Both of these steps require the manual addition of a \gls{dpg} to the \gls{dvs}.
+When a new testbed build is requested, the project topology is reviewed, which will indicate how much rackspace will be required to accommodate the project. A new VLAN for the project will then be manually created across all of the associated networking equipment, including the core N9Ks, and the top-of-rack switches that live in the selected racks. Terminal servers will also have to be reconfigured so that they have the correct subnet configured and the correct sub-interface configured. The next step is to provision a virtual CSR1000v router hosted on vCenter that will provide \gls{nat} and internet access to the newly created VLAN. A services stack will then be deployed to take care of remote access \gls{vpn} and other associated services. Both of these steps require the manual addition of a \gls{dpg} to the \gls{dvs} present in vCenter.
 \section{The Problem}
 \label{intro:problem}
 
-Currently, the solution for the DMZ network infrastructure consists of 4 Nexus
-9K devices, with FEXs for RJ45 connectivity and 2960S ToR switches. Whilst this
+Whilst the existing
 solution is functional and works, the major downside is that there is no
 automation or configuration management solution deployed. This means over time,
 configuration drift occurs as manual changes are made, but not made the same to
 all switches. Unused VLANs are also not removed from the switches which leads
 to bloat and a larger configuration than is required. The same situation also
 occurs on vCenter with the configuration of the DPGs within the DVS where
-unused DPGs are never removed or are labeled incorrectly.\newline
-The manual configuration of the required routing and VPN termination as well as
+unused DPGs are never removed or labeled incorrectly.\newline
+The manual configuration of the required routing, switching and VPN termination as well as
 other lab requirements such as NTP, DNS and RADIUS all take a lot of time to
 configure. This time could be better utilised, such as preparing the physical
-rack space for the racking and stacking of new equipment.
+rack space for the racking and stacking of new equipment. Terminal server configuration also requires manual intervention, as a previous project may have used a different IP address space.
 
+With this large amount of manual configuration, mistakes are easily made which results in extra time spent troubleshooting, and the potential for existing projects to be affected by accidental configuration mistakes. There is also no easy way to view all configurations present on the networking devices without manually connecting to each device and inspecting the running configuration.
 \section{Aims and Objectives}
 \label{intro:aims}
 
 This project aims to provide a solution that will automate the
-configuration of the DMZ network infrastructure, as well as the configuration of the associated project infrastructure, such as the project router and services stack. This will be achieved by providing a web-based dashboard that allows the user to provision a new project, which will then automatically configure the required infrastructure. The solution will revolve around the rackspace being virtually created inside the web UI, so that projects can be allocated racks and have the associated infrastructure that is tied to a rack automatically provisioned. The solution will also provide a view of the current utilisation of the lab space by projects, as well as the current utilisation of the lab space as a whole.
+configuration of the DMZ network infrastructure, as well as the configuration of the associated project infrastructure, such as the project router, services stack and terminal servers. This will be achieved by providing a web-based dashboard that allows the user to provision a new project, which will then automatically configure the required infrastructure. The solution will revolve around the rackspace being virtually created inside the web UI, so that projects can be allocated racks and have the associated infrastructure that is tied to a rack automatically provisioned. The solution will also provide a view of the current utilisation of the lab space by projects, as well as the current utilisation of the lab space as a whole.
 
 The solution will use Cisco \gls{aci} to provide network connectivity. This removes the complexities that would otherwise be associated with provisioning many network devices via \gls{ssh} or RESTCONF. \gls{aci} will also make the network highly scalable, with the ability to add additional leafs and \gls{fex}s to support any expansion of the rackspace. VMWare vCenter will also be used to host virtual machines associated with project infrastructure, such as the project's virtual router and services stack.
 
+This report will also detail the design and conception of a testbed that will be used to test the automation platform against \gls{aci} and vCenter. This design can then be used to build a fully-fledged infrastructure to support testing in the future.
 \subsection{Deliverables}
 \label{intro:aims:deliverables}
 
 \begin{itemize}
-    \item A web based dashboard that allows the user to manage and provision projects
+    \item A web-based dashboard that allows the user to manage and provision projects
     \item User guides
           \begin{itemize}
               \item User guide for the dashboard
