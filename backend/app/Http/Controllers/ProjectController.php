@@ -114,7 +114,8 @@ class ProjectController extends Controller
         if (Project::where('name', $request->name)->first() !== null) {
             return response()->json([
                 'message' => 'Name must be unique between projects',
-            ], 400);        }
+            ], 400);
+        }
         $project = new Project();
         $project->name = $request->name;
         $project->description = $request->description;
@@ -237,11 +238,17 @@ class ProjectController extends Controller
                 'message' => 'Project not found',
             ], 404);
         }
-        $project->delete();
-        DeleteProject::dispatch($project->name, $project->id);
-        return response()->json([
-            'message' => 'Project deleted successfully',
-        ], 200);
+        if ($project->status === 'Provisioned') {
+            $project->delete();
+            DeleteProject::dispatch($project->name, $project->id);
+            return response()->json([
+                'message' => 'Project deleted successfully',
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Project still provisioning',
+            ], 400); 
+        }
     }
     public function test()
     {
