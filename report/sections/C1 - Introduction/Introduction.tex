@@ -3,87 +3,146 @@
 
 \section{The Client}
 \label{intro:client}
-
-The client is CX Labs UK within Cisco Systems. CX Labs provides lab space for
-use by business units internal to the company. Most of the space is used for
-the testing of customer networks by SVS (Solution Validation Services). SVS
-provide bespoke testing services to customers wishing to use Cisco’s expertise
-to test a range of situations, from regression and firmware testing to full
-upgrade and migration plans.\newline
-In order to match the customers environment as close as possible, a scaled down
-version of the customers network is usually recreated in the lab space managed
-by CX Labs. CX Labs hold many devices that cover most of the Cisco portfolio,
-which allows for the recreation of most networks. Most of this lab space is
-hosted within the internal Cisco corporate network, which requires any users to
-be employees of Cisco in order to access testbeds. More and more customers
-however are requesting remote access to their testbeds. To facilitate this, a
-fully isolated DMZ environment is provided, which allows direct WAN
-connectivity to a testbed, allowing for a VPN tunnel to be established and
-hence remote access granted to a testbed from any location to any permitted
+This project will be developed with the intention of it
+being utilised by a client, for the benefit of their operation.
+The client is
+CX Labs UK within Cisco Systems. CX Labs provides lab space for
+use by business
+units internal to the company. Most of the space is used for
+the testing of
+customer networks by SVS (Solution Validation Services). SVS
+provides bespoke
+testing services to customers wishing to use Cisco’s expertise
+to test a range
+of scenarios, from regression and firmware testing to full
+upgrade and
+migration plans.\newline
+To match the customer's environment as close as
+possible, a scaled-down
+version of the customer's network is usually recreated
+in the lab space managed
+by CX Labs. CX Labs hold many devices that cover most
+of the Cisco portfolio,
+which allows for the recreation of most networks. Most
+of this lab space is
+hosted within the internal Cisco corporate network, which
+requires any users to
+be employees of Cisco to access testbeds. More and more
+customers
+however are requesting remote access to their testbeds so they can
+perform their own testing. To facilitate this, a
+fully isolated DMZ environment
+is provided, which allows direct WAN
+connectivity to a testbed, allowing for a
+VPN tunnel to be established and
+hence remote access granted to a testbed from
+any location to any permitted
 person.
 
+\subsubsection{Current Infrastructure}
+The current infrastructure to support the testbeds consists of four Nexus 9K
+core switches, with \gls{fex}s to provide copper connectivity. Currently, the
+N9Ks do not have any form of \gls{vpc} configured, and just use \gls{stp} for
+redundancy. Top-of-rack connectivity is provided by Catalyst switches. Each
+project has a dedicated VLAN to isolate communications between different
+projects, and a virtual router and services stack is hosted on a vCenter
+environment to provide internet and \gls{vpn} connectivity to the project. Each
+project also has several terminal servers attached to its VLAN so that the
+console ports of the testbed devices can be easily accessed in case of a device
+problem.
+
+\subsubsection{Current Project Pipeline}
+When a new testbed build is
+requested, the project topology is reviewed, which will indicate how much
+rackspace will be required to accommodate the project. Suitable racks will then
+be chosen to house the project based on cooling, power and space requirements.
+A new VLAN for the project will then be manually created across all of the
+associated networking equipment, including the core N9Ks, and the top-of-rack
+switches that live in the selected racks. Terminal servers will also have to be
+reconfigured so that they have the correct subnet configured and the correct
+sub-interface configured. The next step is to provision a virtual CSR1000v
+router hosted on vCenter that will provide \gls{nat} and internet access to the
+newly created VLAN. A services stack will then be deployed to take care of
+remote access \gls{vpn} and other associated services. Both of these steps
+require the manual addition of a \gls{dpg} to the \gls{dvs} present in vCenter.
 \section{The Problem}
 \label{intro:problem}
+Whilst the existing solution does
+function, several problems frequently arise which reduce the operational
+efficiency of the lab:
 
-Currently the solution for the DMZ network infrastructure consists of 4 Nexus
-9K devices, with FEXs for RJ45 connectivity and 2960S ToR switches. Whilst this
-solution is functional and works, the major downside is that there is no
-automation or configuration management solution deployed. This means over time,
-configuration drift occurs as manual changes are made, but not made the same to
-all switches. Unused VLANs are also not removed from the switches which leads
-to bloat and a larger configuration than is required. The same situation also
-occurs on vCenter with the configuration of the DPGs within the DVS where
-unused DPGs are never removed or are labelled incorrectly.\newline
-The manual configuration of the required routing and VPN termination as well as
-other lab requirements such as a NTP, DNS and RADIUS all take a lot of time to
-configure. This time could be better utilised, such as preparing the physical
-rack space for the racking and stacking of new equipment.
+A large initial time investment is required when
+onboarding a new project. This is due to the manual configuration of the
+networking equipment, as well as the manual deployment of the virtual router
+and services stack. This time could be better spent on other tasks, such as
+preparing the physical rackspace for the racking and stacking of new equipment.
+
+No configuration management system is in place, which results in configuration
+drift over time. When projects are removed, the configuration is sometimes
+inconsistently modified on devices. Both VLANs and \gls{dpg}s become
+unsynchronised and often differ between the core switches themselves, resulting
+in confusion when modifying configuration. In the past, this has led to
+accidental removal and modification of configuration related to other projects,
+which impacts customer availability and takes time away from the team that
+could otherwise have been used to tackle other issues.
+
+No centralised
+management is utilised which results in device firmware being hard to update.
+This is because each device has to be manually updated, which is a
+time-consuming process. This also means that the devices are not all running
+the same version of firmware, which can cause issues when troubleshooting. A
+lack of management makes device failure also hard to detect, as there is no
+centralised monitoring solution in place, so reports from the testing team or
+customer are often the first indication that a problem has arisen.
 
 \section{Aims and Objectives}
 \label{intro:aims}
 
-The aim of this project is to provide an easy to use dashboard that allows
-CX Labs to easily onboard and manage projects. This
-will be achieved by providing a web based interface that allows the user to
-create a new project, which will then automatically create the required
-configuration within ACI, vCenter, and other associated network infrastructure.
-Management of existing projects will also be supported, operations such as
-expanding a projects rackspace utilisation, or removing a project from the
-environment will be supported. The dashboard will also provide a view of the current projects
-utilisation of the lab space, as well as the current utilisation of the lab space as a
-whole. 
+This project aims to provide
+a solution that will automate the
+configuration of the DMZ network
+infrastructure, as well as the configuration of the associated project
+infrastructure, such as the project router, services stack and terminal
+servers. This will be achieved by providing a web-based dashboard that allows
+the user to provision a new project, which will then automatically configure
+the required infrastructure. The solution will revolve around recreating the
+physical rackspace inside the web interface. The concept behind this is a
+one-to-one mapping between the real-world rackspace and the virtual rackspace.
+The virtual rack can then have the \gls{tor} and terminal server that resides
+in the real-world rack associated with it. A project can then be allocated
+virtual racks and have the associated infrastructure that is tied to a rack
+automatically provisioned. The solution will also provide a view of the current
+utilisation of the lab space by projects, as well as the current utilisation of
+the lab space as a whole.
 
+The solution will use Cisco \gls{aci} to provide
+network connectivity. This removes the complexities that would otherwise be
+associated with provisioning many network devices via \gls{ssh} or RESTCONF.
+\gls{aci} will also make the network highly scalable, with the ability to add
+additional leafs and \gls{fex}s to support any expansion of the rackspace.
+VMWare vCenter will be used to host virtual machines associated with project
+infrastructure, such as the project's virtual router and services stack.
+
+This
+report will detail the design and conception of a testbed that will be used to
+test the automation platform against \gls{aci} and vCenter. The testbed design
+can then be used to build a fully-fledged infrastructure to support testing in
+the future.
 \subsection{Deliverables}
 \label{intro:aims:deliverables}
 
 \begin{itemize}
-    \item A web based dashboard that allows the user to manage and provision projects
-    \item User guides
-          \begin{itemize}
-              \item User guide for the dashboard
-              \item User guide for how to provision ACI, vCenter and other associated network infrastructure so that it will be compatible with the automation solution
-          \end{itemize}
-    \item A report detailing the design and implementation of the solution
+    \item A web-based dashboard that allows the user to manage
+          and provision projects
+    \item User guide for the dashboard
+
+    \item User guide for how to provision ACI, vCenter and other associated
+          network infrastructure so that it will be compatible with the automation
+          solution
+    \item This report, detailing the design and implementation of the
+          solution
 \end{itemize}
 
-\section{Constraints}
+\section{Limitations and Risks}
 \label{intro:constraints}
-
-Due to the fact that the testbed utilised for testing and development is in a remote datacenter, physical access to the testbed will be limited.
-This may result in delays if a problem with the physical infrastructure occurs which could lead to the project running over time.
-The solution will be designed to be as resilient as possible, but there is a chance that the solution may not be able to recover from a failure.
-There may also be a chance that access to the testbed is revoked, which would result in the project being delayed until access is restored.
-
-External factors such as the availability of the testbeds internet uplink and power supply may also have an impact on the projects delivery within the required timescale.
-
-\section{Evaluation}
-\label{intro:evaluation}
-
-To ensure that the project delivers on the required functionality, the following evaluation criteria will be used to evaluate the project:
-
-\begin{itemize}
-    \item Does the dashboard allow for the easy creation, management and deletion of lab projects?
-    \item Does the dashboard allow for a logical view of the entire lab space as a whole?
-    \item Does the dashboard show project status and health of the associated devices?
-    \item Does the automation platform create a schema in ACI that is easy to follow and troubleshoot should a problem arise?
-\end{itemize}
+As the testbed that will be used to test and develop the solution is in a remote datacenter, physical access to the testbed is limited. This may result in delays if a problem that requires physical remediation occurs. The testbed will be designed to be resilient, through the use of redundant power supplies and links where possible. If a failure does occur, then the project may run over time, and key milestones may have to be adjusted accordingly. With the testbed being hosted remotely, there is also a possiblity that access to the testbed may be revoked, which would result in the project being delayed until access is restored. External factors such as the availability of the testbed's internet uplink and the power supply may also have an impact on the delivery of the project within the required timescale.

@@ -1,2 +1,152 @@
 \chapter{Evaluation}
 \label{chap:evaluation}
+This evaluation will discuss the final solution compared against the original requirements set out in Chapter \ref{chap:requirements} - Requirements. The project as an ultimate solution will also be reviewed, along with the overall methodologies and technologies that were used to achieve the solution.
+
+\section{Requirements Evaluation}
+\label{sec:requirements-evaluation}
+Both functional and non-functional requirements were set out in Chapter \ref{chap:requirements} - Requirements. The following sections will discuss how the final solution meets these requirements. A clean installation of the solution was used, with a fresh database so that the application as a whole could be assessed without previous data interfering with the testing process. Tables \ref{table:evaluation-functional-requirements} and \ref{table:evaluation-non-functional-requirements} will be used to evaluate the requirements functional and non-functional requirements respectively.
+
+\subsection{Funtional Requirements}
+\begin{center}
+    \begin{table}[H]
+        \begin{tabular}{l p{0.6\linewidth} l c}
+            \hline
+            \textbf{ID} & \textbf{Details}
+                        & \textbf{Priority}
+                        & \textbf{Met?}
+            \\ \hline
+            FR1         & Visual representation of rack space
+                        & Must Have
+                        & \cellcolor{green!25}Yes
+            \\ \hline
+            FR2         & Add and remove racks from the space
+                        & Must Have
+                        & \cellcolor{green!25}Yes
+            \\ \hline
+            FR3         & Add and remove Terminal Servers from racks
+                        & Must Have
+                        & \cellcolor{green!25}Yes
+            \\ \hline
+            FR4         & Add and remove Fabric Nodes from racks
+                        & Must Have
+                        & \cellcolor{green!25}Yes
+            \\ \hline
+            FR5         & Add, remove and update projects
+                        & Must Have
+                        & \cellcolor{green!25}Yes
+            \\ \hline
+            FR6         & Expand or contract a projects consumption of rack
+            space       & Must Have
+                        & \cellcolor{green!25}Yes
+            \\ \hline
+            FR7         & Automate configuration of ACI fabric
+                        & Must Have
+                        & \cellcolor{green!25}Yes
+            \\ \hline
+            FR8         & Deploy virtual router using vCenter API
+                        & Must Have
+                        & \cellcolor{green!25}Yes
+            \\ \hline
+            FR9         & Deploy virtual services stack to provide remote
+            access VPN  & Could
+            Have
+                        & \cellcolor{red!25}No
+            \\ \hline
+            FR10        & Continuous monitoring of ACI and vCenter health
+                        & Won’t Have
+                        & \cellcolor{red!25}N/A
+            \\
+            \hline
+            FR11        & Terminal server automated management
+                        & Must Have
+                        & \cellcolor{green!25}Yes
+            \\ \hline
+            FR12        & Login system to restrict access                   &
+            Could Have
+                        & \cellcolor{red!25}No
+            \\
+        \end{tabular}
+        \caption{Functional Requirements Evaluation}
+        \label{table:evaluation-functional-requirements}
+    \end{table}
+\end{center}
+
+\subsubsection{FR1}
+The solution provides a visual representation of rackspace. Shown in Appendix C Figure \ref{fig:rackspace-view}.
+
+\subsubsection{FR2}
+The solution allows for the addition and removal of racks from the rackspace. A rack can only be removed if it is not in use by a project. Shown in Appendix C Figures \ref{fig:rackspace-edit-delete} and \ref{fig:rackspace-delete}.
+
+\subsubsection{FR3}
+The solution allows for the addition and removal of Terminal Servers from racks. A Terminal Server can only be removed if it is not in use by a project. Shown in Appendix C Figure \ref{fig:rackspace-edit}.
+
+\subsubsection{FR4}
+The solution allows for the addition and removal of Fabric Nodes from racks. A Fabric Node can only be removed if it is not in use by a project. Shown in Appendix C Figure \ref{fig:rackspace-edit}.
+
+\subsubsection{FR5}
+The solution allows for the addition, removal and updating of projects. Shown in Appendix C Figures \ref{fig:project-view} and \ref{fig:project-edit}.
+
+\subsubsection{FR6}
+The solution allows for the expansion or contraction of a project's consumption of rack space. Shown in Appendix C Figure \ref{fig:project-edit}.
+
+\subsubsection{FR7}
+The solution automates the configuration of the ACI fabric to facilitate communication between the fabric nodes that are members of racks.
+
+\subsubsection{FR8}
+The solution deploys a virtual router using the vCenter API. The configuration of the virtual router is also provisioned from the solution.
+
+\subsubsection{FR9}
+The solution does not deploy a virtual services stack to provide remote access VPN. This is due to the time constraints of the project.
+
+\subsubsection{FR10}
+The solution does not provide continuous monitoring of ACI and vCenter health. This is due to the time constraints of the project and the extra design complexities that would have been incurred.
+
+\subsubsection{FR11}
+The solution automatically provisions terminal servers based on their attached rack. Whilst addition and deletion of terminal servers is possible, due to time constraints, there is no method to update a terminal server. If a terminal server must be updated, then it has to be removed and then re-created. Shown in Appendix C Figure \ref{fig:terminal-server-management}.
+
+\subsubsection{FR12}
+The solution does not include a login system due to time constraints. This would have been a useful feature to have, as it would have allowed for the restriction of access to the solution, however, network access restriction can be used initially in the deployment.
+
+\subsection{Non-Functional Requirements}
+
+\begin{center}
+    \begin{table}[H]
+        \begin{tabular}{l p{0.6\linewidth} l c}
+            \textbf{ID}             & \textbf{Details}
+                                    & \textbf{Priority}
+                                    & \textbf{Met?}
+            \\ \hline
+            NFR1                    & Must be easy to use for staff with less technical
+            knowledge
+                                    & Must Have
+                                    & \cellcolor{green!25}Yes
+            \\ \hline
+            NFR2                    & The system status should be easily visible to staff (e.g.
+            errors, project status) & Must Have
+                                    & \cellcolor{yellow!25}Partial
+                                                                             \\ \hline
+            NFR3                    & The system should be able to easily integrate with existing \gls{aci} fabric deployments & Could have & \cellcolor{yellow!25}Partial
+        \end{tabular}
+        \caption{Non-Functional Requirements}
+        \label{table:evaluation-non-functional-requirements}
+    \end{table}
+\end{center}
+
+\subsubsection{NFR1}
+The solution provides an easy-to-use interface, and with some basic explanation as to the principle of operation, most users would be able to use it with ease. At-a-glance metrics are available and the overall utilisation of the rackspace is shown. Whilst knowledge of \gls{aci} and vCenter is required to get the solution to a working state, using the system in a day-two scenario will not require this same level of knowledge.
+
+\subsubsection{NFR2}
+The status indicators adjacent to each project show the status of the project throughout the deployment phase of the project, which keeps the user up-to-date with the progress of the automation scripts. The solution does not provide continuous monitoring, so if a problem develops after the deployment phase, then the status displayed will not reflect this.
+
+\subsubsection{NFR3}
+The solution will be able to integrate into existing \gls{aci} fabric deployments, however certain fabric functionality like VMware integration must be used. Only single pod deployments are supported, and the solution must use \gls{aci} version 5.2(4d) as that is the version that the solution has been developed and tested with.
+
+\subsubsection{Overall Requirements Evaluation}
+Overall, the solution satisfied all of the key functional requirements that were set out in the design of the solution. The main missing features are continuous monitoring of status and a login system. If more time were available, then the features could have been implemented. In the future, a login system can easily be added thanks to Laravel's inbuilt session management system and a suite of libraries and extensions that make it easy to integrate into other login systems such as using \gls{ldap}.
+
+The status implementation could also have been improved via the use of WebSockets so that the client doesn't have to constantly poll the server for updates. This would have been a more efficient way of implementing the status system, however, due to time constraints, it was not possible to implement this feature.
+
+\subsection{Project and Time Management}
+Kanban was chosen to manage the project as agile would have been too complicated for a single-person development team. Whilst initially useful, usage of the Kanban board drifted due to the extra time required to log and keep track of issues, when they could just be fixed in real-time during development. If the project were to be repeated, then a more concerted effort to make use of Kanban would be made. This is because it would have helped the project's time efficiency to focus on specific features instead of taking a more random approach.
+
+Overall, time was well managed, with most of the literature review being completed before December. Development then continued at a steady pace, with a lot of progress made in March specifically. This is because a lot of the groundwork put in place in the earlier months was able to be connected when the \gls{aci} \gls{api} calls were implemented. The report writing could have been more consistent throughout development, however, a focus on developing the solution was deemed important as unexpected problems and issues could have been encountered.

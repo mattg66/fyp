@@ -1,2 +1,26 @@
 \chapter{Conclusion}
 \label{chap:conclusion}
+The goal of this project was to create an automation platform that aims to streamline the process of managing testbed projects within a lab environment. Through the use of \gls{aci} and vCenter to provide infrastructure, the automation platform was able to successfully automate network deployment and virtual machine provisioning. The solution can be attached to a suitably designed \gls{aci} and vCenter environment and deploy a project to the desired rackspace with no manual configuration of the infrastructure required. A web interface is presented to the user which provides a simple method to recreate the rackspace virtually inside the application, and then deploy projects to the virtual racks which correspond with the physical racks in the lab. This allows for the rackspace usage of the environment to be easily viewed which will easily help influence how future projects are deployed to maximise space utilisation efficiency.
+
+Whilst the requirement for automated virtual machine deployment was met and the virtual router is deployed automatically, currently the services stack \gls{vm} is not deployed automatically. This results in manual deployment and IP address configuration of the services \gls{vm} to get remote \gls{vpn} connectivity and other services such as \gls{dns} running within the testbed.
+
+The primary goal of reducing the amount of time spent when preparing infrastructure for a project was successfully met, with only a minute or so required to enter the required information into the web UI, and a further 5 minutes of deployment time which takes place in the background. This is a significant improvement over the previous method of manually configuring the infrastructure. A need for configuration management has also been successfully eliminated, as \gls{aci} and vCenter are now configured automatically and have built-in backup and restoration tools in case any configuration is accidentally modified.
+
+Whilst the solution doesn't continuously monitor the state of the infrastructure, as \gls{aci} and vCenter aggregate metrics of the connected devices and are a requirement of the solution, it would be easier to setup an external monitoring solution such as Observium.
+
+\subsection{Future Expansion}
+\label{sec:future-expansion}
+As the solution has been built with Laravel and Next.js, it is easy to expand on the current level of functionality in the future. Features such as the login system and continuous monitoring were excluded due to time restrictions but would be first on the priority list if development were to continue. Deployment of a services stack to provide \gls{vpn} and \gls{dns} would also be very beneficial to the time and efficiency of the lab and is also a high priority for future development.
+
+A method to easily deploy the solution via a container orchestration system such as Docker Compose would also be beneficial to add in the future so that one command can be used to deploy the solution to a server. This would also make upgrading the solution easier, as the container image could be updated and then redeployed whilst persisting files stored in the database.
+
+\subsection{Learning Points}
+\label{sec:learning-points}
+If this project was to be restarted, several
+mistakes that were made could be avoided to improve the development experience.
+Making use of Kanban more effectively, and even tying in with GitHub so that
+commits can be associated with jobs on the board would be advantageous. This is
+because project development performance can be easily viewed, and future
+features can be prioritised and have the correct amount of time allocated.
+
+Whilst overall time management was good, if development were to be repeated, then a more concerted effort to distribute development throughout the project timeline would have been beneficial. This would have allowed possibly all of the features to have been developed and would have allowed more time for testing and bug fixing.

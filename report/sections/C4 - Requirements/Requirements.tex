@@ -4,18 +4,18 @@
 This chapter will provide in more detail the requirements for the automation
 platform. The requirements will be split into 2 sections, namely the functional
 requirements and non-functional requirements. The functional requirements
-will outline the features that the platform must have, and the non-functional
+will outline the features that the platform must have and the non-functional
 requirements will outline the requirements that the platform must meet to be successful.
-To prioritise the requirements, the MoSCoW method will be used. The method will allow for the requirements to be prioritised and will ensure that
+To prioritise the requirements, the MoSCoW method will be used. This method will allow for the requirements to be prioritised and will ensure that
 the most important requirements are met first. The MoSCoW method is a
 prioritisation method that splits requirements into 4 categories, namely Must
 Have, Should Have, Could Have and Won’t Have.
 \section{Functional Requirements}
 Functional requirements are outlined by the IEEE as a function that a system or a system component must be able to perform. \citep{159342}
-\label{requirements:functional}
+
 \begin{center}
     \begin{table}[H]
-        \begin{tabular}{l l l}
+        \begin{tabular}{l p{0.6\linewidth} l}
             \hline
             \textbf{ID} & \textbf{Details}
                         & \textbf{Priority}
@@ -59,15 +59,16 @@ Functional requirements are outlined by the IEEE as a function that a system or 
             Could Have                                                         \\
         \end{tabular}
         \caption{Functional Requirements}
+        \label{requirements:functional}
     \end{table}
 \end{center}
 
-FR1 - FR2 outlines the requirements to have the rack space visualised in the web application. The idea behind this is that the application will simplify the process of adding and removing racks which will allow for the rack space to be easily recreated in the application, and will also allow for the rack space to be easily updated if the rack space changes.
+FR1 - FR2 outlines the requirements to have the rack space visualised in the web application of the solution. The idea behind this is that the application will simplify the process of adding and removing racks which will allow for the rack space to be easily recreated, and will also allow for the rack space to be easily updated if the rack space changes.
 It will also help show the utilisation of the space, and allow for project planning to be carried out more easily.
 
-FR3 - FR4 outlines the ability to associate \gls{aci} nodes and terminal servers to racks, this is required so that the automation backend can push the required config out when a rack is onboarded into a project. This also adds the ability to add and remove nodes and terminal servers if any physical changes are required in the rack space.
+FR3 - FR4 outlines the ability to associate \gls{aci} nodes and terminal servers to racks, this is required so that the automation backend can push the required config out when a rack is onboarded into a project. This also adds the ability to add and remove nodes and terminal servers if any physical changes occur in the rack space.
 
-FR5 provides the ability to manage projects present in the rack space and will provide the core automation functionality.
+FR5 details the ability of the automation platform to store projects. This will provide the core functionality of the platform, where the current projects are stored and managed through the automation platform.
 
 FR6 details the requirement to expand and contract a project's rack space utilisation, this will allow for the project to be scaled up or down as required which is a common occurrence.
 
@@ -83,11 +84,10 @@ FR11 details the ability to also automate the terminal servers associated with r
 
 FR12 details the possibility of implementing a login system, whilst this would be a useful feature and should be implemented at some point, the project will be hosted on a secure network that requires access to be granted, so the login system may be out of scope given the time restrictions.
 \section{Non-Functional Requirements}
-Non-functional requirements describe the nonbehavrioral characteristics of a system, capturing the properties and constraints under which a system must operate \citep{12} 
-\label{requirements:non-functional}
+Non-functional requirements describe the non-behavioral characteristics of a system, capturing the properties and constraints under which a system must operate \citep{12} 
 \begin{center}
     \begin{table}[H]
-        \begin{tabular}{p{0.15\linewidth} p{0.6\linewidth} p{0.15\linewidth}}
+        \begin{tabular}{l p{0.6\linewidth} l}
             \hline
             \textbf{ID}             & \textbf{Details}
                                     & \textbf{Priority}
@@ -101,10 +101,11 @@ Non-functional requirements describe the nonbehavrioral characteristics of a sys
             NFR3                    & The system should be able to easily integrate with existing \gls{aci} fabric deployments & Could have
         \end{tabular}
         \caption{Non-Functional Requirements}
+        \label{requirements:non-functional}
     \end{table}
 \end{center}
 
-NFR1 outlines the requirement for the web application to be easy to use for less experienced team members. By abstracting away the networking and configuration through the use of automation, only a basic understanding of networking should be required for the platform to be used.
+NFR1 outlines the requirement for the web application to be easy to use for less experienced team members. Through the use of abstraction, the networking and configuration can be hidden behind an easy to use web interface through the use of automation scripts that are run as a result of the user's actions.
 
 NFR2 shows that the system must report the status to staff via the use of status indicators. This should show the progress of the automation scripts as they progress through automating and applying the configuration to various elements of the network.
 
