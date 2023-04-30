@@ -60,7 +60,7 @@ const NoSSR = () => {
 
     const updateProject = (project: EditProject) => {
         setProjects(projects.map(project2 => {
-            if (project2.id === project.id) {
+            if (project2?.id === project?.id) {
                 return project
             } else {
                 return project2
@@ -76,7 +76,7 @@ const NoSSR = () => {
         }
         fetch(`/api/project/${deleteId}`, requestOptions).then((response) => {
             if (response.status === 200) {
-                setProjects(projects.filter((project) => project.id !== deleteId))
+                setProjects(projects.filter((project) => project?.id !== deleteId))
                 setDeleteOpen(false)
             }
         })
@@ -87,7 +87,7 @@ const NoSSR = () => {
             <Button className="float-right" onClick={() => setAddProjectOpen(true)}>Add Project</Button>
             <div className="w-full flex justify-between mb-5">
                 <AddProjectModal isOpen={addProjectOpen} close={() => setAddProjectOpen(false)} confirm={addProject} />
-                <EditProjectModal isOpen={editProjectOpen} close={() => setEditProjectOpen(false)} confirm={updateProject} project={projects?.filter((project) => project.id === editProjectId)[0]} />
+                <EditProjectModal isOpen={editProjectOpen} close={() => setEditProjectOpen(false)} confirm={updateProject} project={projects?.filter((project) => project?.id === editProjectId)[0]} />
             </div>
             <Table>
                 <Table.Head>

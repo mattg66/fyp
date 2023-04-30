@@ -48,8 +48,8 @@ function EditProjectForm({ project, isOpen }: { project: EditProject, isOpen: bo
     const { register, handleSubmit, formState: { errors, submitCount }, reset, setValue } = useForm<NewProject>()
 
     useEffect(() => {
-        if (existingNodes !== project?.racks.map(rack => String(rack.id))) {
-            setExistingNodes(project?.racks.map(rack => String(rack.id)))
+        if (existingNodes !== project?.racks?.map(rack => String(rack.id))) {
+            setExistingNodes(project?.racks?.map(rack => String(rack.id)))
         }
         setSelectedNodes(project?.racks.map(rack => { return { data: rack } }))
         setValue('name', project?.name)
