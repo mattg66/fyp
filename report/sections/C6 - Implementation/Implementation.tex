@@ -2,6 +2,18 @@
 \label{chap:implementation}
 This chapter will detail the development and implementation of the automation
 platform as well as the configuration of \gls{aci} and vCenter
+\section{Testbed Construction}
+To allow the solution to be compatible with an \gls{aci} fabric and vCenter environment, a testbed was required to develop and test the solution against. The design of this testbed was illustrated in chapter \ref{design:Testbed:network-design}. Shown below in Figure \ref{fig:testbed} is the physical testbed deployment used for this project, as well as an outline of each device's name and function.
+
+\begin{figure}[H]
+    
+    \centering
+    \includegraphics[scale=0.4]{images/testbed.png}
+    
+    \caption{Testbed Physical Deployment}
+    \label{fig:testbed}
+\end{figure}
+
 \section{ACI Configuration}
 The initial wizard was used to set up the fabric and bring it up to a level
 where configuration can be applied. During the wizard, the first thing to
