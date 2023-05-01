@@ -11,7 +11,7 @@ class SSHClient
 {
     public function __construct()
     {
-        if (env('VSPHERE_CSRV_SECRET') == null || env('VSPHERE_CSRV_USERNAME') == null) {
+        if (env('PROJECT_ROUTER_SECRET') == null || env('PROJECT_ROUTER_USERNAME') == null) {
             throw new APIClientException('SSH credentials not set');
         }
     }
@@ -22,7 +22,7 @@ class SSHClient
 
         $ssh = new SSH2($routerIp);
         try {
-            if (!$ssh->login(env('VSPHERE_CSRV_USERNAME'), env('VSPHERE_CSRV_SECRET'))) {
+            if (!$ssh->login(env('PROJECT_ROUTER_USERNAME'), env('PROJECT_ROUTER_SECRET'))) {
                 throw new APIClientException('Unable to connect to CSR');
             }
             $ssh->enablePTY();
