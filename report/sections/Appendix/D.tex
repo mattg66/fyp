@@ -1,0 +1,27 @@
+\chapter{Appendix D}
+\label{chap:appendix-d}
+\section*{Installation Guide}
+\label{sec:installation-guide}
+This guide will outline the requirements and installation procedure to get the automation platform up and running. The guide will assume that the user has a basic understanding of Linux and the command line as well as Cisco ACI and VMware vCenter.
+
+This solution is designed to allow a testing environment to provide OOB connectivity to a variety of projects within a testing environment through the use of a web UI. It achieves this through the use of Cisco ACI and VMware vCenter. Each rack within the lab space must have its own dedicated FEX or leaf switch as well as a terminal server, although a rack can exist without either. When racks are selected to be part of a project, the automation platform will deploy L2 connectivity to any FEX and leaf that belong to the selected racks, as well as including the terminal servers into this L2 domain. A virtual router will then be deployed on vCenter which will have the same aforementioned L2 connectivity to the selected FEXs and leafs, as well as connectivity to the desired WAN uplink. 
+
+\section*{Requirements}
+\begin{itemize}
+    \item Cisco ACI v5.2(4d)
+    \item VMware vCenter 7.0.3
+    \item ESXi 7.0.3 Host (at least one)
+    \item CSR1000v 17.03.05
+    \item Terminal Servers (Must be IOS-XE 17.06.03a)
+\end{itemize}
+
+The solution will require some existing ACI configuration to be in place. The following will be required:
+
+\begin{itemize}
+    \item VMM integration between ACI and vCenter
+    \item EPGs for terminal servers, internet connectivity, virtual routers and management VMs.
+    \begin{itemize}
+        \item The virtual router EPG must have a DHCP server to automatically assign IP addresses to the virtual routers.
+    \end{itemize}
+    \item A subnet for the automation platform to deploy in
+\end{itemize}
