@@ -103,7 +103,7 @@ class vSphereClient
             ]);
             $responseData = json_decode($response->getBody(), true);
             foreach ($responseData as $vm) {
-                if ($vm['name'] === env('VSPHERE_PROJECT_ROUTER_VM_NAME') && $vm['power_state'] === 'POWERED_OFF') {
+                if ($vm['name'] === env('PROJECT_ROUTER') && $vm['power_state'] === 'POWERED_OFF') {
                     return $vm['vm'];
                 }
             }
@@ -114,7 +114,7 @@ class vSphereClient
     public function deployProjectRouter($projectName, $projectId)
     {
         $vmId = $this->getTemplates();
-        $vmName = env('VSPHERE_PROJECT_ROUTER_VM_NAME') . '-' . $projectName;
+        $vmName = env('PROJECT_ROUTER') . '-' . $projectName;
         $vmSpec = [
             'name' => $vmName,
             'source' => $vmId,
