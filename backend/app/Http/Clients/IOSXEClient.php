@@ -16,8 +16,8 @@ class IOSXEClient
     public function __construct($ipAddr, $username = null, $password = null)
     {
         if ($username === null && $password === null) {
-            $this->username = env('VSPHERE_CSRV_USERNAME');
-            $this->password = env('VSPHERE_CSRV_SECRET');
+            $this->username = env('PROJECT_ROUTER_USERNAME');
+            $this->password = env('PROJECT_ROUTER_SECRET');
         } else {
             $this->username = $username;
             $this->password = $password;

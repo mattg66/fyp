@@ -13,30 +13,18 @@ for the optimisation of the planning and
 implementation stages of the project
 that will subsequently follow.
 
-Sources
+Sources utilised
 for this review will be relevant
 books, online websites,
 professional
 publications and Request for Comments.
-Multiple services will be
-used to
-identify and obtain sources that can be used
-for this review.
-\begin{itemize}
 
-      \item Google Scholar
-      \item IEEE Explore
-      \item ResearchGate
-      \item University of Portsmouth Library
-\end{itemize}
 The research performed was related to the following set of
 topics:
 \begin{itemize}
       \item What is software defined networking?
       \item What types of software defined networking exist?
-      \item What are the advantages and disadvantages?
-      \item What automation is currently used in the networking world?
-      \item What automation solutions exist in the industry?
+      \item What automation is currently used in the networking world and why?
 \end{itemize}
 
 \section{Definition of Software Defined Networks}
@@ -66,149 +54,6 @@ the network’s ‘brain’'' \citep{10} and that declarative \gls{sdn} is where
 OpenFlow can be placed into the imperative \gls{sdn} category, as the controller is used to directly influence the packet forwarding process \citep{11}. With \gls{sdn} now referring to different methods of making networks smart, a concrete definition has become harder to reach. \gls{sdn} is referred to as ``an innovative architecture that separates the control plane from the data plane to simplify and speed up the management of large networks'' \citep{app11156999}, however, other researchers take a more programmatic view of \gls{sdn}. \citeauthor{9} defines \gls{sdn} as  ``a new networking architecture that is designed to use standardized application programming interfaces (APIs) to quickly allow network programmers to define and reconfigure the way data or resources are handled within a network'' \citep{9}. Whilst these are two different perspectives, modern \gls{sdn} is a combination of both, with both programmable \gls{api}s and a decoupled control and data plane both being features of \gls{sdn}.
 
 In summary, a \gls{sdn} is a network architecture that separates the control plane from the data plane and provides automation and intelligence to networks through software and \gls{api}s, whilst providing a centralised point of administration to the network administrator.
-
-% There
-% are ``the
-% two main
-% delivery
-% models: Imperative and declarative''
-% \citet{10}.
-% \citet{10}
-% go on to
-% state that
-% Imperative SDN is
-% where ``A
-% centralized
-% controller
-% (typically a clustered set
-% of controllers)
-% functions as
-% the
-% network’s ‘brain’''
-% and that declarative SDN
-% is where
-% ``the intelligence is
-% distributed out to the
-% network fabric. While
-% policy is
-% centralized, policy
-% enforcement isn’t''. Using
-% this definition,
-% OpenFlow can be placed into the
-% imperative \gls{sdn} category,
-% as the
-% controller is used to directly influence
-% the packet forwarding process.
-
-% These
-% four pillars outline
-% the
-% overall
-% function
-% and principles of OpenFlow.
-% Whilst
-% this sounds good,
-% OpenFlow
-% has many
-% disadvantages that have led to it
-% becoming
-% less favourable
-% when
-% deploying
-% larger networks. As a network
-% switch/router has
-% to submit a flow
-% request to the
-% controller for every unknown
-% source/destination
-% contained in a
-% packet, a large
-% demand on the controller will
-% occur. ``Sending a
-% flow request
-% (Packet-In
-% message) to the SDN-Controller for
-% each unknown packet
-% will confuse
-% the
-% SDN-Controller because the SDN-Controller
-% has to compute the
-% forwarding
-% rules
-% for each new packet and then install it to
-% the flow tables in
-% all the
-% data
-% forwarding nodes (SDN-Switches)''
-% \citep{app11156999}. With this
-% additional
-% lookup stage that does not occur in
-% regular networks, high load can
-% be placed
-% on the controller and associated
-% networking infrastructure, and this
-% is before
-% any packet forwarding has
-% actually occurred. This makes OpenFlow
-% unsuitable for
-% larger networks, as for
-% every new flow, a lookup must occur
-% which results in
-% higher latency and high
-% system demands when it comes to
-% forwarding packets.
-% This has led to the term
-% 'Software Defined Networking'
-% being used as a more
-% general term, as it is not
-% limited to the use of OpenFlow,
-% but to any solution
-% that tackles conventional
-% networking with a programmatic
-% view. There are ``the
-% two main
-% delivery models:
-% Imperative and declarative''
-% \citet{10}. \citet{10}
-% go on to
-% state that
-% Imperative SDN is
-% where ``A
-% centralized controller
-% (typically a clustered set
-% of controllers)
-% functions as
-% the network’s ‘brain’''
-% and that declarative SDN
-% is where
-% ``the intelligence is
-% distributed out to the
-% network fabric. While
-% policy is
-% centralized, policy
-% enforcement isn’t''. Using
-% this definition,
-% OpenFlow can be placed into the
-% imperative \gls{sdn} category,
-% as the
-% controller is used to directly influence
-% the packet forwarding process.
-
-% In
-% summary, \gls{sdn} is a blanket term for a
-% variety of methods of delivering
-% intelligence and reporting to conventionally
-% statically configured networks.
-% Software
-% defined networking “is designed to use
-% standardized application
-% programming
-% interfaces (APIs) to quickly allow network
-% programmers to define
-% and
-% reconfigure the way data or resources are handled
-% within a network.”
-% \citep{9}
 
 \section{Declarative vs Imperative SDN}
 \label{litreview:declarativevsimperative}
@@ -317,7 +162,7 @@ network devices, and can be used to automate the deployment of new devices. The
 network configuration must be designed and built before Ansible is used to push
 configuration to the devices. Ansible does help solve issues of scale and
 complexity, as it can be used to push configuration to multiple devices at
-once, and can be used to automate the deployment of new devices.
+once, and can be used to automate the deployment of new devices. Ansible can also be used to automate the deployment of \gls{sdn} solutions, however, it does not provide a turn-key configuration solution and still requires the design of the network configuration to be specified \citep{multi-domain}.
 
 \subsubsection{Chef}
 Chef is another open-source configuration management tool
@@ -347,6 +192,9 @@ should be chosen in advance of a solution being developed.
 \label{litreview:disadvantages}
 Whilst the benefits of \gls{sdn} have been discussed, it is not without its shortcomings. One of the big issues with \gls{sdn} is choosing a solution, as vendor inter-operability is still a significant drawback of \gls{sdn} \citep{5}. Once a solution is selected, it is very difficult to migrate to another or add hardware from another vendor. Security is also hard to find as part of direct integration with most \gls{sdn} solutions, which results in multiple control planes, one for data and one for security \citep{5}. This results in multiple points of administration and a lack of consistency in configuration style and integration between the networking and security elements. \gls{sdn} also relies on centralised controllers, whilst these controllers are not critical for traffic flow in declarative settings, they remain a centralised point of failure that could lead to downtime \citep{rana2019software}. This centralised nature also ties into making the controller a target for \gls{ddos} attacks, as taking out the controller would result in disruption to wider network operation \citep{7289347}.
 
+\section{Existing Automation Solutions}
+Existing automation solutions do exist in the industry, one example of this is the Open Distributed Infrastructure Management platform. This aims to provide a unified management platform for a variety of hardware and software from a variety of vendors \citep{lfnetworking}. The Resource Aggregator for ODIM \citep{resourceaggregator} provides the actual integration ability that allows for unified viewing of infrastructure and the ability to ``manipulate groups of resources in a single action''. Whilst this does not directly solve the problem the client faces, it provides an easier way to automate a collection of infrastructure. Terraform is also another solution that provides a way to define infrastructure as code \citep{terraform}. This allows for the definition of infrastructure configuration in a declarative way, and then Terraform will handle the deployment of the infrastructure. Terraform also supports the automation of vCenter, which is the virtualisation platform that the client uses. This means that Terraform could be used to automate the deployment of virtual machines and the configuration of the \gls{aci} fabric, however, it would not as a whole provide a turn-key solution to the problem and would require configuration and planning to use. This is because Terraform maintains the state of the infrastructure based on the configuration files provided to it \citep{multi-domain}, and does not provide a user-friendly method of interacting with the infrastructure.
+
 \section{Conclusion}
 \label{litreview:conclusion}
 Software Defined Networking uses a modern approach to
@@ -360,6 +208,6 @@ place as heavy a load on the centralised controller when it comes to
 influencing packet flow and routing decisions. The ability to easily develop
 software to control network connectivity, without any of the fuss of
 integrating and managing any devices that provide physical connectivity is a
-big bonus and will be imperative to the success of the project. As the solution
-is highly specific to a testing environment, there are currently no alternative
-solutions that provide the exact feature set that is desired.
+big bonus and will be imperative to the success of the project. 
+
+Whilst there are automation solutions that allow automated configuration and deployment, they all require an element of manual configuration and do not provide a user-friendly way of providing the required data that would be needed to deploy the correct configuration to the network. As the problem is highly specific to a testing environment, there is currently no alternative solution that provides the exact feature set that is desired.

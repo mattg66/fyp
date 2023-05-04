@@ -782,7 +782,7 @@ class ACIClient
                 'http_errors' => false
             ]);
             if ($automationResponse->getStatusCode() === 200 && $infraResponse->getStatusCode() === 200) {
-                if (env('ACI_VMWARE_ENHANCED_LACP') != null) {
+                if (env('ENHANCED_LACP') != null) {
                     $setEnhancedLACP = [
                         "fvAEPgLagPolAtt" => [
                             "attributes" => [
@@ -792,7 +792,7 @@ class ACIClient
                                 [
                                     "fvRsVmmVSwitchEnhancedLagPol" => [
                                         "attributes" => [
-                                            "tDn" => "uni/vmmp-VMware/dom-" . env('ACI_VMWARE_DOMAIN') . "/vswitchpolcont/enlacplagp-" . env('ACI_VMWARE_ENHANCED_LACP'),
+                                            "tDn" => "uni/vmmp-VMware/dom-" . env('ACI_VMWARE_DOMAIN') . "/vswitchpolcont/enlacplagp-" . env('ENHANCED_LACP'),
                                             "status" => "created,modified"
                                         ],
                                         "children" => []

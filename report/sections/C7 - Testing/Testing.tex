@@ -34,7 +34,7 @@ The automation platform was setup as follows:
 \end{table}
 
 
-\subsection{Project Communication}
+\section{Project Communication}
 A new project was created with racks 1 and 2 being selected as members. Figure \ref{fig:test-project-1} shows the resulting project.
 
 \begin{figure}[H]
@@ -69,7 +69,7 @@ The next test was to ping the internet from the test \gls{vm}s. This was done by
     \label{fig:test-project-1-ping-internet}
 \end{figure}
 
-\subsection{Terminal Server Reachability}
+\section{Terminal Server Reachability}
 
 The terminal servers are automatically allocated the first available IP addresses sequentially in the order of the racks. In the case of this test project which has been allocated the network of 10.0.0.0/16, the addresses of the terminal servers will be 10.0.0.1 and 10.0.0.2 respectively. When pinging, 10.0.0.1 responded, however, TS-2 - 10.0.0.2 did not. Upon checking the configuration of TS-2, it was noted that no sub-interface configuration had been applied to the device. Figure \ref{fig:terminal-server-provision-bug} shows the problematic configuration script.
 
@@ -108,7 +108,7 @@ The issue is that the return statement will break the execution after the succes
     \label{fig:terminal-server-ping}
 \end{figure}
 
-\subsection{Multiple Projects}
+\section{Multiple Projects}
 To test intra-project communication is not possible, so the original test project was reduced to occupying one rack. A new project was created, consuming the remaining two racks. This will test to ensure that the automation platform correctly provisions the fabric and terminal servers for each project and that the automation script correctly deallocates and allocates racks, even with existing projects. Figures \ref{fig:two-projects} and \ref{fig:two-projects-racks} show the new project, which has been successfully added to the platform.
 
 \begin{figure}[H]
@@ -152,7 +152,7 @@ To verify the fact that the projects do not have any communication between them,
     \label{fig:inter-project-communication}
 \end{figure}
 
-\subsection{Project Deletion}
+\section{Project Deletion}
 To verify that the correct fabric policies, terminal server interfaces and project router \gls{vm} are correctly deleted, both projects were deleted. The configuration of the \gls{aci} fabric was then inspected along with vCenter inventory. Figure \ref{fig:aci-empty-tenants} shows that the tenants have been deleted automatically. Figure \ref{fig:aci-empty-interface-policy} shows that the interface policies have been deleted correctly. Figure \ref{fig:empty-vcenter} shows the project \gls{vm}s have been cleared up appropriately.
 
 
