@@ -30,9 +30,9 @@ topics:
 \section{Definition of Software Defined Networks}
 \label{litreview:definition}
 
-All industry experts and academics define
+Industry experts and academics define
 software defined networking
-similarly, that is providing automation and
+similarly, that is, providing automation and
 intelligence to networks via the
 means of software and APIs.~\citet{11} state
 that ``SDN was originally coined
@@ -42,16 +42,15 @@ Four pillars are often used to define the differences between conventional
 networking and OpenFlow. \citet{11} define these as the
 following:
 \begin{enumerate}
-      \item The decoupling of the control and data planes
-      \item Forwarding decisions are based on flows, which represent a set of packets with the same characteristics
-      \item Decision-making logic is moved to a centralised controller which has visibility over the whole network
+      \item The decoupling of the control and data planes.
+      \item Forwarding decisions are based on flows, which represent a set of packets with the same characteristics.
+      \item Decision-making logic is moved to a centralised controller which has visibility over the whole network.
       \item Providing the ability to programmatically interact with the network through the use of \gls{api}s and \gls{sdk}s.
 \end{enumerate}
 
-Whilst these four pillars illustrate positive aspects of OpenFlow, it has many scalability disadvantages that have led it to become less favourable when deploying larger networks \citep{8784036}. This has resulted in additional
-solutions being developed. \gls{sdn} has been divided into two subcategories, imperative and declarative \citep{10}.Imperative \gls{sdn} is where ``A centralized controller (typically a clustered set of controllers) functions as
-the network’s ‘brain’'' \citep{10} and that declarative \gls{sdn} is where ``the intelligence is distributed out to the network fabric. While policy is centralized, policy enforcement isn’t'' \citep{10}. Using this definition,
-OpenFlow can be placed into the imperative \gls{sdn} category, as the controller is used to directly influence the packet forwarding process \citep{11}. With \gls{sdn} now referring to different methods of making networks smart, a concrete definition has become harder to reach. \gls{sdn} is referred to as ``an innovative architecture that separates the control plane from the data plane to simplify and speed up the management of large networks'' \citep{app11156999}, however, other researchers take a more programmatic view of \gls{sdn}. \citeauthor{9} defines \gls{sdn} as  ``a new networking architecture that is designed to use standardized application programming interfaces (APIs) to quickly allow network programmers to define and reconfigure the way data or resources are handled within a network'' \citep{9}. Whilst these are two different perspectives, modern \gls{sdn} is a combination of both, with both programmable \gls{api}s and a decoupled control and data plane both being features of \gls{sdn}.
+Whilst these four pillars illustrate positive aspects of OpenFlow, it has many scalability disadvantages that have led it to become less favourable when deploying larger networks \citep{8784036}. As a result of OpenFlows shortcomings, \gls{sdn} has been divided into two subcategories, imperative and declarative \citep{10}. Imperative \gls{sdn} is where ``A centralized controller (typically a clustered set of controllers) functions as
+the network’s ‘brain’'' \citep{10} and declarative \gls{sdn} is where ``the intelligence is distributed out to the network fabric. While policy is centralized, policy enforcement isn’t'' \citep{10}. Using this definition,
+OpenFlow can be placed into the imperative \gls{sdn} category, as the controller is used to directly influence the packet forwarding process \citep{11}. With \gls{sdn} now referring to different methods of making networks smart, a concrete definition has become harder to reach. \gls{sdn} is referred to as ``an innovative architecture that separates the control plane from the data plane to simplify and speed up the management of large networks'' \citep{app11156999}, however, other researchers take a more programmatic view of \gls{sdn}. An alternative definition of \gls{sdn} is ``a new networking architecture that is designed to use standardized application programming interfaces (APIs) to quickly allow network programmers to define and reconfigure the way data or resources are handled within a network'' \citep{9}. Whilst these are two different perspectives, modern \gls{sdn} is a combination of both, with both programmable \gls{api}s and a decoupled control and data plane both being features of \gls{sdn}.
 
 In summary, a \gls{sdn} is a network architecture that separates the control plane from the data plane and provides automation and intelligence to networks through software and \gls{api}s, whilst providing a centralised point of administration to the network administrator.
 
