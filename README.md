@@ -61,7 +61,7 @@ data-reference="fig:example-deployment">1.1</a> and Figure
 data-reference="fig:example-aci">1.2</a> respectively.
 
 <figure id="fig:example-deployment">
-<img src="images/aci-topology.png" />
+<img src="report/images/aci-topology.png" />
 <figcaption>Example physical deployment</figcaption>
 </figure>
 
