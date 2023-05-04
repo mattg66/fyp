@@ -25,7 +25,7 @@ by CX Labs. CX Labs hold many devices that cover most
 of the Cisco portfolio,
 which allows for the recreation of most networks. Most
 of this lab space is
-hosted within the internal Cisco corporate network, which
+hosted within the internal Cisco corporate network which
 requires any users to
 be employees of Cisco to access testbeds. More and more
 customers
@@ -43,7 +43,7 @@ person.
 The current infrastructure to support the testbeds consists of four Nexus 9K
 core switches, with \gls{fex}s to provide copper connectivity. Currently, the
 N9Ks do not have any form of \gls{vpc} configured, and just use \gls{stp} for
-redundancy. Top-of-rack connectivity is provided by Catalyst switches. Each
+redundancy. \gls{tor} connectivity is provided by Catalyst switches. Each
 project has a dedicated VLAN to isolate communications between different
 projects, and a virtual router and services stack is hosted on a vCenter
 environment to provide internet and \gls{vpn} connectivity to the project. Each
@@ -57,7 +57,7 @@ requested, the project topology is reviewed, which will indicate how much
 rackspace will be required to accommodate the project. Suitable racks will then
 be chosen to house the project based on cooling, power and space requirements.
 A new VLAN for the project will then be manually created across all of the
-associated networking equipment, including the core N9Ks, and the top-of-rack
+associated networking equipment, including the core N9Ks, and the \gls{tor}
 switches that live in the selected racks. Terminal servers will also have to be
 reconfigured so that they have the correct subnet configured and the correct
 sub-interface configured. The next step is to provision a virtual CSR1000v
@@ -86,12 +86,12 @@ accidental removal and modification of configuration related to other projects,
 which impacts customer availability and takes time away from the team that
 could otherwise have been used to tackle other issues.
 
-No centralised
-management is utilised which results in device firmware being hard to update.
+No centralised device
+management is utilised which results in device health and firmware being hard to update and monitor.
 This is because each device has to be manually updated, which is a
 time-consuming process. This also means that the devices are not all running
 the same version of firmware, which can cause issues when troubleshooting. A
-lack of management makes device failure also hard to detect, as there is no
+lack of centralised management makes device failure also hard to detect as there is no
 centralised monitoring solution in place, so reports from the testing team or
 customer are often the first indication that a problem has arisen.
 
@@ -126,8 +126,7 @@ infrastructure, such as the project's virtual router and services stack.
 This
 report will detail the design and conception of a testbed that will be used to
 test the automation platform against \gls{aci} and vCenter. The testbed design
-can then be used to build a fully-fledged infrastructure to support testing in
-the future.
+can then be used to influence the design of a fully-fledged fabric and compute infrastructure to support testing in the future.
 \subsection{Deliverables}
 \label{intro:aims:deliverables}
 
@@ -145,4 +144,4 @@ the future.
 
 \section{Limitations and Risks}
 \label{intro:constraints}
-As the testbed that will be used to test and develop the solution is in a remote datacenter, physical access to the testbed is limited. This may result in delays if a problem that requires physical remediation occurs. The testbed will be designed to be resilient, through the use of redundant power supplies and links where possible. If a failure does occur, then the project may run over time, and key milestones may have to be adjusted accordingly. With the testbed being hosted remotely, there is also a possiblity that access to the testbed may be revoked, which would result in the project being delayed until access is restored. External factors such as the availability of the testbed's internet uplink and the power supply may also have an impact on the delivery of the project within the required timescale.
+As the testbed that will be used to test and develop the solution is in a remote datacenter, physical access to the testbed is limited. This may result in delays if a problem that requires physical remediation occurs. The testbed will be designed to be resilient through the use of redundant power supplies and links where possible. If a failure does occur, then the project may run over time and key milestones may have to be adjusted accordingly. With the testbed being hosted remotely, there is also a possibility that access to the testbed may be revoked, which would result in the project being delayed until access is restored. External factors such as the availability of the testbed's internet uplink and the power supply may also have an impact on the delivery of the project within the required timescale.
