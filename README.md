@@ -66,7 +66,7 @@ data-reference="fig:example-aci">1.2</a> respectively.
 </figure>
 
 <figure id="fig:example-aci">
-<img src="images/epg-topology.png" />
+<img src="report/images/epg-topology.png" />
 <figcaption>Example ACI configuration</figcaption>
 </figure>
 
@@ -184,7 +184,7 @@ data-reference="d:interface-assignment">1.3</a> shows an example
 mapping:
 
 <figure id="d:interface-assignment">
-<img src="images/interfaceprof-mapping.png" />
+<img src="report/images/interfaceprof-mapping.png" />
 <figcaption>Example interface profile assignment</figcaption>
 </figure>
 
@@ -221,7 +221,7 @@ automatically pushed to the virtual router to provide internet
 connectivity to the project. This form is shown for reference below.
 
 <figure id="fig:userguide1">
-<img src="images/add-project-infrastructure.png" />
+<img src="report/images/add-project-infrastructure.png" />
 <figcaption>Project Creation Form - Infrastructure</figcaption>
 </figure>
 
