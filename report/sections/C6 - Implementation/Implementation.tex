@@ -3,7 +3,7 @@
 This chapter will detail the development and implementation of the automation
 platform as well as the configuration of \gls{aci} and vCenter
 \section{Testbed Construction}
-To allow the solution to be compatible with an \gls{aci} fabric and vCenter environment, a testbed was required to develop and test the solution against. The design of this testbed was illustrated in Chapter \ref{design:Testbed:network-design}. Shown below in figure \ref{fig:testbed} is the physical testbed deployment used for this project as well as an outline of each device's name and function.
+To allow the solution to be compatible with an \gls{aci} fabric and vCenter environment, a testbed is required to develop and test the solution against. The design of this testbed is illustrated in Chapter \ref{design:Testbed:network-design}. Shown below in figure \ref{fig:testbed} is the physical testbed deployment used for this project as well as an outline of each device's name and function.
 
 \begin{figure}[H]
     
@@ -15,14 +15,14 @@ To allow the solution to be compatible with an \gls{aci} fabric and vCenter envi
 \end{figure}
 
 \section{ACI Configuration}
-The initial wizard was used to set up the fabric and bring it up to a level
+The initial wizard is used to set up the fabric and bring it up to a level
 where configuration can be applied. During the wizard, the first thing to
 configure is the fabric membership, where the auto-discovered spines and leafs
 are onboarded and registered into \gls{apic}.
-One of the most important settings is to configure the spine to perform as a
-BGP route reflector, this is because \gls{mp-bgp} is used internally inside of
+One of the most important settings is to configure the spine to function as a
+\gls{bgp} route reflector, this is because \gls{mp-bgp} is used internally inside of
 \gls{aci} to advertise routes. Figure \ref{fig:bgp-reflection} shows how
-\gls{as} 65001 was chosen, as 65001 is in the range of private \gls{as} numbers that are not publically routeable.
+\gls{as} 65001 is chosen, as 65001 is in the range of private \gls{as} numbers that are not publically routeable.
 
 \begin{figure}[H]
     
@@ -34,7 +34,7 @@ BGP route reflector, this is because \gls{mp-bgp} is used internally inside of
 \end{figure}
 
 Other settings such as \gls{dns} and \gls{ntp} were configured to ensure that
-all devices have name resolution and that all clocks are in sync.
+all devices have name resolution and all clocks are in sync.
 \gls{oob} IP addresses were also configured so that the fabric nodes can be
 reached via \gls{ssh} for troubleshooting purposes, figure \ref{fig:aci-oob-ip}
 shows the configuration of the \gls{oob} IP addresses.
@@ -52,7 +52,7 @@ shows the configuration of the \gls{oob} IP addresses.
 \gls{aci} provides the handy functionality of being able to integrate with
 vCenter and automatically push created \gls{epg}s into vCenter in the form of
 \gls{dpg}s with the VLAN tagging being handled automatically.
-Firstly, a dynamic VLAN pool was created which is required so that VLANs can
+Firstly, a dynamic VLAN pool is created which is required so that VLANs can
 automatically be associated with \gls{epg}s and \gls{dpg}s. Figure
 \ref{fig:vmm-integration} shows the configuration of the VMWare integration.
 
@@ -145,9 +145,9 @@ id   Port   Status Consistency Reason      Active vlans         Bndl Grp Name
 
 
 \subsection{TEN\textunderscore INFRA Tenant Setup}
-With vCenter integration complete, the tenant can now be created that will house all policies related to the infrastructure of the testbed. All of the \gls{vrf}s/\gls{bd}s/\gls{epg}s were created in accordance with the topology shown in figure \ref{fig:epg-topology}.
+With vCenter integration complete, the tenant that will house all policies related to the infrastructure of the testbed can be created. All of the \gls{vrf}s/\gls{bd}s/\gls{epg}s were created in accordance with the topology shown in figure \ref{fig:epg-topology}.
 
-To get external connectivity working with the \gls{nat} router that will be provisioned inside vCenter, L3Out configuration must be created. Figure \ref{fig:l3out} shows the configuration of the L3Out that will be used for the Infra \gls{vrf}, an \gls{ospf} area of 1 has been specified. A floating \gls{svi} has been utilised so that the VMWare integration configured earlier can be used to pass the L3out \gls{epg} to vCenter automatically. A new static VLAN pool was created along with a new L3 domain. This L3 domain was then added to the VMWare integration so that L3Outs can then use the VMWare virtual domain.
+To get external connectivity working with the \gls{nat} router that will be provisioned inside vCenter, L3Out configuration must be created. Figure \ref{fig:l3out} shows the configuration of the L3Out that will be used for the Infra \gls{vrf}, an \gls{ospf} area of 1 has been specified. A floating \gls{svi} has been utilised so that the VMWare integration configured earlier can be used to pass the L3out \gls{epg} to vCenter automatically. A new static VLAN pool is created along with a new L3 domain. This L3 domain is then added to the VMWare integration so that L3Outs can then use the VMWare virtual domain.
 
 \begin{figure}[H]
     
@@ -184,7 +184,7 @@ The \gls{nat} router can then be deployed and attached to the L3Out \gls{epg}s v
 
 \subsubsection{NAT Router Configuration}
 
-For virtual routing, the Cisco CSR1000v Virtual Router was chosen. The interfaces were configured with IP addresses that are present in the subnets that were used in the earlier L3Out configuration which is shown in figure \ref{fig:l3out-nodes}. \gls{ospf} was also configured so that the routes to and from \gls{aci} are advertised correctly. The following \gls{ospf} configuration was used for the \gls{nat} router.
+For virtual routing, the Cisco CSR1000v Virtual Router is chosen. The interfaces were configured with IP addresses that are present in the subnets that were used in the earlier L3Out configuration which is shown in figure \ref{fig:l3out-nodes}. \gls{ospf} is also configured so that the routes to and from \gls{aci} are advertised correctly. The following \gls{ospf} configuration is used for the \gls{nat} router.
 
 \begin{figure}[H]
     \begin{verbatim}
@@ -204,7 +204,7 @@ For virtual routing, the Cisco CSR1000v Virtual Router was chosen. The interface
     \label{fig:nat-ospf}
 \end{figure}
 
-To verify the \gls{ospf} configuration is working correctly, the following command was executed on the \gls{nat} router.
+To verify the \gls{ospf} configuration is working correctly, the following command is executed on the \gls{nat} router.
 
 \begin{figure}[H]
     \centering
@@ -227,7 +227,7 @@ Neighbor ID    Pri  State      Dead Time   Address         Interface
 Basic \gls{nat} overload can then be configured for all subnets present on \gls{aci} so that the various bridge domains now have internet via the router.
 
 \section{vCenter Configuration}
-As \gls{aci} has configured the virtual switch and port groups for us, the only configuration required is to make a \gls{vm} that will serve as a project router template that the automation scripts will then clone. Due to a limitation with the vCenter \gls{rest} \gls{api}, the \gls{vm} to be cloned will be a regular \gls{vm} and not a template. This is because the \gls{rest} \gls{api} does not support cloning templates.
+As \gls{aci} has configured the virtual switch and port groups for us, the only configuration required is to make a \gls{vm} that will serve as a project router template that the automation scripts will then clone. Due to a limitation with the vCenter \gls{rest} \gls{api}, the \gls{vm} to be cloned will be a regular \gls{vm}, not a template. This is because the \gls{rest} \gls{api} does not support cloning templates.
 
 The router will have 3 ethernet interfaces:
 \begin{itemize}
@@ -249,23 +249,23 @@ The router will have 3 ethernet interfaces:
 The router will need to obtain an IP address from \gls{dhcp} on the CSRMgmt \gls{epg} so that the automation platform can connect via RESTCONF. The router will also have an interface in the Internet \gls{epg} and then the other interface will be set to the quarantine \gls{dpg} so that it can be assigned to the \gls{epg} created for the project by the automation platform. \gls{nat} overload can also be preconfigured on the router so that the project can access the internet, however, the \gls{nat} \gls{acl} will need to be configured via RESTCONF by the automation platform.
 
 \section{Automation Platform}
-Both back-end and front-end features were developed simultaneously as that was the most efficient way of development. Instead of back-end and front-end implementation being detailed separately, the development of both sides of the application will be covered in unison.
+Both back-end and front-end features were developed simultaneously as that is the most efficient way of development. Instead of back-end and front-end implementation being detailed separately, the development of both sides of the application will be covered in unison.
 \subsection{Packages}
 To accelerate development, many packages and libraries were used.
 \subsubsection{Next.js}
-Next.js is based on React and is a framework for server-side rendering and static site generation. It is used to create the front-end of the automation platform. It features many benefits over using plain React, such as the ability to pre-render many parts of the web application resulting in a reduction of load times upon page load. TypeScript is also supported which was used to aid development by enforcing the usage of types when defining variables and functions. This prevents variables from being used in the wrong context and also provides a better developer experience by providing auto-complete and type checking.
+Next.js is based on React and is a framework for server-side rendering and static site generation. It is used to create the front-end of the automation platform. It features many benefits over using plain React, such as the ability to pre-render many parts of the web application resulting in a reduction of load times upon page load. TypeScript is also supported which is used to aid development by enforcing the usage of types when defining variables and functions. This prevents variables from being used in the wrong context and also provides a better developer experience by providing auto-complete and type checking.
 
 \subsubsection{Tailwind CSS}
-Tailwind CSS is a utility-first CSS framework. It is used to style the front-end of the automation platform. It has many benefits over plain CSS, such as the ability to rapidly create a responsive UI through the use of pre-defined classes. The Flowbite React package was also included which is a library of components that utilise Tailwind CSS for styling. Tailwind also features dark mode support which was used to create a dark theme for the automation platform.
+Tailwind CSS is a utility-first CSS framework. It is used to style the front-end of the automation platform. It has many benefits over plain CSS, such as the ability to rapidly create a responsive UI through the use of pre-defined classes. The Flowbite React package is also included which is a library of components that utilise Tailwind CSS for styling. Tailwind also features dark mode support which is used to create a dark theme for the automation platform.
 
 \subsubsection{React Flow}
-React Flow is a library that provides the ability to create and programmatically define flowcharts within React. It is used to create the rackspace layout feature and is the core of the automation platform. By using React Flow, development time was greatly reduced. Without React Flow, a custom implementation of a flowchart would have needed to be developed which would have been difficult and have taken a lot of time. It also has features such as the ability to define custom nodes to be displayed, which is required to get the desired look, feel and functionality for the application.
+React Flow is a library that provides the ability to create and programmatically define flowcharts within React. It is used to create the rack space layout feature and is the core of the automation platform. By using React Flow, development time is greatly reduced. Without React Flow, a custom implementation of a flowchart would have needed to be developed which would have been difficult and have taken a lot of time. It also has features such as the ability to define custom nodes to be displayed, which is required to get the desired look, feel and functionality for the application.
 
 \subsubsection{Laravel}
-Laravel is a PHP framework that makes it quick and easy to create feature-rich \gls{api}s which is why it was chosen. It features an easy-to-use routing system for easily routing \gls{api} requests to the correct controller classes. It also makes use of the Eloquent \gls{orm} which makes it easy to create and query the database. The inbuilt Guzzle \gls{http} client also makes interacting with the various \gls{api}s required to build the automation scripts easy and simple.
+Laravel is a PHP framework that makes it quick and easy to create feature-rich \gls{api}s which is why it is chosen. It features an easy-to-use routing system for easily routing \gls{api} requests to the correct controller classes. It also makes use of the Eloquent \gls{orm} which makes it easy to create and query the database. The inbuilt Guzzle \gls{http} client also makes interacting with the various \gls{api}s required to build the automation scripts easy and simple.
 
-\subsection{Recreation of Rackspace}
-To allow for the recreation of the rackspace in a map-like user interface, React Flow was used with custom nodes that represent racks. To save the positions of the racks in 2D space, the following \gls{api} endpoints were created:
+\subsection{Recreation of Rack Space}
+To allow for the recreation of the rack space in a map-like user interface, React Flow is used with custom nodes that represent racks. To save the positions of the racks in 2D space, the following \gls{api} endpoints were created:
 \begin{table}[H]
     \centering
     \begin{tabular}{@{} c c c @{}}
@@ -284,16 +284,16 @@ To allow for the recreation of the rackspace in a map-like user interface, React
 
 As React Flow uses the term 'node' to refer to the individual elements in the flowchart, the \gls{api} endpoints were also named 'node' to avoid confusion. Every time a node is moved on the flowchart, the \gls{api} is called to update the position of the node in the database. 
 
-The ability to add labels to the rackspace representation was also deemed an important feature as it would allow for useful pieces of information to be placed on the map. To facilitate this, a new custom node was created that just displays text. Shown below in figure \ref{fig:rackspace-layout} is the rackspace layout feature with a label used to illustrate the name of the row.
+The ability to add labels to the rack space representation is also deemed an important feature as it would allow for useful pieces of information to be placed on the map. To facilitate this, a new custom node is created that just displays text. Shown below in figure \ref{fig:rackspace-layout} is the rackspace layout feature with a label used to illustrate the name of the row.
 
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.7]{rackspace-layout.png}
-    \caption{Rackspace Layout}
+    \caption{Rack Space Layout}
     \label{fig:rackspace-layout}
 \end{figure}
 
-React Flow provides a handy interface for allowing custom nodes to be dragged and dropped, allowing for a user-friendly way to add racks and labels to the space. Shown in figure \ref{fig:drag-drop} is the utility panel where racks and labels can be dragged and dropped onto the rackspace representation.
+React Flow provides a handy interface for allowing custom nodes to be dragged and dropped, allowing for a user-friendly way to add racks and labels to the space. Shown in figure \ref{fig:drag-drop} is the utility panel where racks and labels can be dragged and dropped onto the rack space representation.
 
 \begin{figure}[H]
     \centering
@@ -304,7 +304,7 @@ React Flow provides a handy interface for allowing custom nodes to be dragged an
 
 \subsection{Initial ACI Integration}
 \subsubsection{Fabric Nodes}
-With the ability to add racks to the space, the next feature to be developed was the integration with \gls{aci}. As the premise of the application is that each rack has a \gls{tor} switch, the automation platform needs to be able to pull all of the available leafs and \gls{fex}s from the \gls{aci} fabric so that they can then be assigned to a rack. Because \gls{aci} treats a \gls{fex} as an extension of a leaf node, some logic is required to differentiate between the two.
+With the ability to add racks to the space, the next feature to be developed is the integration with \gls{aci}. As the premise of the application is that each rack has a \gls{tor} switch, the automation platform needs to be able to pull all of the available leafs and \gls{fex}s from the \gls{aci} fabric so that they can then be assigned to a rack. Because \gls{aci} treats a \gls{fex} as an extension of a leaf node, some logic is required to differentiate between the two.
 To retrieve \gls{fex}s, a list of all leaf nodes can be retrieved from \gls{aci}. The list of leaf nodes can then be iterated over and the following \gls{api} endpoint can be used to retrieve a list of all \gls{fex}s attached to the leaf node:
 \begin{verbatim}
 https://apic-ip/api/node/class/topology/pod-1/node-{leafID}/eqptExtCh.json
@@ -345,7 +345,7 @@ So that the automation platform can assign unique VLANs to projects, the correct
 The selected VLAN pool can then be saved in the database using the project\_pool column set to true for the corresponding pool. The future project logic will then be able to retrieve the start and ending VLAN that can be used and allocate individual VLANs to projects.
 
 \subsection{Terminal Servers}
-Terminal servers will have a dedicated management page so that the status of connected terminal servers can be monitored. Cisco IOS-XE has an inbuilt RESTCONF server which will be used to retrieve and push configuration to the devices. A form modal to consume data was created which is shown in figure \ref{fig:terminal-server-form}.
+Terminal servers will have a dedicated management page so that the status of connected terminal servers can be monitored. Cisco IOS-XE has an inbuilt RESTCONF server which will be used to retrieve and push configuration to the devices. A form modal to consume data is created which is shown in figure \ref{fig:terminal-server-form}.
 
 \begin{figure}[H]
     \centering
@@ -354,12 +354,12 @@ Terminal servers will have a dedicated management page so that the status of con
     \label{fig:terminal-server-form}
 \end{figure}
 
-The notable features are the ability to assign the newly created terminal server straight to a rack, although that feature will also be added to the rackspace view.
+The notable features are the ability to assign the newly created terminal server straight to a rack, although that feature will also be added to the rack space view.
 The port that is connected to the fabric from the terminal server will need to be manually provided, as the automation scripts will need to create sub-interfaces on top of that interface to facilitate communication to the project network.
 The port on the side of that link, the fabric side, will also need to be specified so that the automation scripts can create a trunk interface. The username and password to gain access to the terminal server are also required to be entered by the user.
 
 \subsection{Rack ACI Integration}
-As the premise of the automation platform is the ability to automatically include racks into a project's network, the platform needs to be aware of which fabric nodes belong to which rack. To achieve this easily, it was determined that the best method would be to provide an 'Edit Rack' modal that can be accessed by hovering over a rack. Figure \ref{fig:edit-rack-popover} shows the popover that appears when hovering over a rack.
+As the premise of the automation platform is the ability to automatically include racks into a project's network, the platform needs to be aware of which fabric nodes belong to which rack. To achieve this easily, it is determined that the best method would be to provide an 'Edit Rack' modal that can be accessed by hovering over a rack. Figure \ref{fig:edit-rack-popover} shows the popover that appears when hovering over a rack.
 
 \begin{figure}[H]
     \centering
@@ -368,7 +368,7 @@ As the premise of the automation platform is the ability to automatically includ
     \label{fig:edit-rack-popover}
 \end{figure}
 
-The ability to change a rack's name, as well as associate a fabric node and terminal server was provided in the edit modal, this is shown in figure \ref{fig:edit-rack-modal}.
+The ability to change a rack's name, as well as associate a fabric node and terminal server is provided in the edit modal, this is shown in figure \ref{fig:edit-rack-modal}.
 
 \begin{figure}[H]
     \centering
@@ -377,12 +377,12 @@ The ability to change a rack's name, as well as associate a fabric node and term
     \label{fig:edit-rack-modal}
 \end{figure}
 
-The logic to only allow a single fabric node and terminal server to a single rack was also incorporated to prevent user error. The rack\_id column of the fabric node and terminal server tables were updated to reflect the rack that they were assigned to.
+The logic to only allow a single fabric node and terminal server to a single rack is also incorporated to prevent user error. The rack\_id column of the fabric node and terminal server tables were updated to reflect the rack that they were assigned to.
 
 \subsection{Project Creation}
-The final user-facing feature to be developed was the ability to create projects, which is the main feature of the automation platform. The user will have the ability to create and edit projects as well as delete them. The edit functionality will include adding and removing racks from the project, to facilitate project expansion and contraction which is a very common requirement.
+The final user-facing feature to be developed is the ability to create projects, which is the main feature of the automation platform. The user will have the ability to create and edit projects as well as delete them. The edit functionality will include adding and removing racks from the project, to facilitate project expansion and contraction which is a very common requirement.
 
-A modal was decided upon as being the most user-friendly way of adding and editing projects. A multi-stage form that guides the user through the process of onboarding the project was also decided upon. The flow will be as follows:
+A modal is decided upon as being the most user-friendly way of adding and editing projects. A multi-stage form that guides the user through the process of onboarding the project is also decided upon. The flow will be as follows:
 \begin{enumerate}
     \item The user will be presented with a form to enter the project name and description.
     \item The user will be presented with a list of racks that are available to be added to the project.
@@ -397,7 +397,7 @@ Shown in figure \ref{fig:add-project-racks} is the modal form section that allow
     \label{fig:add-project-racks}
 \end{figure}
 
-Because of Reacts component structure, the rackspace layout can just be imported again instead of redefining all code and properties. The racks shown in red are occupied by another project, and thus cannot be included in a newly created project. The form for specifying IP addressing is shown below.
+Because of Reacts component structure, the rack space layout can just be imported again instead of redefining all code and properties. The racks shown in red are occupied by another project, and thus cannot be included in a newly created project. The form for specifying IP addressing is shown below.
 
 \begin{figure}[H]
     \centering

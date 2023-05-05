@@ -196,8 +196,8 @@ form.
 
 This guide will cover how to use the solution from a day two perspective
 after the solution has been integrated with the ACI fabric and vCenter
-environment. The rackspace page is the main page of the solution, this
-page will show the rackspace that is currently available and in use by
+environment. The rack space page is the main page of the solution, this
+page will show the rack space that is currently available and in use by
 projects. Additional racks can be deployed by dragging a rack node from
 the bottom left of the screen. A label can also be dragged onto the
 floorplan to store text that may be deemed useful. A rack can then be
@@ -228,8 +228,8 @@ connectivity to the project. This form is shown for reference below.
 When the project is deployed, the status of the project will update as
 the deployment progresses through the ACI and VMware deployment phases.
 Once deployed, a project can then be edited, to modify its occupation of
-the rackspace. Racks can either be added or removed to a project,
-allowing its consumption of rackspace to change throughout the lifecycle
+the rack space. Racks can either be added or removed to a project,
+allowing its consumption of rack space to change throughout the lifecycle
 of the project. Some aspects, such as the name and IP address cannot be
 changed, and a project must be deleted and recreated if these need to be
 changed.

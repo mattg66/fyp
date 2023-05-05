@@ -95,10 +95,10 @@ in figure \ref{fig:database-erd}.
 \subsubsection{Nodes}
 \label{design:web-application:database:nodes}
 Nodes provide the root of storing
-information about the layout of the rackspace. Each node can either have a rack
+information about the layout of the rack space. Each node can either have a rack
 or a label attached to it. Labels will serve as a place to store text
-information on the rackspace diagram for informational purposes only. Racks
-will represent a physical rack in the rackspace. By using a node table, the
+information on the rack space diagram for informational purposes only. Racks
+will represent a physical rack in the rack space. By using a node table, the
 position of the node can be abstracted away from the other data which is more
 relevant to the automation functionality of the solution. A more refined and efficient query is also
 possible as all nodes can be easily retrieved by selecting all nodes and then
@@ -161,15 +161,15 @@ resources.
 \subsection{OOB Network}
 \label{design:Testbed:network-design:oob}
 To provide connectivity for management and day-zero configuration, it is
-important to have a reliable \gls{oob} network. The purpose of a \gls{oob}
-network is to provide access to networking and infrastructure that is external
+important to have a reliable \gls{oob} network. The purpose of an \gls{oob}
+network is to provide access to networking and infrastructure equipment in a manner that is external
 to the main network so that in the event of a failure, the devices can still be
 reached to rectify any problem that may have occurred. The \gls{oob} network
 will be a single Layer 2 network, with a single switch providing connectivity
 to all devices. The switch will be a Cisco Catalyst 2960-XR, and will be
 connected to external infrastructure which will host a \gls{vpn} server and a
 \gls{nat} router so that devices connected to the \gls{oob} network also have
-access to the internet. The \gls{vm}s hosted on the ESXi server are also
+access to the internet, and accessible via the \gls{vpn}. The \gls{vm}s hosted on the ESXi server are also
 detailed in the topology shown in figure \ref{fig:oob-topology}
 
 \begin{figure}[H]
@@ -190,20 +190,20 @@ leafs, these being the N9K-C9336PQ and N9K-C93180YC-EX respectively. The leafs
 will also have a total of 3 \gls{fex}s attached to provide RJ45 connectivity to
 the fabric and to also ensure that the automation platform will correctly
 support FEXs. The FEXs used will be the N2K-C2248TP-E-1GE. \gls{aci} also
-requires at least one \gls{apic} to function, so a single APIC M2 will be
+requires at least one \gls{apic} to function, so a single \gls{apic} M2 will be
 connected to the pair of leafs to provide overall administration and control
 over the fabric.
 
 A single ESXi host will also be included in the network,
 which will also be dual-homed to both leafs to provide connectivity and
-test LACP functionality. The ESXi host will be used to host the automation
+test \gls{lacp} functionality. The ESXi host will be used to host the automation
 platform and will also host the associated infrastructure required for the
 automation platform to function, such as vCenter.
 
 Two routers simulating
 terminal servers will also be included in the design. Cisco routers can have
 additional modules inserted into them allowing them to provide console
-connectivity to devices via SSH or Telnet.
+connectivity to devices via \gls{ssh} or Telnet.
 Shown in figure
 \ref{fig:fabric-topology} is the fabric topology that will be used for the
 testbed. Device names/hostnames are shown in the figure for clarity.
