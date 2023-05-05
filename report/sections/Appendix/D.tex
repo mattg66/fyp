@@ -26,7 +26,7 @@ The solution will require some existing ACI configuration to be in place. The fo
     \item An interface selection policy per leaf/FEX should be created, as this will need to be associated with each node via the automation platform web UI.
 \end{itemize}
 
-An example design of both the physical deployment and the ACI configuration can be seen in Figure \ref{fig:example-deployment} and Figure \ref{fig:example-aci} respectively.
+An example design of both the physical deployment and the ACI configuration can be seen in figure \ref{fig:example-deployment} and figure \ref{fig:example-aci} respectively.
 
 \begin{figure}[H]
     \centering
@@ -76,7 +76,7 @@ For the automation platform to operate correctly, the .env file must be configur
 \end{table}
 
 \section*{Virtual Router Template}
-The virtual router template should be a powered off VM not a template, this is due to a limitation in the vCenter REST API. The VM should have the following interface assignments:
+The virtual router template should be a powered-off VM, not a template, this is due to a limitation in the vCenter REST API. The VM should have the following interface assignments:
 \begin{table}[H]
     \centering
     \begin{tabular}{l l l}
@@ -114,12 +114,12 @@ Additional ACLs should be configured to secure access to RESTCONF, however, thes
 
 \section*{Solution Deployment}
 In the future, the solution will be packaged via Docker Compose, which will allow one command to be run to install and serve the solution as a whole.
-With ACI and vCenter configured, the automation platform can be deployed. The platform will need Docker running ideally ontop of a Linux host, however, it can be deployed on Windows using Docker Desktop. NodeJS and NPM will also be required to build and serve the frontend. The following steps will need to be completed to deploy the platform:
+With ACI and vCenter configured, the automation platform can be deployed. The platform will need Docker running ideally ontop of a Linux host, however, it can be deployed on Windows using Docker Desktop. NodeJS and NPM will also be required to build and serve the front end. The following steps will need to be completed to deploy the platform:
 
 \begin{enumerate}
     \item Clone the repository from GitHub
     \item Configure the .env file with the required information
-    \item Run the following command in the backend folder to obtain the required composer dependencies:
+    \item Run the following command in the back-end folder to obtain the required composer dependencies:
           \begin{verbatim}
     docker run --rm \
         -u "$(id -u):$(id -g)" \
@@ -128,14 +128,14 @@ With ACI and vCenter configured, the automation platform can be deployed. The pl
         laravelsail/php82-composer:latest \
         composer install --ignore-platform-reqs
           \end{verbatim}
-    \item Run the following command in the backend folder to start the platform:
+    \item Run the following command in the back-end folder to start the platform:
           \begin{verbatim}
     ./vendor/bin/sail up -d
     ./vendor/bin/sail artisan key:generate
     ./vendor/bin/sail artisan migrate
     ./vendor/bin/sail artisan queue:listen --timeout 400
             \end{verbatim}
-    \item Run the following command in the frontend folder to obtain the required node dependencies:
+    \item Run the following command in the front-end folder to obtain the required node dependencies:
     \begin{verbatim}
     npm install
     npm run build

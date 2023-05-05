@@ -99,7 +99,7 @@ The terminal servers are automatically allocated the first available IP addresse
     \label{fig:terminal-server-provision-bug}
 \end{figure}
 
-The issue is that the return statement will break the execution after the successful provisioning of the first terminal server, hence only the first was being provisioned. The fix was to remove the return statement to after the foreach loop. Figure \ref{fig:terminal-server-ping} shows the connectivity which was successful after the bug fix.
+The issue is that the return statement will break the execution after the successful provisioning of the first terminal server, hence only the first was being provisioned. The fix was to remove the return statement to after the `foreach' loop. Figure \ref{fig:terminal-server-ping} shows the connectivity which was successful after the bug fix.
 
 \begin{figure}[H]
     \centering
@@ -109,7 +109,7 @@ The issue is that the return statement will break the execution after the succes
 \end{figure}
 
 \section{Multiple Projects}
-To test intra-project communication is not possible, so the original test project was reduced to occupying one rack. A new project was created, consuming the remaining two racks. This will test to ensure that the automation platform correctly provisions the fabric and terminal servers for each project and that the automation script correctly deallocates and allocates racks, even with existing projects. Figures \ref{fig:two-projects} and \ref{fig:two-projects-racks} show the new project, which has been successfully added to the platform.
+To test and verify that intra-project communication is not possible, the original test project was reduced to occupying one rack so that a new project could be created. A new project was created, consuming the remaining two racks. This will test to ensure that the automation platform correctly provisions the fabric and terminal servers for each project and that the automation script correctly deallocates and allocates racks, even with existing projects. Figures \ref{fig:two-projects} and \ref{fig:two-projects-racks} show the new project, which has been successfully added to the platform.
 
 \begin{figure}[H]
     \centering
@@ -134,7 +134,7 @@ Test \gls{vm}s 1 and 2 were reconfigured with the IP addresses of 10.1.1.1 and 1
     \label{fig:two-projects-ping}
 \end{figure}
 
-The reachability of TS-2, which is now in the second project was also tested, via \gls{ssh} from Test \gls{vm} 3. This was successful, as shown in figure \ref{fig:two-projects-ssh}. This shows that the automation platform correctly allocates and deallocates racks, even with existing projects.
+The reachability of TS-2, which is now in the second project, was also tested via \gls{ssh} from Test \gls{vm} 3. This was successful, as shown in figure \ref{fig:two-projects-ssh}. This shows that the automation platform correctly allocates and deallocates racks, even with existing projects.
 
 \begin{figure}[H]
     \centering
@@ -143,7 +143,7 @@ The reachability of TS-2, which is now in the second project was also tested, vi
     \label{fig:two-projects-ssh}
 \end{figure}
 
-To verify the fact that the projects do not have any communication between them, the IP address of Test \gls{vm} 2 was reverted to the 10.0.0.0/16 subnet, and 10.0.1.1 was pinged, which is the IP of test \gls{vm} 1. As seen in figure \ref{fig:inter-project-communication} the ping test has failed, verifying that the projects are isolated from one another.
+To verify that the projects do not have any communication between them, the IP address of Test \gls{vm} 2 was reverted to the 10.0.0.0/16 subnet, and 10.0.1.1 was pinged, which is the IP of test \gls{vm} 1. As seen in figure \ref{fig:inter-project-communication} the ping test has failed, verifying that the projects are isolated from one another.
 
 \begin{figure}[H]
     \centering
