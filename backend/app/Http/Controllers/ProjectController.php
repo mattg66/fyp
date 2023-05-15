@@ -7,6 +7,7 @@ use App\Jobs\AddRack;
 use App\Jobs\CreateProject;
 use App\Jobs\DeleteProject;
 use App\Jobs\DeleteRack;
+use App\Models\Node;
 use App\Models\Project;
 use App\Models\ProjectRouter;
 use App\Models\Rack;
@@ -96,7 +97,7 @@ class ProjectController extends Controller
             'wan_subnet_mask' => 'ip|nullable',
             'wan_gateway' => 'ip|nullable',
             'racks' => 'array',
-            'racks.*' => 'integer|exists:racks,id',
+            'racks.*' => 'integer|exists:App\Models\Node,id',
         ]);
         $vlanPool = VlanPool::where('project_pool', true)->first();
         if (!$vlanPool) {
@@ -155,7 +156,17 @@ class ProjectController extends Controller
                     $vlan->save();
                 }
             }
-            $racks = Rack::whereIn('id', $request->racks)->get();
+            $nodes = Node::with('rack')->whereIn('id', $request->racks)->get();
+            $racks = [];
+            foreach ($nodes as $node) {
+                if ($node->rack === null) {
+                    return response()->json([
+                        'message' => 'Rack ID Invalid',
+                    ], 400);
+                } else {
+                    array_push($racks, $node->rack);
+                }
+            }
             if ($request->racks) {
                 $project->racks()->saveMany($racks);
             }
@@ -189,7 +200,7 @@ class ProjectController extends Controller
         $this->validate($request, [
             'description' => 'required|max:500',
             'racks' => 'array',
-            'racks.*' => 'integer|exists:racks,id',
+            'racks.*' => 'integer|exists:nodes,id',
         ]);
         $project = Project::with(['racks', 'vlan', 'projectRouter'])->find($id);
         if (!$project) {
@@ -204,22 +215,32 @@ class ProjectController extends Controller
         $addRacks = [];
 
         foreach ($project->racks as $rack) {
-            if (array_search($rack->id, $request->racks) === false) {
+            $nodes = Node::with('rack')->whereIn('id', $request->racks)->get();
+            $racks = [];
+            foreach ($nodes as $node) {
+                array_push($racks, $node->rack->id);
+            }
+            if (array_search($rack->id, $racks) === false) {
                 DeleteRack::dispatch($id, $rack->id);
             }
         }
+
+
         foreach ($request->racks as $rack) {
-            if (!$this->findObjectById($project->racks, $rack)) {
-                $rack = Rack::find(Intval($rack));
-                if ($rack->project_id !== null) {
-                    DB::rollBack();
-                    return response()->json([
-                        'message' => 'Rack already has project',
-                    ], 403);
+            $node = Node::with('rack')->find($rack);
+            if ($node->rack !== null) {
+                if (!$this->findObjectById($project->racks, $node->rack->id)) {
+                    $rack = Rack::find($node->rack->id);
+                    if ($rack->project_id !== null) {
+                        DB::rollBack();
+                        return response()->json([
+                            'message' => 'Rack already has project',
+                        ], 403);
+                    }
+                    $rack->project_id = $id;
+                    $rack->save();
+                    AddRack::dispatch($id, $node->rack->id);
                 }
-                $rack->project_id = $id;
-                $rack->save();
-                AddRack::dispatch($id, $rack->id);
             }
         }
         DB::commit();
@@ -247,7 +268,7 @@ class ProjectController extends Controller
         } else {
             return response()->json([
                 'message' => 'Project still provisioning',
-            ], 400); 
+            ], 400);
         }
     }
     public function test()

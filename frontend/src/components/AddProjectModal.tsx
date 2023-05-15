@@ -58,12 +58,11 @@ function Form({ isOpen, confirm }: { isOpen: boolean, confirm: (project: EditPro
     useEffect(() => {
         reset();
     }, [isOpen])
-
     const onSubmit = handleSubmit((data) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...data, racks: selectedNodes.map((node) => node.id) })
+            body: JSON.stringify({ ...data, racks: selectedNodes.map((node) => parseInt(node.id)) })
         };
         fetch('/api/project/', requestOptions).then((response) => {
             if (response.status === 201) {
@@ -190,6 +189,7 @@ function Form({ isOpen, confirm }: { isOpen: boolean, confirm: (project: EditPro
                     </Tabs.Item>
                     <Tabs.Item title="Infrastructure">
                         <div className="border-dashed border-2 p-5">
+                            <h1>Project Subnet</h1>
                             <h1>If left blank, a /16 subnet will be automatically assigned (recommended)</h1>
                             <div className="mt-2">
                                 <Label

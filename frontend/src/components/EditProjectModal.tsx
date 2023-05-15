@@ -48,8 +48,8 @@ function EditProjectForm({ project, isOpen }: { project: EditProject, isOpen: bo
     const { register, handleSubmit, formState: { errors, submitCount }, reset, setValue } = useForm<NewProject>()
 
     useEffect(() => {
-        if (existingNodes !== project?.racks?.map(rack => String(rack.id))) {
-            setExistingNodes(project?.racks?.map(rack => String(rack.id)))
+        if (existingNodes !== project?.racks?.map(rack => String(rack.node_id))) {
+            setExistingNodes(project?.racks?.map(rack => String(rack.node_id)))
         }
         setSelectedNodes(project?.racks.map(rack => { return { data: rack } }))
         setValue('name', project?.name)
@@ -78,6 +78,7 @@ function EditProjectForm({ project, isOpen }: { project: EditProject, isOpen: bo
                 response.json().then((data) => {
                     toast.success(data.message)
                     reset()
+                    close()
                     tabsRef.current?.setActiveTab(0)
                 })
             } else {
@@ -87,6 +88,8 @@ function EditProjectForm({ project, isOpen }: { project: EditProject, isOpen: bo
             }
         })
     })
+    {console.log(selectedNodes)}
+
     return (
         <form onSubmit={onSubmit} className="h-full flex flex-1 flex-col">
             <Modal.Body className="min-h-[50vh]">
@@ -125,15 +128,15 @@ function EditProjectForm({ project, isOpen }: { project: EditProject, isOpen: bo
                             <div className="w-32 text-center">
                                 <h2>Selected Racks</h2>
                                 {selectedNodes?.map((node) => {
-                                    if ((node?.type === "rackNode" || node?.type === undefined) && (node.data.project === null || node.data.project?.id === project.id)) {
                                         return <p key={node.id}>{node.data.label}</p>
-                                    }
+                                    
                                 })}
                             </div>
                         </div>
                     </Tabs.Item>
                     <Tabs.Item title="Infrastructure">
                         <div className="border-dashed border-2 p-5">
+                            <h1>Project Subnet</h1>
                             <h1>If left blank, a /16 subnet will be automatically assigned (recommended)</h1>
                             <div className="mt-2">
                                 <Label
