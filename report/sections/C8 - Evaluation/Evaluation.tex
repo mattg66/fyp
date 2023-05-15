@@ -72,28 +72,28 @@ Both functional and non-functional requirements were set out in Chapter \ref{cha
 \end{center}
 
 \subsubsection{FR1}
-The solution provides a visual representation of rackspace. Shown in Appendix C Figure \ref{fig:rackspace-view}.
+The solution provides a visual representation of rack space. Shown in Appendix C figure \ref{fig:rackspace-view}.
 
 \subsubsection{FR2}
-The solution allows for the addition and removal of racks from the rackspace. A rack can only be removed if it is not in use by a project. Shown in Appendix C Figures \ref{fig:rackspace-edit-delete} and \ref{fig:rackspace-delete}.
+The solution allows for the addition and removal of racks from the rack space. A rack can only be removed if it is not in use by a project. Shown in Appendix C figures \ref{fig:rackspace-edit-delete} and \ref{fig:rackspace-delete}.
 
 \subsubsection{FR3}
-The solution allows for the addition and removal of Terminal Servers from racks. A Terminal Server can only be removed if it is not in use by a project. Shown in Appendix C Figure \ref{fig:rackspace-edit}.
+The solution allows for the addition and removal of Terminal Servers from racks. A Terminal Server can only be removed if it is not in use by a project. Shown in Appendix C figure \ref{fig:rackspace-edit}.
 
 \subsubsection{FR4}
-The solution allows for the addition and removal of Fabric Nodes from racks. A Fabric Node can only be removed if it is not in use by a project. Shown in Appendix C Figure \ref{fig:rackspace-edit}.
+The solution allows for the addition and removal of fabric nodes from racks. A fabric node can only be removed if it is not in use by a project. Shown in Appendix C figure \ref{fig:rackspace-edit}.
 
 \subsubsection{FR5}
-The solution allows for the addition, removal and updating of projects. Shown in Appendix C Figures \ref{fig:project-view} and \ref{fig:project-edit}.
+The solution allows for the addition, removal and updating of projects. Shown in Appendix C figures \ref{fig:project-view} and \ref{fig:project-edit}.
 
 \subsubsection{FR6}
-The solution allows for the expansion or contraction of a project's consumption of rack space. Shown in Appendix C Figure \ref{fig:project-edit}.
+The solution allows for the expansion or contraction of a project's consumption of rack space. Shown in Appendix C figure \ref{fig:project-edit}.
 
 \subsubsection{FR7}
-The solution automates the configuration of the ACI fabric to facilitate communication between the fabric nodes that are members of racks.
+The solution automates the configuration of the ACI fabric to facilitate communication between the fabric nodes that are members of racks. Shown in figures \ref{fig:test-project-1-ping-1} and \ref{fig:test-project-1-ping-2}.
 
 \subsubsection{FR8}
-The solution deploys a virtual router using the vCenter API. The configuration of the virtual router is also provisioned from the solution.
+The solution deploys a virtual router using the vCenter API. The configuration of the virtual router is also provisioned from the solution. Shown in figure \ref{fig:test-project-1-ping-internet}.
 
 \subsubsection{FR9}
 The solution does not deploy a virtual services stack to provide remote access VPN. This is due to the time constraints of the project.
@@ -102,7 +102,7 @@ The solution does not deploy a virtual services stack to provide remote access V
 The solution does not provide continuous monitoring of ACI and vCenter health. This is due to the time constraints of the project and the extra design complexities that would have been incurred.
 
 \subsubsection{FR11}
-The solution automatically provisions terminal servers based on their attached rack. Whilst addition and deletion of terminal servers is possible, due to time constraints, there is no method to update a terminal server. If a terminal server must be updated, then it has to be removed and then re-created. Shown in Appendix C Figure \ref{fig:terminal-server-management}.
+The solution automatically provisions terminal servers based on their attached rack. Whilst addition and deletion of terminal servers is possible, due to time constraints, there is no method to update a terminal server. If a terminal server must be updated, then it has to be removed and then re-created. Shown in Appendix C figure \ref{fig:terminal-server-management}.
 
 \subsubsection{FR12}
 The solution does not include a login system due to time constraints. This would have been a useful feature to have, as it would have allowed for the restriction of access to the solution, however, network access restriction can be used initially in the deployment.
@@ -133,7 +133,7 @@ The solution does not include a login system due to time constraints. This would
 \end{center}
 
 \subsubsection{NFR1}
-The solution provides an easy-to-use interface, and with some basic explanation as to the principle of operation, most users would be able to use it with ease. At-a-glance metrics are available and the overall utilisation of the rackspace is shown. Whilst knowledge of \gls{aci} and vCenter is required to get the solution to a working state, using the system in a day-two scenario will not require this same level of knowledge.
+The solution provides an easy-to-use interface, and with some basic explanation as to the principle of operation, most users would be able to use it with ease. At-a-glance metrics are available and the overall utilisation of the rack space is shown. Whilst knowledge of \gls{aci} and vCenter is required to get the solution to a working state, using the system in a day-two scenario will not require this same level of knowledge. Applications screenshots are shown in Appendix \ref{chap:appendix-c}.
 
 \subsubsection{NFR2}
 The status indicators adjacent to each project show the status of the project throughout the deployment phase of the project, which keeps the user up-to-date with the progress of the automation scripts. The solution does not provide continuous monitoring, so if a problem develops after the deployment phase, then the status displayed will not reflect this.
@@ -147,6 +147,6 @@ Overall, the solution satisfied all of the key functional requirements that were
 The status implementation could also have been improved via the use of WebSockets so that the client doesn't have to constantly poll the server for updates. This would have been a more efficient way of implementing the status system, however, due to time constraints, it was not possible to implement this feature.
 
 \subsection{Project and Time Management}
-Kanban was chosen to manage the project as agile would have been too complicated for a single-person development team. Whilst initially useful, usage of the Kanban board drifted due to the extra time required to log and keep track of issues, when they could just be fixed in real-time during development. If the project were to be repeated, then a more concerted effort to make use of Kanban would be made. This is because it would have helped the project's time efficiency to focus on specific features instead of taking a more random approach.
+Kanban was chosen to manage the project as agile would have been too complicated for a single-person development team. Whilst initially useful, usage of the Kanban board drifted due to the extra time required to log and keep track of issues, when they could just be fixed in real-time during development. If the project were to be repeated, then a more concerted effort to make use of Kanban would be made. This is because it would have helped the project's time efficiency to focus on specific features instead of taking a more sporadic approach.
 
 Overall, time was well managed, with most of the literature review being completed before December. Development then continued at a steady pace, with a lot of progress made in March specifically. This is because a lot of the groundwork put in place in the earlier months was able to be connected when the \gls{aci} \gls{api} calls were implemented. The report writing could have been more consistent throughout development, however, a focus on developing the solution was deemed important as unexpected problems and issues could have been encountered.

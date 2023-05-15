@@ -4,8 +4,7 @@
 \section{The Client}
 \label{intro:client}
 This project will be developed with the intention of it
-being utilised by a client, for the benefit of their operation.
-The client is
+being utilised by a client for the benefit of their operation. The client is
 CX Labs UK within Cisco Systems. CX Labs provides lab space for
 use by business
 units internal to the company. Most of the space is used for
@@ -25,7 +24,7 @@ by CX Labs. CX Labs hold many devices that cover most
 of the Cisco portfolio,
 which allows for the recreation of most networks. Most
 of this lab space is
-hosted within the internal Cisco corporate network, which
+hosted within the internal Cisco corporate network which
 requires any users to
 be employees of Cisco to access testbeds. More and more
 customers
@@ -43,7 +42,7 @@ person.
 The current infrastructure to support the testbeds consists of four Nexus 9K
 core switches, with \gls{fex}s to provide copper connectivity. Currently, the
 N9Ks do not have any form of \gls{vpc} configured, and just use \gls{stp} for
-redundancy. Top-of-rack connectivity is provided by Catalyst switches. Each
+redundancy. \gls{tor} connectivity is provided by Catalyst switches. Each
 project has a dedicated VLAN to isolate communications between different
 projects, and a virtual router and services stack is hosted on a vCenter
 environment to provide internet and \gls{vpn} connectivity to the project. Each
@@ -54,10 +53,10 @@ problem.
 \subsubsection{Current Project Pipeline}
 When a new testbed build is
 requested, the project topology is reviewed, which will indicate how much
-rackspace will be required to accommodate the project. Suitable racks will then
+rack space will be required to accommodate the project. Suitable racks will then
 be chosen to house the project based on cooling, power and space requirements.
 A new VLAN for the project will then be manually created across all of the
-associated networking equipment, including the core N9Ks, and the top-of-rack
+associated networking equipment, including the core N9Ks, and the \gls{tor}
 switches that live in the selected racks. Terminal servers will also have to be
 reconfigured so that they have the correct subnet configured and the correct
 sub-interface configured. The next step is to provision a virtual CSR1000v
@@ -75,7 +74,7 @@ A large initial time investment is required when
 onboarding a new project. This is due to the manual configuration of the
 networking equipment, as well as the manual deployment of the virtual router
 and services stack. This time could be better spent on other tasks, such as
-preparing the physical rackspace for the racking and stacking of new equipment.
+preparing the physical rack space for the racking and stacking of new equipment.
 
 No configuration management system is in place, which results in configuration
 drift over time. When projects are removed, the configuration is sometimes
@@ -86,14 +85,13 @@ accidental removal and modification of configuration related to other projects,
 which impacts customer availability and takes time away from the team that
 could otherwise have been used to tackle other issues.
 
-No centralised
-management is utilised which results in device firmware being hard to update.
+No centralised device
+management is utilised which results in device health and firmware being hard to update and monitor.
 This is because each device has to be manually updated, which is a
-time-consuming process. This also means that the devices are not all running
-the same version of firmware, which can cause issues when troubleshooting. A
-lack of management makes device failure also hard to detect, as there is no
+time-consuming process. This can result in devices running different firmware versions, which makes troubleshooting more challenging. A
+lack of centralised management makes device failure also hard to detect as there is no
 centralised monitoring solution in place, so reports from the testing team or
-customer are often the first indication that a problem has arisen.
+customer are often the first indications that a problem has arisen.
 
 \section{Aims and Objectives}
 \label{intro:aims}
@@ -106,8 +104,8 @@ infrastructure, such as the project router, services stack and terminal
 servers. This will be achieved by providing a web-based dashboard that allows
 the user to provision a new project, which will then automatically configure
 the required infrastructure. The solution will revolve around recreating the
-physical rackspace inside the web interface. The concept behind this is a
-one-to-one mapping between the real-world rackspace and the virtual rackspace.
+physical rack space inside the web interface. The concept behind this is a
+one-to-one mapping between the real-world rack space and the virtual rack space.
 The virtual rack can then have the \gls{tor} and terminal server that resides
 in the real-world rack associated with it. A project can then be allocated
 virtual racks and have the associated infrastructure that is tied to a rack
@@ -119,30 +117,31 @@ The solution will use Cisco \gls{aci} to provide
 network connectivity. This removes the complexities that would otherwise be
 associated with provisioning many network devices via \gls{ssh} or RESTCONF.
 \gls{aci} will also make the network highly scalable, with the ability to add
-additional leafs and \gls{fex}s to support any expansion of the rackspace.
+additional leafs and \gls{fex}s to support any expansion of the rack space.
 VMWare vCenter will be used to host virtual machines associated with project
 infrastructure, such as the project's virtual router and services stack.
 
 This
 report will detail the design and conception of a testbed that will be used to
 test the automation platform against \gls{aci} and vCenter. The testbed design
-can then be used to build a fully-fledged infrastructure to support testing in
-the future.
+can then be used to influence the design of a fully-fledged fabric and compute infrastructure to support testing in the future.
 \subsection{Deliverables}
 \label{intro:aims:deliverables}
 
 \begin{itemize}
-    \item A web-based dashboard that allows the user to manage
-          and provision projects
-    \item User guide for the dashboard
-
-    \item User guide for how to provision ACI, vCenter and other associated
-          network infrastructure so that it will be compatible with the automation
-          solution
-    \item This report, detailing the design and implementation of the
-          solution
+      \item A web-based dashboard that allows the user to manage
+            and provision projects
+            
+      \item User guide for how to provision ACI, vCenter and other associated
+            network infrastructure so that it will be compatible with the automation
+            solution - Appendix \ref{chap:appendix-d}
+            
+      \item User guide for the dashboard - Appendix \ref{chap:appendix-e}
+            
+      \item This report, detailing the design and implementation of the
+            solution
 \end{itemize}
 
 \section{Limitations and Risks}
 \label{intro:constraints}
-As the testbed that will be used to test and develop the solution is in a remote datacenter, physical access to the testbed is limited. This may result in delays if a problem that requires physical remediation occurs. The testbed will be designed to be resilient, through the use of redundant power supplies and links where possible. If a failure does occur, then the project may run over time, and key milestones may have to be adjusted accordingly. With the testbed being hosted remotely, there is also a possiblity that access to the testbed may be revoked, which would result in the project being delayed until access is restored. External factors such as the availability of the testbed's internet uplink and the power supply may also have an impact on the delivery of the project within the required timescale.
+As the testbed that will be used to test and develop the solution is in a remote datacenter, physical access to the testbed is limited. This may result in delays if a problem that requires physical remediation occurs. The testbed will be designed to be resilient through the use of redundant power supplies and links where possible. If a failure does occur, then the project may run over time and key milestones may have to be adjusted accordingly. With the testbed being hosted remotely, there is also a possibility that access to the testbed may be revoked, which would result in the project being delayed until access is restored. External factors such as the availability of the testbed's internet uplink and the power supply may also have an impact on the delivery of the project within the required timescale.
